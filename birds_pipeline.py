@@ -1,345 +1,393 @@
-# pipeline.py
+# birds_pipeline.py
 from __future__ import annotations
-from dataclasses import asdict
-from typing import Dict, List, Optional, Tuple, Iterable
+
 import os
 import json
+from dataclasses import dataclass, asdict
+from typing import Dict, Any, List, Optional, Iterable, Literal
+
 import cv2
 import numpy as np
 
-from preprocessing import PreprocessConfig, preprocess_frame, to_grayscale, apply_subtitle_mask
-from camera_motion import CamMotionConfig, estimate_camera_transform, warp_prev_to_curr, transform_translation_px
-from candidate_generation import candidateGenConfig, for_pair, make_overlay
+from preprocessing import PreprocessConfig, preprocess_frame
+from camera_motion_compensation import CamMotionConfig, estimate_camera_translation
+from candidate_generation import (
+    CandidateGenConfig,
+    MotionCandidateGenerator,
+    generate_motion_candidates,
+    draw_overlay,
+)
+
+IMG_EXTS = (".jpg", ".jpeg", ".png")
+
+EG_VIDEOS = [
+    "Ac4002", "An3004", "An3013",
+    "An6012", "Ci2001", "Ci3001",
+    "Pa1003", "Su2001", "Su2002",
+    "Su2005"
+]
+
+Stage = Literal["pre", "cam", "cand"]
 
 
-EG_VIDEOS = ["Ac4002", "Ac3004", "Ci2001", "Ci3001", "Gr3001", "Gr5009", "Su2001"]# take some examples
-IMG_EXTS = (".jpg", ".png", ".jpeg")# 目前只有jpg格式的图片，可按需添加其他格式
+@dataclass(frozen=True)
+class FrameItem:
+    video: str
+    frame_id: int
+    rel_file: str
+    abs_path: str
+
+
+@dataclass(frozen=True)
+class SaveConfig:
+    """
+    只控制“图片输出”的保存，不影响 results.jsonl（始终写，方便你看每一步 debug）。
+    """
+    save_images: bool = True
+    save_every: int = 1
+    overwrite: bool = False
+
+
+def _ensure_dir(p: str) -> None:
+    os.makedirs(p, exist_ok=True)
 
 
 def _is_image(fn: str) -> bool:
     return fn.lower().endswith(IMG_EXTS)
 
 
-def list_videos(data_root: str, dataset: str, only_videos: Optional[List[str]] = None) -> List[str]:
-    """
-    data_root 下的一级子目录视为 video（每个 video 目录里是帧图像）。
-    dataset:
-      - "eg": 仅 EG_VIDEOS
-      - "all": 所有子目录
-    only_videos: 进一步手动指定子集（优先级最高）
-    """
-    all_dirs = sorted([d for d in os.listdir(data_root) if os.path.isdir(os.path.join(data_root, d))])
-
-    if dataset == "eg":
-        s = set(EG_VIDEOS)
-        videos = [d for d in all_dirs if d in s]
-    elif dataset == "all":
-        videos = all_dirs
-    else:
-        raise ValueError("--dataset must be eg or all")
-
-    if only_videos:
-        ss = set(only_videos)
-        videos = [v for v in videos if v in ss]
-    return videos
+def _json_default(o):
+    if isinstance(o, (np.integer,)):
+        return int(o)
+    if isinstance(o, (np.floating,)):
+        return float(o)
+    if isinstance(o, (np.ndarray,)):
+        return o.tolist()
+    return str(o)
 
 
-def load_frame_order_from_json(ann_json_path: str, data_root: str) -> Dict[str, List[str]]:
+def _infer_frame_id_from_name(rel_file: str) -> int:
+    base = os.path.basename(rel_file)
+    stem, _ = os.path.splitext(base)
+    try:
+        return int(stem)
+    except Exception:
+        return -1
+
+
+def load_videos_from_manifest(manifest_path: str, data_root: str) -> Dict[str, List[FrameItem]]:
     """
-    可选：从 COCO-like json 的 images 字段读取 file_name（形如 VideoName/000001.jpg）
-    并按 frame_id 排序，得到每个视频的帧顺序。
+    读取 COCO-like json：{"images":[{file_name,frame_id,...}, ...]}
+    并按 video(=file_name 第一段) 分组、按 frame_id 排序。
     """
-    with open(ann_json_path, "r", encoding="utf-8") as f:
+    with open(manifest_path, "r", encoding="utf-8") as f:
         data = json.load(f)
+
     images = data.get("images", [])
+    by_video: Dict[str, List[FrameItem]] = {}
 
-    by_video: Dict[str, List[dict]] = {}
     for im in images:
-        file_name = im.get("file_name", "")
-        parts = file_name.replace("\\", "/").split("/")
-        if len(parts) < 2:
+        rel = im.get("file_name", "")
+        if not rel:
             continue
-        video, frame = parts[0], parts[-1]
-        by_video.setdefault(video, []).append({"frame": frame, "frame_id": im.get("frame_id", 0)})
+        video = rel.split("/")[0]
+        frame_id = int(im.get("frame_id", _infer_frame_id_from_name(rel)))
+        abs_path = os.path.join(data_root, rel)
+        by_video.setdefault(video, []).append(
+            FrameItem(video=video, frame_id=frame_id, rel_file=rel, abs_path=abs_path)
+        )
 
-    order: Dict[str, List[str]] = {}
-    for video, items in by_video.items():
-        items.sort(key=lambda d: d["frame_id"])
-        frames = [d["frame"] for d in items]
-        vdir = os.path.join(data_root, video)
-        if os.path.isdir(vdir):
-            order[video] = frames
-    return order
+    for v in list(by_video.keys()):
+        by_video[v].sort(key=lambda x: x.frame_id)
+        if not by_video[v]:
+            by_video.pop(v, None)
+
+    return by_video
 
 
-def select_frames(frames: List[str], strategy: str, num_clips: int, clip_len: int, every_n: int) -> List[str]:
+def load_videos_from_folders(data_root: str) -> Dict[str, List[FrameItem]]:
     """
-    采样策略（用于节省磁盘/内存）：
-      - all: 全部
-      - every: 每 every_n 帧取 1 帧
-      - clips: 均匀抽 num_clips 段，每段 clip_len 帧（这个可能不需要）
+    旧方式：扫描 data_root 下的文件夹作为视频名，每个文件夹内按文件名排序。
     """
-    n = len(frames)
-    if n == 0:
-        return []
-
-    strategy = strategy.lower()
-    if strategy == "all":
-        return frames
-
-    if strategy == "every":
-        every_n = max(1, int(every_n))
-        return [frames[i] for i in range(0, n, every_n)]
-
-    # default: clips
-    clip_len = max(2, int(clip_len))
-    num_clips = max(1, int(num_clips))
-    if n <= clip_len:
-        return frames
-
-    max_start = n - clip_len
-    if num_clips == 1:
-        starts = [max_start // 2]
-    else:
-        starts = [int(round(i * max_start / (num_clips - 1))) for i in range(num_clips)]
-
-    picked: List[str] = []
-    seen = set()
-    for st in starts:
-        for i in range(st, min(st + clip_len, n)):
-            if i not in seen:
-                picked.append(frames[i])
-                seen.add(i)
-    return picked
-
-
-def build_frames_by_video(
-    data_root: str,
-    dataset: str,
-    ann_json: Optional[str],
-    only_videos: Optional[List[str]],
-    sample_strategy: str,
-    num_clips: int,
-    clip_len: int,
-    every_n: int,
-) -> Dict[str, List[str]]:
-    videos = list_videos(data_root, dataset, only_videos)
-
-    order = load_frame_order_from_json(ann_json, data_root) if ann_json else {}
-
-    out: Dict[str, List[str]] = {}
-    for v in videos:
+    by_video: Dict[str, List[FrameItem]] = {}
+    for v in sorted(os.listdir(data_root)):
         vdir = os.path.join(data_root, v)
-        frames = order.get(v)
-        if frames is None:
-            frames = sorted([f for f in os.listdir(vdir) if _is_image(f)])
-        frames = select_frames(frames, sample_strategy, num_clips, clip_len, every_n)
-        out[v] = frames
-    return out
-
-
-def run_preprocessing(data_root: str, out_pre_root: str, pre_cfg: PreprocessConfig,
-                    frames_by_video: Dict[str, List[str]], overwrite: bool) -> None:
-    """Step1：保存预处理后的灰度帧。"""
-    os.makedirs(out_pre_root, exist_ok=True)
-
-    for video, frames in frames_by_video.items():
-        in_dir = os.path.join(data_root, video)
-        out_dir = os.path.join(out_pre_root, video)
-        os.makedirs(out_dir, exist_ok=True)
-
+        if not os.path.isdir(vdir):
+            continue
+        frames = [fn for fn in os.listdir(vdir) if _is_image(fn)]
+        frames.sort()
+        items: List[FrameItem] = []
         for fn in frames:
-            outp = os.path.join(out_dir, fn)
-            if (not overwrite) and os.path.exists(outp):
-                continue
-            bgr = cv2.imread(os.path.join(in_dir, fn))
-            if bgr is None:
-                continue
-            pre = preprocess_frame(bgr, pre_cfg)
-            cv2.imwrite(outp, pre)
-
-
-def run_camera_motion(data_root: str, pre_root: str, aligned_root: str,
-                          pre_cfg: PreprocessConfig, cam_cfg: CamMotionConfig,
-                          frames_by_video: Dict[str, List[str]], overwrite: bool) -> None:
-    """
-    Step2：读取 Step1 结果并保存 prev_aligned（对齐后的上一帧）+ transforms json（用于诊断门控/匹配质量）。
-    """
-    os.makedirs(aligned_root, exist_ok=True)
-
-    for video, frames in frames_by_video.items():
-        raw_dir = os.path.join(data_root, video)
-        pre_dir = os.path.join(pre_root, video)
-        out_dir = os.path.join(aligned_root, video)
-        os.makedirs(out_dir, exist_ok=True)
-
-        if not os.path.isdir(pre_dir):
-            raise FileNotFoundError(f"Missing Step1 output: {pre_dir}")
-
-        transforms: Dict[str, dict] = {}
-        prev_gray_motion = None
-        prev_pre = None
-        prev_name = None
-
-        for i, fn in enumerate(frames):
-            raw = cv2.imread(os.path.join(raw_dir, fn))
-            if raw is None:
-                continue
-
-            # motion 用 raw 灰度（但也应用同样的字幕 mask，减少字幕特征干扰）
-            curr_gray_motion = to_grayscale(raw)
-            curr_gray_motion = apply_subtitle_mask(
-                curr_gray_motion,
-                pre_cfg.subtitle_mask_mode,
-                pre_cfg.subtitle_mask_ratio,
-                pre_cfg.auto_edge_frac_thresh,
-                pre_cfg.auto_canny1,
-                pre_cfg.auto_canny2
+            rel = f"{v}/{fn}"
+            items.append(
+                FrameItem(
+                    video=v,
+                    frame_id=_infer_frame_id_from_name(rel),
+                    rel_file=rel,
+                    abs_path=os.path.join(data_root, rel),
+                )
             )
-
-            curr_pre = cv2.imread(os.path.join(pre_dir, fn), cv2.IMREAD_GRAYSCALE)
-            if curr_pre is None:
-                raise FileNotFoundError(f"Missing preprocessed frame: {os.path.join(pre_dir, fn)}")
-
-            outp = os.path.join(out_dir, fn)
-            if (not overwrite) and os.path.exists(outp):
-                prev_gray_motion = curr_gray_motion
-                prev_pre = curr_pre
-                prev_name = fn
-                continue
-
-            if i == 0 or prev_gray_motion is None or prev_pre is None:
-                cv2.imwrite(outp, curr_pre)
-                transforms[fn] = {"M": np.eye(3, dtype=np.float32).tolist(), "inliers": 0, "trans_px": 0.0, "prev": None}
-            else:
-                M, inliers = estimate_camera_transform(prev_gray_motion, curr_gray_motion, cam_cfg)
-                trans_px = transform_translation_px(M)
-                prevA = warp_prev_to_curr(prev_pre, M, curr_pre.shape[:2], cam_cfg)
-                cv2.imwrite(outp, prevA)
-                transforms[fn] = {"M": M.tolist(), "inliers": int(inliers), "trans_px": float(trans_px), "prev": prev_name}
-
-            prev_gray_motion = curr_gray_motion
-            prev_pre = curr_pre
-            prev_name = fn
-
-        tf_path = os.path.join(out_dir, f"transforms_{video}.json")
-        with open(tf_path, "w", encoding="utf-8") as f:
-            json.dump({
-                "video": video,
-                "pre_cfg": asdict(pre_cfg),
-                "cam_cfg": asdict(cam_cfg),
-                "frames": transforms
-            }, f, ensure_ascii=False, indent=2)
+        if items:
+            items.sort(key=lambda x: x.frame_id)
+            by_video[v] = items
+    return by_video
 
 
-def run_candidate_generation_streaming(
+def _filter_videos(by_video: Dict[str, List[FrameItem]], only_videos: Optional[List[str]]) -> Dict[str, List[FrameItem]]:
+    if not only_videos:
+        return by_video
+    ss = set(only_videos)
+    return {v: by_video[v] for v in by_video.keys() if v in ss}
+
+
+def iter_frames(frames: List[FrameItem], every_n: int) -> Iterable[FrameItem]:
+    if every_n <= 1:
+        yield from frames
+    else:
+        yield from frames[::every_n]
+
+
+def _maybe_save_image(path: str, img: np.ndarray, overwrite: bool) -> None:
+    if (not overwrite) and os.path.exists(path):
+        return
+    cv2.imwrite(path, img)
+
+
+def _warp_by_T(src_u8: np.ndarray, T: Optional[np.ndarray]) -> np.ndarray:
+    if T is None:
+        return src_u8
+    H, W = src_u8.shape[:2]
+    return cv2.warpAffine(src_u8, T, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+
+
+def _target_stage_from_arg(stage_arg: str) -> Stage:
+    # main.py 会保证 stage_arg in {"pre","cam","cand","all"}
+    return "cand" if stage_arg == "all" else stage_arg  # type: ignore
+
+
+def run(
+    *,
     data_root: str,
     out_root: str,
+    stage_arg: str,  # "pre" | "cam" | "cand" | "all"
     pre_cfg: PreprocessConfig,
-    cam_cfg: CamMotionConfig,
-    candidate_gen_cfg: candidateGenConfig,
-    frames_by_video: Dict[str, List[str]],
-    overwrite: bool
+    cam_cfg: Optional[CamMotionConfig],
+    cand_cfg: Optional[CandidateGenConfig],
+    manifest_path: Optional[str] = None,
+    only_videos: Optional[List[str]] = None,
+    every_n: int = 1,
+    save: SaveConfig = SaveConfig(),
+    ablate_no_cam_motion: bool = False,
 ) -> None:
     """
-    Step3（单独执行）= Step1->Step2->Step3 串联，但默认不落盘 Step1/2，
-    只保存 Step3 输出（diff/mask/overlay + candidates json），便于判断需要调哪一步。
+    统一入口：按 target stage 运行：
+      - pre : 只跑 Step1
+      - cam : 跑 Step1 + Step2
+      - cand/all : 跑 Step1 + Step2 + Step3
+
+    保存策略（满足你的要求）：
+      - 只保存“当前 stage 的输出图片”
+        pre  -> 保存 valid_mask/spec_mask
+        cam  -> 保存 prev_aligned（对齐后的 prev_intensity）
+        cand -> 保存 mask + overlay
+      - 中间步骤的图片不保存
+      - results.jsonl（每视频一个）始终写，用于调参/排错
     """
-    os.makedirs(out_root, exist_ok=True)
-    diff_root = os.path.join(out_root, "diff")
-    mask_root = os.path.join(out_root, "mask")
-    overlay_root = os.path.join(out_root, "overlay")
-    cand_root = os.path.join(out_root, "candidates")
+    _ensure_dir(out_root)
+    target_stage: Stage = _target_stage_from_arg(stage_arg)
 
-    if candidate_gen_cfg.save_diff:
-        os.makedirs(diff_root, exist_ok=True)
-    if candidate_gen_cfg.save_mask:
-        os.makedirs(mask_root, exist_ok=True)
-    if candidate_gen_cfg.save_overlay:
-        os.makedirs(overlay_root, exist_ok=True)
-    os.makedirs(cand_root, exist_ok=True)
+    # 依赖关系：cand 依赖 cam，cam 依赖 pre
+    use_pre = True
+    use_cam = target_stage in ("cam", "cand")
+    use_cand = target_stage == "cand"
 
-    for video, frames in frames_by_video.items():
-        raw_dir = os.path.join(data_root, video)
+    if use_cam and cam_cfg is None:
+        raise ValueError("cam stage requested but cam_cfg is None")
+    if use_cand and cand_cfg is None:
+        raise ValueError("cand stage requested but cand_cfg is None")
+
+    # 加载视频索引
+    if manifest_path:
+        by_video = load_videos_from_manifest(manifest_path, data_root)
+        source = {"type": "manifest", "manifest": manifest_path}
+    else:
+        by_video = load_videos_from_folders(data_root)
+        source = {"type": "folders", "data_root": data_root}
+
+    by_video = _filter_videos(by_video, only_videos)
+
+    # meta
+    meta = {
+        "source": source,
+        "stage": stage_arg,
+        "target_stage": target_stage,
+        "every_n": int(every_n),
+        "ablate_no_cam_motion": bool(ablate_no_cam_motion),
+        "pre_cfg": asdict(pre_cfg),
+        "cam_cfg": asdict(cam_cfg) if cam_cfg else None,
+        "cand_cfg": asdict(cand_cfg) if cand_cfg else None,
+        "save": asdict(save),
+    }
+    with open(os.path.join(out_root, "meta.json"), "w", encoding="utf-8") as f:
+        json.dump(meta, f, ensure_ascii=False, indent=2, default=_json_default)
+
+    # per-video
+    for v in sorted(by_video.keys()):
+        frames = by_video[v]
         if not frames:
             continue
 
-        if candidate_gen_cfg.save_diff:
-            os.makedirs(os.path.join(diff_root, video), exist_ok=True)
-        if candidate_gen_cfg.save_mask:
-            os.makedirs(os.path.join(mask_root, video), exist_ok=True)
-        if candidate_gen_cfg.save_overlay:
-            os.makedirs(os.path.join(overlay_root, video), exist_ok=True)
+        vout = os.path.join(out_root, v)
+        _ensure_dir(vout)
 
-        records = {
-            "video": video,
-            "pre_cfg": asdict(pre_cfg),
-            "cam_cfg": asdict(cam_cfg),
-            "candidate_gen_cfg": asdict(candidate_gen_cfg),
-            "frames": {}
-        }
+        # results.jsonl
+        results_path = os.path.join(vout, "results.jsonl")
+        rf = open(results_path, "w", encoding="utf-8")
 
-        prev_gray_motion = None
-        prev_pre = None
+        # stage-specific output dirs (only create when needed)
+        pre_valid_dir = pre_spec_dir = None
+        cam_align_dir = None
+        cand_mask_dir = cand_overlay_dir = None
+
+        if save.save_images:
+            if target_stage == "pre":
+                pre_valid_dir = os.path.join(vout, "pre", "valid_mask")
+                pre_spec_dir = os.path.join(vout, "pre", "spec_mask")
+                _ensure_dir(pre_valid_dir)
+                _ensure_dir(pre_spec_dir)
+
+            elif target_stage == "cam":
+                cam_align_dir = os.path.join(vout, "cam", "prev_aligned")
+                _ensure_dir(cam_align_dir)
+
+            elif target_stage == "cand":
+                cand_mask_dir = os.path.join(vout, "cand", "mask")
+                cand_overlay_dir = os.path.join(vout, "cand", "overlay")
+                _ensure_dir(cand_mask_dir)
+                _ensure_dir(cand_overlay_dir)
+
+        # per-video state
+        gen = MotionCandidateGenerator(cand_cfg) if use_cand else None
+
+        prev_pre = None  # previous PreprocessResult
         prev_name = None
 
-        for i, fn in enumerate(frames):
-            bgr = cv2.imread(os.path.join(raw_dir, fn))
+        for idx, item in enumerate(iter_frames(frames, every_n)):
+            bgr = cv2.imread(item.abs_path, cv2.IMREAD_COLOR)
             if bgr is None:
                 continue
 
-            curr_gray_motion = to_grayscale(bgr)
-            curr_gray_motion = apply_subtitle_mask(
-                curr_gray_motion,
-                pre_cfg.subtitle_mask_mode,
-                pre_cfg.subtitle_mask_ratio,
-                pre_cfg.auto_edge_frac_thresh,
-                pre_cfg.auto_canny1,
-                pre_cfg.auto_canny2
-            )
-            curr_pre = preprocess_frame(bgr, pre_cfg)
+            fn = os.path.basename(item.rel_file)
 
-            if i == 0 or prev_gray_motion is None or prev_pre is None:
-                M = np.eye(3, dtype=np.float32)
-                inliers = 0
-                trans_px = 0.0
-                prevA = curr_pre
-            else:
-                M, inliers = estimate_camera_transform(prev_gray_motion, curr_gray_motion, cam_cfg)
-                trans_px = transform_translation_px(M)
-                prevA = warp_prev_to_curr(prev_pre, M, curr_pre.shape[:2], cam_cfg)
+            # ---------- Step1 ----------
+            pre = preprocess_frame(bgr, pre_cfg)  # always run
+            # convenience
+            curr_intensity = pre.intensity
+            curr_log = pre.log
+            curr_valid = pre.valid_mask
+            curr_spec = pre.spec_mask
 
-            diff, mask2, bboxes, T = for_pair(curr_pre, prevA, candidate_gen_cfg)
-
-            records["frames"][fn] = {
-                "threshold": int(T),
-                "num_candidates": int(len(bboxes)),
-                "bboxes": bboxes,
-                "cam_inliers": int(inliers),
-                "cam_trans_px": float(trans_px),
-                "prev_frame": prev_name
+            # record base
+            record: Dict[str, Any] = {
+                "video": v,
+                "frame": fn,
+                "rel_file": item.rel_file,
+                "frame_id": int(item.frame_id),
+                "prev": prev_name,
+                "step1": pre.debug,  # 小而关键：subtitle/spec 比例、log 配置等
+                "step2": None,
+                "step3": None,
+                "boxes": [],
             }
 
-            if candidate_gen_cfg.save_diff:
-                outp = os.path.join(diff_root, video, fn)
-                if overwrite or (not os.path.exists(outp)):
-                    cv2.imwrite(outp, diff)
+            # stage=pre: save ONLY step1 masks
+            if target_stage == "pre" and save.save_images and (idx % max(1, save.save_every) == 0):
+                _maybe_save_image(os.path.join(pre_valid_dir, fn), curr_valid, save.overwrite)  # type: ignore
+                _maybe_save_image(os.path.join(pre_spec_dir, fn), curr_spec, save.overwrite)    # type: ignore
 
-            if candidate_gen_cfg.save_mask:
-                outp = os.path.join(mask_root, video, fn)
-                if overwrite or (not os.path.exists(outp)):
-                    cv2.imwrite(outp, mask2)
+            # first frame handling
+            if prev_pre is None:
+                record["step2"] = {"method": "first_frame", "camera_moving": False}
+                record["step3"] = {"reason": "first_frame"}
+                rf.write(json.dumps(record, ensure_ascii=False, default=_json_default) + "\n")
+                prev_pre, prev_name = pre, fn
+                continue
 
-            if candidate_gen_cfg.save_overlay:
-                outp = os.path.join(overlay_root, video, fn)
-                if overwrite or (not os.path.exists(outp)):
-                    vis = make_overlay(curr_pre, bboxes, max_draw=candidate_gen_cfg.max_candidates_draw)
-                    cv2.imwrite(outp, vis)
+            # combined valid for t-1 and t (safer than using only current valid)
+            valid = cv2.bitwise_and(prev_pre.valid_mask, curr_valid)
 
-            prev_gray_motion = curr_gray_motion
-            prev_pre = curr_pre
-            prev_name = fn
+            # ---------- Step2 ----------
+            # 只要 target_stage >= cam 就需要估计运动（cand 也依赖）
+            prev_aligned_intensity = prev_pre.intensity
+            prev_aligned_log = prev_pre.log
+            T = None
+            camera_moving = False
 
-        out_json = os.path.join(cand_root, f"{video}_candidates.json")
-        with open(out_json, "w", encoding="utf-8") as f:
-            json.dump(records, f, ensure_ascii=False, indent=2)
+            if use_cam:
+                if ablate_no_cam_motion:
+                    record["step2"] = {"method": "identity(ablate)", "camera_moving": False}
+                else:
+                    # 用 LoG 估计平移，warp_src = prev_intensity 输出 prev_aligned_intensity
+                    res = estimate_camera_translation(
+                        prev_feat=prev_pre.log,
+                        curr_feat=curr_log,
+                        valid_mask=valid,
+                        prev_spec_mask=prev_pre.spec_mask,
+                        curr_spec_mask=curr_spec,
+                        cfg=cam_cfg,  # type: ignore
+                        warp_src=prev_pre.intensity,
+                    )
+
+                    T = res.T
+                    camera_moving = bool(res.camera_moving)
+                    prev_aligned_intensity = res.prev_aligned
+                    prev_aligned_log = _warp_by_T(prev_pre.log, T)
+
+                    # 保存 step2 debug（精简 + full）
+                    record["step2"] = {
+                        "method": res.debug.get("method", "unknown"),
+                        "dx": res.debug.get("final_dx", 0.0),
+                        "dy": res.debug.get("final_dy", 0.0),
+                        "shift_norm": res.debug.get("shift_norm", 0.0),
+                        "camera_moving": bool(camera_moving),
+                        "debug_full": res.debug,
+                    }
+
+                # stage=cam: save ONLY step2 output image
+                if target_stage == "cam" and save.save_images and (idx % max(1, save.save_every) == 0):
+                    _maybe_save_image(os.path.join(cam_align_dir, fn), prev_aligned_intensity, save.overwrite)  # type: ignore
+
+            else:
+                record["step2"] = {"reason": "skipped"}
+
+            # ---------- Step3 ----------
+            if use_cand and gen is not None:
+                step3 = generate_motion_candidates(
+                    curr_intensity=curr_intensity,
+                    prev_intensity_aligned=prev_aligned_intensity,
+                    valid_mask=valid,
+                    spec_mask=curr_spec,
+                    gen=gen,
+                    camera_moving=camera_moving,
+                    curr_log=curr_log,
+                    prev_log_aligned=prev_aligned_log,
+                )
+                record["boxes"] = step3.boxes
+                record["step3"] = step3.debug
+
+                # stage=cand: save ONLY step3 outputs
+                if target_stage == "cand" and save.save_images and (idx % max(1, save.save_every) == 0):
+                    _maybe_save_image(os.path.join(cand_mask_dir, fn), step3.mask, save.overwrite)  # type: ignore
+
+                    vis = draw_overlay(curr_intensity, step3.boxes)
+                    if isinstance(vis, tuple):
+                        vis = vis[0]
+                    _maybe_save_image(os.path.join(cand_overlay_dir, fn), vis, save.overwrite)  # type: ignore
+            else:
+                record["step3"] = {"reason": "skipped"}
+
+            rf.write(json.dumps(record, ensure_ascii=False, default=_json_default) + "\n")
+
+            prev_pre, prev_name = pre, fn
+
+        rf.close()

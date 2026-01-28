@@ -1,0 +1,108 @@
+{
+  "video": "Ci3001",
+  "num_frames": 159,
+  "first": {
+    "tag": "first",
+    "file": "000001.jpg",
+    "abs_path": "C:\\Users\\18052\\OneDrive\\桌面\\Birds\\Bird-s-Trace-Tracking\\val\\Ci3001\\000001.jpg",
+    "stats": {
+      "H": 1080,
+      "W": 1920,
+      "valid_ratio": 1.0,
+      "spec_ratio": 0.04137876157407407,
+      "log_edge_density": 0.33714747299382714
+    },
+    "debug": {
+      "valid": {
+        "mode": "auto_bottom",
+        "ratio": 0.14,
+        "edge_frac": 0.08679635761559466,
+        "bbox": null,
+        "picked_score": 0.0,
+        "subtitle_masked": false
+      },
+      "spec": {
+        "spec_ratio": 0.04137876157407407,
+        "v_min": 244,
+        "delta_th": 74,
+        "rule_main_ratio": 3.18287037037037e-05,
+        "rule_aux_ratio": 0.04059992283950617,
+        "rule_flat_ratio": 0.007817322530864198,
+        "blur_sigma": 3.0
+      },
+      "smooth": {
+        "mode": "bilateral",
+        "bilateral": {
+          "d": 7,
+          "sigmaColor": 35.0,
+          "sigmaSpace": 15.0
+        }
+      },
+      "log": {
+        "sigma": 1.2,
+        "ksize": 3,
+        "percentile_stride": 4
+      }
+    },
+    "ok": true
+  },
+  "last": {
+    "tag": "last",
+    "file": "000159.jpg",
+    "abs_path": "C:\\Users\\18052\\OneDrive\\桌面\\Birds\\Bird-s-Trace-Tracking\\val\\Ci3001\\000159.jpg",
+    "stats": {
+      "H": 1080,
+      "W": 1920,
+      "valid_ratio": 1.0,
+      "spec_ratio": 0.019484953703703702,
+      "log_edge_density": 0.294897762345679
+    },
+    "debug": {
+      "valid": {
+        "mode": "auto_bottom",
+        "ratio": 0.14,
+        "edge_frac": 0.035754690949104044,
+        "bbox": null,
+        "picked_score": 0.0,
+        "subtitle_masked": false
+      },
+      "spec": {
+        "spec_ratio": 0.019484953703703702,
+        "v_min": 244,
+        "delta_th": 74,
+        "rule_main_ratio": 2.0736882716049384e-05,
+        "rule_aux_ratio": 0.01900221836419753,
+        "rule_flat_ratio": 0.0005492862654320988,
+        "blur_sigma": 3.0
+      },
+      "smooth": {
+        "mode": "bilateral",
+        "bilateral": {
+          "d": 7,
+          "sigmaColor": 35.0,
+          "sigmaSpace": 15.0
+        }
+      },
+      "log": {
+        "sigma": 1.2,
+        "ksize": 3,
+        "percentile_stride": 4
+      }
+    },
+    "ok": true
+  },
+  "auto": {
+    "sample_n": 10,
+    "stats_max_width": 640,
+    "samples_ok": 10,
+    "spec": {
+      "v_p99_median": 244.0,
+      "delta_p995_median": 74.5,
+      "v_min": 244,
+      "delta_th": 74
+    },
+    "edge_density_median": 0.46203125,
+    "subtitle_detect_ratio": 0.0,
+    "subtitle_roi": null
+  }
+}

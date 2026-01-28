@@ -1,82 +1,99 @@
 # preprocessing.py
-# 输出两个特征（LoG 和 intensity）输出两个 mask（valid_mask 和 spec_mask）
+# Step1: 输出两个特征（LoG 和 intensity）+ 两个 mask（valid_mask / spec_mask）
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Tuple, Optional, Dict, Any
+from typing import Any, Dict, Optional, Tuple, Literal
+
 import cv2
 import numpy as np
 
-BlurMode = Literal["none", "gaussian", "gaussian_median"] #这个也许可以删掉
 SubtitleMaskMode = Literal["none", "auto_bottom"]
-# FeatureMode = Literal["intensity", "LoG"]两个都要用到，不过在不同的地方使用
+SmoothMode = Literal["none", "bilateral"]
 
 
 @dataclass(frozen=True)
 class PreprocessConfig:
-    # blur (for intensity output; LoG has its own Gaussian)
-    blur_mode: BlurMode = "none"
-    kernel_size: Tuple[int, int] = (5, 5)
-    sigma: float = 1.0
-    median_ksize: int = 5
-
-    # optional local contrast (default off: can amplify noise)
-    use_clahe: bool = False
-    clahe_clip: float = 2.0
-    clahe_grid: Tuple[int, int] = (8, 8)
-
-    # log-domain compression (photometric robustness)
-    # intensity_out = log1p(alpha * I) mapping to 0..255
-    use_log_compress: bool = True
-    log_compress_alpha: float = 6.0
-
-    # LoG feature (float/32F inside -> abs -> robust normalize to uint8)
-    log_sigma: float = 1.2
-    log_laplacian_ksize: int = 3   # odd
-    log_norm_percentile: float = 99.5  # robust scaling; avoid min-max blowing up noise
-
-    # subtitle masking
+    # ---------- subtitle / invalid region mask ----------
+    # 默认只做 auto（不强制整条底边），并尽量把字幕 mask 限定在“底部居中”的真实字幕区域。
     subtitle_mask_mode: SubtitleMaskMode = "auto_bottom"
-    subtitle_mask_ratio: float = 0.12
+    subtitle_mask_ratio: float = 0.14  # 底部候选条带高度（比例）
+    auto_canny1: int = 60
+    auto_canny2: int = 180
 
-    # auto detection via canny-edge fraction in bottom band
-    auto_edge_frac_thresh: float = 0.004
-    auto_canny1: int = 50
-    auto_canny2: int = 150
+    # 先粗判是否可能有字幕：底部条带边缘占比（避免“无字幕帧”误屏蔽）
+    auto_edge_frac_thresh: float = 0.0035
 
-    # specular mask (255 normal, 0 specular-like)
-    # "sparkle" detection: high V + low S + local bright (top-hat)
-    spec_v_high: int = 230
-    spec_s_low: int = 70
-    spec_use_tophat: bool = True
-    spec_tophat_ksize: int = 9         # odd, bigger -> broader glints
-    spec_tophat_thresh: int = 18       # 0..255, lower -> more aggressive
+    # 字幕区域几何约束（避免 mask 过宽）
+    subtitle_center_tol_frac: float = 0.38
+    subtitle_min_w_frac: float = 0.14
+    subtitle_max_w_frac: float = 0.90
+    subtitle_min_h_frac: float = 0.015
+    subtitle_max_h_frac: float = 0.18
+    subtitle_min_edge_density_in_box: float = 0.020
 
-    # "blown-out smooth patch" supplement: very high V + low grad + low S
-    spec_v_very_high: int = 250
-    spec_s_very_low: int = 90
-    spec_grad_low: int = 10            # on |sobelx|+|sobely| (0..510 approx)
+    # 形态学连接（把文字零碎边缘连成一块）
+    subtitle_close_w_frac: float = 0.06
+    subtitle_close_h_frac: float = 0.010
+    subtitle_dilate_iter: int = 1
 
-    # morphology on spec mask candidate
-    spec_dilate_ksize: int = 3         # expand highlight regions slightly
+    # bbox padding（让 mask 稍微盖住字幕描边）
+    subtitle_pad_x_frac: float = 0.06
+    subtitle_pad_y_frac: float = 0.25
+
+    # 可选：由 pipeline 在“视频级”提前估计出的固定字幕 bbox（x0,y0,x1,y1）
+    subtitle_roi: Optional[Tuple[int, int, int, int]] = None
+
+    # ---------- background suppression ----------
+    smooth_mode: SmoothMode = "bilateral"
+    bilateral_d: int = 7
+    bilateral_sigma_color: float = 35.0
+    bilateral_sigma_space: float = 15.0
+
+    # ---------- LoG feature ----------
+    log_blur_sigma: float = 1.2
+    log_ksize: int = 3
+    log_norm_clip: Tuple[int, int] = (0, 255)
+    log_percentile_stride: int = 4  # 计算 p1/p99 时下采样步长（加速）
+
+    # ---------- specular (highlight) mask ----------
+    # 主力规则：delta = V - GaussianBlur(V)
+    spec_blur_sigma: float = 3.0
+    spec_v_min: int = 220
+    spec_delta_th: int = 18
+
+    # 辅助规则：V 高且 S 低
+    spec_v_high: int = 235
+    spec_s_low: int = 55
+
+    # 兜底：极亮且局部梯度低（平坦亮块）
+    spec_v_very_high: int = 245
+    spec_grad_low: float = 8.0
+    spec_grad_ksize: int = 3
+
+    # spec mask 后处理：去掉单像素噪声
+    spec_open_ksize: int = 3
 
 
 @dataclass
 class PreprocessResult:
-    intensity: np.ndarray       # uint8 HxW (after blur + optional CLAHE + optional log compression)
-    log: np.ndarray             # uint8 HxW (LoG abs + robust normalize)
-    valid_mask: np.ndarray      # uint8 HxW, 255=valid, 0=invalid
-    spec_mask: np.ndarray       # uint8 HxW, 255=normal, 0=specular-like
+    intensity: np.ndarray     # uint8 HxW
+    log: np.ndarray           # uint8 HxW
+    valid_mask: np.ndarray    # uint8 HxW (255 valid / 0 invalid)
+    spec_mask: np.ndarray     # uint8 HxW (255 normal / 0 spec-like)
+    smooth_bgr: np.ndarray    # uint8 HxWx3
     debug: Dict[str, Any]
 
-    @property
-    def gray(self) -> np.ndarray:
-        """Backward-friendly alias if your old code expects result.gray."""
-        return self.intensity
+
+def ensure_bgr_u8(img: np.ndarray) -> np.ndarray:
+    if img.ndim == 2:
+        img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+    if img.dtype != np.uint8:
+        img = np.clip(img, 0, 255).astype(np.uint8)
+    return img
 
 
 def ensure_gray_u8(img: np.ndarray) -> np.ndarray:
-    """BGR/Gray -> Gray uint8."""
     if img.ndim == 3:
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     if img.dtype != np.uint8:
@@ -84,225 +101,260 @@ def ensure_gray_u8(img: np.ndarray) -> np.ndarray:
     return img
 
 
-def _bottom_band_y(gray_h: int, ratio: float) -> Optional[Tuple[int, int]]:
+def _bottom_band_y(h: int, ratio: float) -> Optional[Tuple[int, int]]:
     ratio = float(np.clip(ratio, 0.0, 0.5))
-    band_h = int(round(gray_h * ratio))
+    band_h = int(round(h * ratio))
     if band_h <= 0:
         return None
-    return gray_h - band_h, gray_h
+    return h - band_h, h
 
 
-def compute_valid_mask(gray_u8: np.ndarray, cfg: PreprocessConfig) -> Tuple[np.ndarray, Dict[str, Any]]:
-    """Return valid_mask (255 valid / 0 invalid) and debug."""
+def detect_subtitle_bbox(gray_u8: np.ndarray, cfg: PreprocessConfig) -> Tuple[Optional[Tuple[int, int, int, int]], Dict[str, Any]]:
+    """
+    在底部条带内自动检测字幕 bbox（尽量只遮字幕而不是整条底边）。
+    返回 bbox(x0,y0,x1,y1)（全图坐标）或 None。
+    """
     h, w = gray_u8.shape[:2]
-    mask = np.full((h, w), 255, dtype=np.uint8)
     dbg: Dict[str, Any] = {
-        "subtitle_mask_mode": cfg.subtitle_mask_mode,
-        "subtitle_mask_ratio": cfg.subtitle_mask_ratio,
-        "subtitle_detected": False,
-        "subtitle_edge_frac": 0.0,
+        "mode": cfg.subtitle_mask_mode,
+        "ratio": float(cfg.subtitle_mask_ratio),
+        "edge_frac": 0.0,
+        "bbox": None,
+        "picked_score": 0.0,
     }
 
     if cfg.subtitle_mask_mode == "none":
-        return mask, dbg
+        return None, dbg
 
     band = _bottom_band_y(h, cfg.subtitle_mask_ratio)
     if band is None:
-        return mask, dbg
+        return None, dbg
     y0, y1 = band
 
-    if cfg.subtitle_mask_mode == "auto_bottom":
-        band_img = gray_u8[y0:y1, :]
-        edges = cv2.Canny(band_img, cfg.auto_canny1, cfg.auto_canny2)
-        frac = float(np.count_nonzero(edges)) / float(edges.size + 1e-6)
-        dbg["subtitle_edge_frac"] = frac
-        if frac < cfg.auto_edge_frac_thresh:
-            return mask, dbg
-        dbg["subtitle_detected"] = True
+    band_img = gray_u8[y0:y1, :]
+    edges = cv2.Canny(band_img, int(cfg.auto_canny1), int(cfg.auto_canny2))
+    edge_frac = float(np.count_nonzero(edges)) / float(edges.size + 1e-6)
+    dbg["edge_frac"] = edge_frac
+    if edge_frac < float(cfg.auto_edge_frac_thresh):
+        return None, dbg
 
-    mask[y0:y1, :] = 0
+    # 连接文字边缘：close -> dilate
+    close_w = max(9, int(round(w * float(cfg.subtitle_close_w_frac))))
+    close_h = max(3, int(round(h * float(cfg.subtitle_close_h_frac))))
+    kernel_close = cv2.getStructuringElement(cv2.MORPH_RECT, (close_w, close_h))
+    blobs = cv2.morphologyEx(edges, cv2.MORPH_CLOSE, kernel_close, iterations=1)
+
+    if int(cfg.subtitle_dilate_iter) > 0:
+        kernel_d = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        blobs = cv2.dilate(blobs, kernel_d, iterations=int(cfg.subtitle_dilate_iter))
+
+    contours, _ = cv2.findContours(blobs, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+    min_w = float(cfg.subtitle_min_w_frac) * w
+    max_w = float(cfg.subtitle_max_w_frac) * w
+    min_h = float(cfg.subtitle_min_h_frac) * h
+    max_h = float(cfg.subtitle_max_h_frac) * h
+    center_tol = float(cfg.subtitle_center_tol_frac) * w
+
+    candidates = []
+    for cnt in contours:
+        x, y, bw, bh = cv2.boundingRect(cnt)
+        if bw <= 0 or bh <= 0:
+            continue
+        if not (min_w <= bw <= max_w):
+            continue
+        if not (min_h <= bh <= max_h):
+            continue
+
+        cx = x + 0.5 * bw
+        if abs(cx - 0.5 * w) > center_tol:
+            continue
+
+        roi_edges = edges[y:y + bh, x:x + bw]
+        dens = float(np.count_nonzero(roi_edges)) / float(roi_edges.size + 1e-6)
+        if dens < float(cfg.subtitle_min_edge_density_in_box):
+            continue
+
+        score = float(np.count_nonzero(roi_edges))
+        candidates.append((score, x, y, bw, bh, dens))
+
+    if not candidates:
+        return None, dbg
+
+    candidates.sort(key=lambda t: t[0], reverse=True)
+    score, x, y, bw, bh, dens = candidates[0]
+    dbg["picked_score"] = float(score)
+
+    pad_x = int(round(float(cfg.subtitle_pad_x_frac) * bw))
+    pad_y = int(round(float(cfg.subtitle_pad_y_frac) * bh))
+    x0b = max(0, x - pad_x)
+    y0b = max(0, y - pad_y)
+    x1b = min(w, x + bw + pad_x)
+    y1b = min(y1 - y0, y + bh + pad_y)
+
+    bbox = (int(x0b), int(y0 + y0b), int(x1b), int(y0 + y1b))
+    dbg["bbox"] = bbox
+    dbg["edge_density_in_box"] = float(dens)
+    return bbox, dbg
+
+
+def compute_valid_mask(gray_u8: np.ndarray, cfg: PreprocessConfig) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """
+    255 = valid, 0 = invalid (subtitle/border). Does not modify image itself.
+    """
+    h, w = gray_u8.shape[:2]
+    mask = np.full((h, w), 255, dtype=np.uint8)
+
+    if cfg.subtitle_mask_mode == "none":
+        return mask, {"subtitle_masked": False, "reason": "mode_none"}
+
+    # 视频级固化 ROI（仅当 pipeline 判定字幕常驻时设置）
+    if cfg.subtitle_roi is not None:
+        x0, y0, x1, y1 = cfg.subtitle_roi
+        x0 = int(np.clip(x0, 0, w))
+        x1 = int(np.clip(x1, 0, w))
+        y0 = int(np.clip(y0, 0, h))
+        y1 = int(np.clip(y1, 0, h))
+        if x1 > x0 and y1 > y0:
+            mask[y0:y1, x0:x1] = 0
+            return mask, {"subtitle_masked": True, "reason": "video_level_roi", "bbox": (x0, y0, x1, y1)}
+        return mask, {"subtitle_masked": False, "reason": "video_level_roi_invalid", "bbox": (x0, y0, x1, y1)}
+
+    bbox, dbg = detect_subtitle_bbox(gray_u8, cfg)
+    if bbox is None:
+        dbg["subtitle_masked"] = False
+        return mask, dbg
+
+    x0, y0, x1, y1 = bbox
+    mask[y0:y1, x0:x1] = 0
+    dbg["subtitle_masked"] = True
     return mask, dbg
 
 
-def _apply_blur(gray: np.ndarray, cfg: PreprocessConfig) -> np.ndarray:
-    if cfg.blur_mode == "none":
-        return gray
-    if cfg.blur_mode == "gaussian":
-        return cv2.GaussianBlur(gray, cfg.kernel_size, cfg.sigma)
-    if cfg.blur_mode == "gaussian_median":
-        g = cv2.GaussianBlur(gray, cfg.kernel_size, cfg.sigma)
-        return cv2.medianBlur(g, cfg.median_ksize)
-    raise ValueError(f"Unknown blur_mode: {cfg.blur_mode}")
+def smooth_background(bgr_u8: np.ndarray, cfg: PreprocessConfig) -> np.ndarray:
+    if cfg.smooth_mode == "none":
+        return bgr_u8
+    if cfg.smooth_mode == "bilateral":
+        d = int(max(1, cfg.bilateral_d))
+        return cv2.bilateralFilter(
+            bgr_u8,
+            d=d,
+            sigmaColor=float(cfg.bilateral_sigma_color),
+            sigmaSpace=float(cfg.bilateral_sigma_space),
+        )
+    raise ValueError(f"Unknown smooth_mode: {cfg.smooth_mode}")
 
 
-def _apply_clahe(gray_u8: np.ndarray, cfg: PreprocessConfig) -> np.ndarray:
-    if not cfg.use_clahe:
-        return gray_u8
-    clahe = cv2.createCLAHE(clipLimit=float(cfg.clahe_clip), tileGridSize=cfg.clahe_grid)
-    return clahe.apply(gray_u8)
+def compute_log_feature(gray_u8: np.ndarray, cfg: PreprocessConfig) -> np.ndarray:
+    sigma = float(max(0.0, cfg.log_blur_sigma))
+    blur = cv2.GaussianBlur(gray_u8, (0, 0), sigmaX=sigma, sigmaY=sigma) if sigma > 0 else gray_u8
 
-
-def _log_compress(gray_u8: np.ndarray, alpha: float) -> np.ndarray:
-    """log1p(alpha*I) mapped to 0..255; compress highlights, keep dark detail."""
-    a = float(max(1e-6, alpha))
-    x = gray_u8.astype(np.float32) / 255.0
-    y = np.log1p(a * x) / np.log1p(a)
-    out = np.clip(y * 255.0 + 0.5, 0, 255).astype(np.uint8)
-    return out
-
-
-def _robust_normalize_u8(x: np.ndarray, percentile: float, mask_u8: Optional[np.ndarray] = None) -> np.ndarray:
-    """Scale by p-th percentile (robust), avoid per-frame min-max amplifying noise."""
-    x = x.astype(np.float32)
-    if mask_u8 is not None and mask_u8.shape == x.shape and np.any(mask_u8 > 0):
-        vals = x[mask_u8 > 0]
-    else:
-        vals = x.reshape(-1)
-
-    if vals.size == 0:
-        return np.zeros_like(x, dtype=np.uint8)
-
-    p = float(np.percentile(vals, float(np.clip(percentile, 80.0, 99.99))))
-    p = max(p, 1e-6)
-    y = np.clip(x * (255.0 / p), 0.0, 255.0)
-    return y.astype(np.uint8)
-
-
-def compute_log_feature(intensity_u8: np.ndarray, cfg: PreprocessConfig, mask_u8: Optional[np.ndarray] = None) -> np.ndarray:
-    """LoG: Gaussian -> Laplacian(CV_32F) -> abs -> robust normalize to uint8."""
-    sigma = float(max(0.1, cfg.log_sigma))
-    k = int(cfg.log_laplacian_ksize)
+    k = int(cfg.log_ksize)
+    if k <= 0:
+        k = 3
     if k % 2 == 0:
         k += 1
 
-    blur = cv2.GaussianBlur(intensity_u8, (0, 0), sigmaX=sigma, sigmaY=sigma)
-    lap = cv2.Laplacian(blur, cv2.CV_32F, ksize=max(1, k))
-    log_abs = np.abs(lap)
-    log_u8 = _robust_normalize_u8(log_abs, cfg.log_norm_percentile, mask_u8=mask_u8)
-    return log_u8
+    lap = cv2.Laplacian(blur, cv2.CV_32F, ksize=k)
+    lap = np.abs(lap)
+
+    stride = int(max(1, cfg.log_percentile_stride))
+    sample = lap[::stride, ::stride] if stride > 1 else lap
+    p1 = float(np.percentile(sample, 1.0))
+    p99 = float(np.percentile(sample, 99.0))
+    denom = max(1e-6, (p99 - p1))
+    norm = (lap - p1) / denom
+    norm = np.clip(norm, 0.0, 1.0)
+    return (norm * 255.0).astype(np.uint8)
 
 
-def compute_spec_mask(bgr: np.ndarray, cfg: PreprocessConfig) -> Tuple[np.ndarray, Dict[str, Any]]:
+def _grad_mag_u8(gray_u8: np.ndarray, ksize: int) -> np.ndarray:
+    k = int(max(1, ksize))
+    if k % 2 == 0:
+        k += 1
+    sx = cv2.Sobel(gray_u8, cv2.CV_16S, 1, 0, ksize=k)
+    sy = cv2.Sobel(gray_u8, cv2.CV_16S, 0, 1, ksize=k)
+    return (cv2.convertScaleAbs(sx) // 2 + cv2.convertScaleAbs(sy) // 2).astype(np.uint8)
+
+
+def compute_spec_mask(bgr_u8: np.ndarray, cfg: PreprocessConfig) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
-    spec_mask: 255 normal, 0 specular-like
-    Strategy:
-      A) sparkle: V high + S low + top-hat(V) high (local bright points/lines)
-      B) blown-out smooth: V very high + low gradient + low-ish S
+    255 = normal, 0 = specular-like.
+    主力：V & (V - blur(V))。辅助：V 高 & S 低；兜底：极亮且梯度低。
     """
-    hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)
-    h, s, v = cv2.split(hsv)
+    hsv = cv2.cvtColor(bgr_u8, cv2.COLOR_BGR2HSV)
+    _, S, V = cv2.split(hsv)
 
-    # A) local bright (top-hat)
-    if cfg.spec_use_tophat:
-        k = int(cfg.spec_tophat_ksize)
+    sigma = float(max(0.0, cfg.spec_blur_sigma))
+    V_blur = cv2.GaussianBlur(V, (0, 0), sigmaX=sigma, sigmaY=sigma) if sigma > 0 else V
+    delta = cv2.subtract(V, V_blur)  # uint8, saturate
+
+    v_min = int(cfg.spec_v_min)
+    d_th = int(cfg.spec_delta_th)
+    rule_main = (V >= v_min) & (delta >= d_th)
+    rule_aux = (V >= int(cfg.spec_v_high)) & (S <= int(cfg.spec_s_low))
+
+    mag = _grad_mag_u8(V, int(cfg.spec_grad_ksize))
+    rule_flat = (V >= int(cfg.spec_v_very_high)) & (mag <= float(cfg.spec_grad_low))
+
+    spec_like = rule_main | rule_aux | rule_flat
+    spec_u8 = np.where(spec_like, 0, 255).astype(np.uint8)
+
+    k = int(cfg.spec_open_ksize)
+    if k > 1:
         if k % 2 == 0:
             k += 1
-        ker = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))
-        tophat = cv2.morphologyEx(v, cv2.MORPH_TOPHAT, ker)
-    else:
-        tophat = np.zeros_like(v)
-
-    sparkle = (v >= cfg.spec_v_high) & (s <= cfg.spec_s_low) & (tophat >= cfg.spec_tophat_thresh)
-
-    # B) saturated smooth patch supplement
-    sx = cv2.Sobel(v, cv2.CV_16S, 1, 0, ksize=3)
-    sy = cv2.Sobel(v, cv2.CV_16S, 0, 1, ksize=3)
-    ax = cv2.convertScaleAbs(sx)
-    ay = cv2.convertScaleAbs(sy)
-    grad = (ax.astype(np.int16) + ay.astype(np.int16))  # 0..510 approx
-
-    blown = (v >= cfg.spec_v_very_high) & (s <= cfg.spec_s_very_low) & (grad <= cfg.spec_grad_low)
-
-    cand = sparkle | blown
-
-    # expand a bit so water glints edges are also covered
-    if cfg.spec_dilate_ksize and cfg.spec_dilate_ksize > 1:
-        kd = int(cfg.spec_dilate_ksize)
-        ker_d = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kd, kd))
-        cand_u8 = (cand.astype(np.uint8) * 255)
-        cand_u8 = cv2.dilate(cand_u8, ker_d, iterations=1)
-        cand = cand_u8 > 0
-
-    spec_mask = np.full(v.shape, 255, dtype=np.uint8)
-    spec_mask[cand] = 0
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))
+        spec_u8 = cv2.morphologyEx(spec_u8, cv2.MORPH_OPEN, kernel, iterations=1)
 
     dbg = {
-        "sparkle_ratio": float(np.mean(sparkle)),
-        "blown_ratio": float(np.mean(blown)),
-        "spec_ratio": float(np.mean(spec_mask == 0)),
-        "spec_v_high": int(cfg.spec_v_high),
-        "spec_s_low": int(cfg.spec_s_low),
-        "spec_tophat_thresh": int(cfg.spec_tophat_thresh),
+        "spec_ratio": float(np.mean(spec_u8 == 0)),
+        "v_min": int(v_min),
+        "delta_th": int(d_th),
+        "rule_main_ratio": float(np.mean(rule_main)),
+        "rule_aux_ratio": float(np.mean(rule_aux)),
+        "rule_flat_ratio": float(np.mean(rule_flat)),
+        "blur_sigma": float(sigma),
     }
-    return spec_mask, dbg
-
-
-def combine_masks(*masks: Optional[np.ndarray]) -> Optional[np.ndarray]:
-    """
-    Combine multiple masks with semantics 255=valid, 0=invalid.
-    Return None if all inputs are None.
-    """
-    ms = [m for m in masks if m is not None]
-    if not ms:
-        return None
-    out = ms[0].copy()
-    for m in ms[1:]:
-        if m.shape != out.shape:
-            raise ValueError("Mask shape mismatch in combine_masks")
-        out = cv2.bitwise_and(out, m)
-    return out
-
-
-def apply_valid_mask_fill(gray_u8: np.ndarray, valid_mask: Optional[np.ndarray]) -> np.ndarray:
-    """
-    Fill invalid pixels (mask==0) with median of valid region to avoid hard edges.
-    Works for combined masks too (valid_mask & spec_mask & ...).
-    """
-    if valid_mask is None:
-        return gray_u8
-    m = valid_mask.astype(np.uint8)
-    if m.shape != gray_u8.shape:
-        raise ValueError("valid_mask shape mismatch")
-    if np.all(m == 0):
-        return gray_u8
-
-    out = gray_u8.copy()
-    valid_pixels = out[m > 0]
-    fill_val = int(np.median(valid_pixels)) if valid_pixels.size else 0
-    out[m == 0] = fill_val
-    return out
+    return spec_u8, dbg
 
 
 def preprocess_frame(bgr: np.ndarray, cfg: PreprocessConfig) -> PreprocessResult:
-    gray = ensure_gray_u8(bgr)
+    bgr_u8 = ensure_bgr_u8(bgr)
+    gray_u8 = ensure_gray_u8(bgr_u8)
 
-    valid_mask, mask_dbg = compute_valid_mask(gray, cfg)
-    spec_mask, spec_dbg = compute_spec_mask(bgr, cfg)
+    valid_mask, dbg_valid = compute_valid_mask(gray_u8, cfg)
 
-    # intensity pipeline
-    inten = _apply_blur(gray, cfg)
-    inten = _apply_clahe(inten, cfg)
-    if cfg.use_log_compress:
-        inten = _log_compress(inten, cfg.log_compress_alpha)
+    smooth_bgr = smooth_background(bgr_u8, cfg)
+    smooth_gray = ensure_gray_u8(smooth_bgr)
 
-    # LoG computed from intensity (already photometric-robust)
-    # Note: normalize using valid_mask only (spec_mask can be very dynamic); you can change to combined if needed.
-    log_u8 = compute_log_feature(inten, cfg, mask_u8=valid_mask)
+    log_u8 = compute_log_feature(smooth_gray, cfg)
+    spec_mask, dbg_spec = compute_spec_mask(bgr_u8, cfg)
 
     dbg = {
-        "valid_mask": mask_dbg,
-        "spec_mask": spec_dbg,
-        "use_log_compress": bool(cfg.use_log_compress),
-        "log_compress_alpha": float(cfg.log_compress_alpha),
-        "use_clahe": bool(cfg.use_clahe),
-        "blur_mode": cfg.blur_mode,
-        "log_sigma": float(cfg.log_sigma),
+        "valid": dbg_valid,
+        "spec": dbg_spec,
+        "smooth": {
+            "mode": cfg.smooth_mode,
+            "bilateral": {
+                "d": int(cfg.bilateral_d),
+                "sigmaColor": float(cfg.bilateral_sigma_color),
+                "sigmaSpace": float(cfg.bilateral_sigma_space),
+            },
+        },
+        "log": {
+            "sigma": float(cfg.log_blur_sigma),
+            "ksize": int(cfg.log_ksize),
+            "percentile_stride": int(cfg.log_percentile_stride),
+        },
     }
 
     return PreprocessResult(
-        intensity=inten,
+        intensity=gray_u8,
         log=log_u8,
         valid_mask=valid_mask,
         spec_mask=spec_mask,
+        smooth_bgr=smooth_bgr,
         debug=dbg,
     )
+

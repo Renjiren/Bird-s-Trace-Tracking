@@ -1,0 +1,86 @@
+[
+  {
+    "video": "Ac4002",
+    "n_frames_total": 194,
+    "n_pairs_ran": 3,
+    "out_dir": "./metric\\step2\\Ac4002",
+    "debug_json": "debug_step2.json"
+  },
+  {
+    "video": "Ac4003",
+    "n_frames_total": 210,
+    "n_pairs_ran": 3,
+    "out_dir": "./metric\\step2\\Ac4003",
+    "debug_json": "debug_step2.json"
+  },
+  {
+    "video": "An3004",
+    "n_frames_total": 374,
+    "n_pairs_ran": 3,
+    "out_dir": "./metric\\step2\\An3004",
+    "debug_json": "debug_step2.json"
+  },
+  {
+    "video": "An3013",
+    "n_frames_total": 119,
+    "n_pairs_ran": 3,
+    "out_dir": "./metric\\step2\\An3013",
+    "debug_json": "debug_step2.json"
+  },
+  {
+    "video": "An6011",
+    "n_frames_total": 95,
+    "n_pairs_ran": 3,
+    "out_dir": "./metric\\step2\\An6011",
+    "debug_json": "debug_step2.json"
+  },
+  {
+    "video": "Ci2001",
+    "n_frames_total": 212,
+    "n_pairs_ran": 3,
+    "out_dir": "./metric\\step2\\Ci2001",
+    "debug_json": "debug_step2.json"
+  },
+  {
+    "video": "Ci3001",
+    "n_frames_total": 159,
+    "n_pairs_ran": 3,
+    "out_dir": "./metric\\step2\\Ci3001",
+    "debug_json": "debug_step2.json"
+  },
+  {
+    "video": "Gr5009",
+    "n_frames_total": 262,
+    "n_pairs_ran": 3,
+    "out_dir": "./metric\\step2\\Gr5009",
+    "debug_json": "debug_step2.json"
+  },
+  {
+    "video": "Pa1003",
+    "n_frames_total": 63,
+    "n_pairs_ran": 3,
+    "out_dir": "./metric\\step2\\Pa1003",
+    "debug_json": "debug_step2.json"
+  },
+  {
+    "video": "Su2001",
+    "n_frames_total": 97,
+    "n_pairs_ran": 3,
+    "out_dir": "./metric\\step2\\Su2001",
+    "debug_json": "debug_step2.json"
+  },
+  {
+    "video": "Su2002",
+    "n_frames_total": 105,
+    "n_pairs_ran": 3,
+    "out_dir": "./metric\\step2\\Su2002",
+    "debug_json": "debug_step2.json"
+  },
+  {
+    "video": "Su2005",
+    "n_frames_total": 128,
+    "n_pairs_ran": 3,
+    "out_dir": "./metric\\step2\\Su2005",
+    "debug_json": "debug_step2.json"
+  }
+]

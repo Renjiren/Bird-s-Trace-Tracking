@@ -1,0 +1,377 @@
+{
+  "video": "Ci3001",
+  "n_frames_total": 159,
+  "sample_frames": [
+    "000017.jpg",
+    "000021.jpg",
+    "000026.jpg",
+    "000069.jpg",
+    "000114.jpg"
+  ],
+  "cfg_subtitle_fixed": {
+    "subtitle_roi_y0_ratio": 0.74,
+    "sub_spec_v_min": 180,
+    "sub_spec_delta_th": 12.0
+  },
+  "cfg_glare_final": {
+    "glare_spec_v_min": 240,
+    "glare_spec_delta_th": 29.343900318145717,
+    "spec_texture_edge_density_min": 0.06
+  },
+  "adapt_debug": {
+    "used": true,
+    "v_p99_med": 245.0,
+    "delta_p995_med": 65.20866737365715,
+    "edge_density_med": 0.2851420235339506,
+    "glare_spec_v_min": 240,
+    "glare_spec_delta_th": 29.343900318145717,
+    "spec_texture_edge_density_min": 0.06
+  },
+  "stats_mean": {
+    "invalid_ratio": 0.015962962962962964,
+    "spec_ratio_valid": 0.018581312222449926,
+    "edge_density": 0.27959563974699403
+  },
+  "frames": [
+    {
+      "frame": "000017.jpg",
+      "stats": {
+        "H": 1080,
+        "W": 1920,
+        "valid_ratio": 0.9900848765432099,
+        "invalid_ratio": 0.009915123456790123,
+        "spec_ratio_valid": 0.021440887659276,
+        "edge_density": 0.2812624206055411,
+        "smooth_gray_mean": 103.61780871293301,
+        "smooth_gray_std": 55.84926023431691
+      },
+      "debug": {
+        "valid": {
+          "mode": "spec_roi",
+          "roi": [
+            0,
+            799,
+            1920,
+            1080
+          ],
+          "components_total": 76,
+          "components_kept": 4,
+          "invalid_ratio": 0.009915123456790123
+        },
+        "subtitle_spec": {
+          "v_min": 180,
+          "delta_sigma": 6.0,
+          "delta_th": 12.0,
+          "s_low": 55,
+          "delta_strong": 24.0,
+          "v_p99": 243.0,
+          "delta_p995": 62.256044692993115,
+          "raw_spec_ratio": 0.11948061342592593
+        },
+        "glare_spec_base": {
+          "v_min": 240,
+          "delta_sigma": 6.0,
+          "delta_th": 29.343900318145717,
+          "s_low": 55,
+          "delta_strong": 73.35975079536429,
+          "v_p99": 243.0,
+          "delta_p995": 62.256044692993115,
+          "raw_spec_ratio": 0.004853877314814815
+        },
+        "glare_spec": {
+          "enable_mode": "texture_only",
+          "enabled": true,
+          "edge_density": 0.27847366898148146,
+          "fill_used": true,
+          "cc_total": 513,
+          "cc_kept": 406,
+          "spec_ratio_valid_final": 0.021440887659276,
+          "fallback": null
+        },
+        "smooth": {
+          "mode": "bilateral",
+          "bilateral_d": 7,
+          "sigmaColor": 35.0,
+          "sigmaSpace": 15.0
+        },
+        "log": {
+          "sigma": 1.2,
+          "ksize": 3,
+          "edge_th": 35
+        }
+      }
+    },
+    {
+      "frame": "000021.jpg",
+      "stats": {
+        "H": 1080,
+        "W": 1920,
+        "valid_ratio": 0.9891936728395062,
+        "invalid_ratio": 0.010806327160493828,
+        "spec_ratio_valid": 0.025544171389123984,
+        "edge_density": 0.30955805209848714,
+        "smooth_gray_mean": 101.92420065990898,
+        "smooth_gray_std": 55.90764938632888
+      },
+      "debug": {
+        "valid": {
+          "mode": "spec_roi",
+          "roi": [
+            0,
+            799,
+            1920,
+            1080
+          ],
+          "components_total": 76,
+          "components_kept": 5,
+          "invalid_ratio": 0.010806327160493828
+        },
+        "subtitle_spec": {
+          "v_min": 180,
+          "delta_sigma": 6.0,
+          "delta_th": 12.0,
+          "s_low": 55,
+          "delta_strong": 24.0,
+          "v_p99": 243.0,
+          "delta_p995": 65.16886085510238,
+          "raw_spec_ratio": 0.12443817515432098
+        },
+        "glare_spec_base": {
+          "v_min": 240,
+          "delta_sigma": 6.0,
+          "delta_th": 29.343900318145717,
+          "s_low": 55,
+          "delta_strong": 73.35975079536429,
+          "v_p99": 243.0,
+          "delta_p995": 65.16886085510238,
+          "raw_spec_ratio": 0.005991994598765432
+        },
+        "glare_spec": {
+          "enable_mode": "texture_only",
+          "enabled": true,
+          "edge_density": 0.3062128665123457,
+          "fill_used": true,
+          "cc_total": 553,
+          "cc_kept": 464,
+          "spec_ratio_valid_final": 0.025544171389123984,
+          "fallback": null
+        },
+        "smooth": {
+          "mode": "bilateral",
+          "bilateral_d": 7,
+          "sigmaColor": 35.0,
+          "sigmaSpace": 15.0
+        },
+        "log": {
+          "sigma": 1.2,
+          "ksize": 3,
+          "edge_th": 35
+        }
+      }
+    },
+    {
+      "frame": "000026.jpg",
+      "stats": {
+        "H": 1080,
+        "W": 1920,
+        "valid_ratio": 0.9757460455246914,
+        "invalid_ratio": 0.02425395447530864,
+        "spec_ratio_valid": 0.022485959866693488,
+        "edge_density": 0.32037995222672583,
+        "smooth_gray_mean": 104.36452204237914,
+        "smooth_gray_std": 57.09427602246068
+      },
+      "debug": {
+        "valid": {
+          "mode": "spec_roi",
+          "roi": [
+            0,
+            799,
+            1920,
+            1080
+          ],
+          "components_total": 76,
+          "components_kept": 9,
+          "invalid_ratio": 0.02425395447530864
+        },
+        "subtitle_spec": {
+          "v_min": 180,
+          "delta_sigma": 6.0,
+          "delta_th": 12.0,
+          "s_low": 55,
+          "delta_strong": 24.0,
+          "v_p99": 245.0,
+          "delta_p995": 64.83174316406246,
+          "raw_spec_ratio": 0.12574122299382717
+        },
+        "glare_spec_base": {
+          "v_min": 240,
+          "delta_sigma": 6.0,
+          "delta_th": 29.343900318145717,
+          "s_low": 55,
+          "delta_strong": 73.35975079536429,
+          "v_p99": 245.0,
+          "delta_p995": 64.83174316406246,
+          "raw_spec_ratio": 0.006021894290123456
+        },
+        "glare_spec": {
+          "enable_mode": "texture_only",
+          "enabled": true,
+          "edge_density": 0.3126094714506173,
+          "fill_used": true,
+          "cc_total": 532,
+          "cc_kept": 444,
+          "spec_ratio_valid_final": 0.022485959866693488,
+          "fallback": null
+        },
+        "smooth": {
+          "mode": "bilateral",
+          "bilateral_d": 7,
+          "sigmaColor": 35.0,
+          "sigmaSpace": 15.0
+        },
+        "log": {
+          "sigma": 1.2,
+          "ksize": 3,
+          "edge_th": 35
+        }
+      }
+    },
+    {
+      "frame": "000069.jpg",
+      "stats": {
+        "H": 1080,
+        "W": 1920,
+        "valid_ratio": 0.9785450424382716,
+        "invalid_ratio": 0.021454957561728397,
+        "spec_ratio_valid": 0.01538752685289272,
+        "edge_density": 0.23521729466746769,
+        "smooth_gray_mean": 94.65473944007992,
+        "smooth_gray_std": 52.429875047543085
+      },
+      "debug": {
+        "valid": {
+          "mode": "spec_roi",
+          "roi": [
+            0,
+            799,
+            1920,
+            1080
+          ],
+          "components_total": 60,
+          "components_kept": 3,
+          "invalid_ratio": 0.021454957561728397
+        },
+        "subtitle_spec": {
+          "v_min": 180,
+          "delta_sigma": 6.0,
+          "delta_th": 12.0,
+          "s_low": 55,
+          "delta_strong": 24.0,
+          "v_p99": 244.0,
+          "delta_p995": 83.70424217224114,
+          "raw_spec_ratio": 0.1088551311728395
+        },
+        "glare_spec_base": {
+          "v_min": 240,
+          "delta_sigma": 6.0,
+          "delta_th": 29.343900318145717,
+          "s_low": 55,
+          "delta_strong": 73.35975079536429,
+          "v_p99": 244.0,
+          "delta_p995": 83.70424217224114,
+          "raw_spec_ratio": 0.009407793209876543
+        },
+        "glare_spec": {
+          "enable_mode": "texture_only",
+          "enabled": true,
+          "edge_density": 0.23017071759259258,
+          "fill_used": true,
+          "cc_total": 400,
+          "cc_kept": 330,
+          "spec_ratio_valid_final": 0.01538752685289272,
+          "fallback": null
+        },
+        "smooth": {
+          "mode": "bilateral",
+          "bilateral_d": 7,
+          "sigmaColor": 35.0,
+          "sigmaSpace": 15.0
+        },
+        "log": {
+          "sigma": 1.2,
+          "ksize": 3,
+          "edge_th": 35
+        }
+      }
+    },
+    {
+      "frame": "000114.jpg",
+      "stats": {
+        "H": 1080,
+        "W": 1920,
+        "valid_ratio": 0.9866155478395062,
+        "invalid_ratio": 0.013384452160493826,
+        "spec_ratio_valid": 0.00804801534426345,
+        "edge_density": 0.25156047913674834,
+        "smooth_gray_mean": 94.28633240234113,
+        "smooth_gray_std": 55.80840314034488
+      },
+      "debug": {
+        "valid": {
+          "mode": "spec_roi",
+          "roi": [
+            0,
+            799,
+            1920,
+            1080
+          ],
+          "components_total": 86,
+          "components_kept": 2,
+          "invalid_ratio": 0.013384452160493826
+        },
+        "subtitle_spec": {
+          "v_min": 180,
+          "delta_sigma": 6.0,
+          "delta_th": 12.0,
+          "s_low": 55,
+          "delta_strong": 24.0,
+          "v_p99": 237.0,
+          "delta_p995": 77.38378993988019,
+          "raw_spec_ratio": 0.09253472222222223
+        },
+        "glare_spec_base": {
+          "v_min": 240,
+          "delta_sigma": 6.0,
+          "delta_th": 29.343900318145717,
+          "s_low": 55,
+          "delta_strong": 73.35975079536429,
+          "v_p99": 237.0,
+          "delta_p995": 77.38378993988019,
+          "raw_spec_ratio": 0.004930555555555555
+        },
+        "glare_spec": {
+          "enable_mode": "texture_only",
+          "enabled": true,
+          "edge_density": 0.2481934799382716,
+          "fill_used": true,
+          "cc_total": 281,
+          "cc_kept": 226,
+          "spec_ratio_valid_final": 0.00804801534426345,
+          "fallback": null
+        },
+        "smooth": {
+          "mode": "bilateral",
+          "bilateral_d": 7,
+          "sigmaColor": 35.0,
+          "sigmaSpace": 15.0
+        },
+        "log": {
+          "sigma": 1.2,
+          "ksize": 3,
+          "edge_th": 35
+        }
+      }
+    }
+  ]
+}

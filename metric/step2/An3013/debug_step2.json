@@ -1,0 +1,210 @@
+{
+  "video": "An3013",
+  "n_frames_total": 119,
+  "k_pairs": 3,
+  "pairs": [
+    {
+      "pair_index": 0,
+      "prev_frame": "000011.jpg",
+      "curr_frame": "000012.jpg",
+      "dx": 2.211637249969044,
+      "dy": -4.110765928533965,
+      "method": "global_phase_correlation",
+      "camera_moving": true,
+      "debug": {
+        "method": "global_phase_correlation",
+        "hard_mask": {
+          "valid_ratio": 1.0,
+          "invalid_ratio": 0.0
+        },
+        "soft_spec": {
+          "union": {
+            "used": true,
+            "ratio_valid": 0.005716628086419753,
+            "dilated": true
+          },
+          "prev": {
+            "enabled": true,
+            "bypass_reason": null,
+            "spec_ratio_valid": 0.005716628086419753,
+            "alpha": 0.0,
+            "blur_sigma": 3.0
+          },
+          "curr": {
+            "enabled": true,
+            "bypass_reason": null,
+            "spec_ratio_valid": 0.005716628086419753,
+            "alpha": 0.0,
+            "blur_sigma": 3.0
+          }
+        },
+        "err_mask": {
+          "exclude_spec": true,
+          "spec_ratio": 0.005716628086419753,
+          "keep_frac": 0.9942833719135803
+        },
+        "global_pc": {
+          "dx": 2.211637249969044,
+          "dy": -4.110765928533965,
+          "resp": 0.5393235001740633,
+          "err_unaligned": 21.0,
+          "err_aligned": 16.0,
+          "err_ratio": 0.7619047256235845,
+          "improve": 5.0,
+          "resp_thresh": 0.3,
+          "err_ratio_thresh": 0.92,
+          "min_improve": 0.5
+        },
+        "final_dx": 2.211637249969044,
+        "final_dy": -4.110765928533965,
+        "shift_norm": 4.667947712287098,
+        "camera_moving": true
+      },
+      "saved_overlay": "pair01_overlay_dxdy.jpg",
+      "saved_diff": "pair01_diff.jpg"
+    },
+    {
+      "pair_index": 1,
+      "prev_frame": "000033.jpg",
+      "curr_frame": "000034.jpg",
+      "dx": 4.466022046869398,
+      "dy": 2.70975133478089,
+      "method": "global_phase_correlation",
+      "camera_moving": true,
+      "debug": {
+        "method": "global_phase_correlation",
+        "hard_mask": {
+          "valid_ratio": 1.0,
+          "invalid_ratio": 0.0
+        },
+        "soft_spec": {
+          "union": {
+            "used": true,
+            "ratio_valid": 0.004888117283950617,
+            "dilated": true
+          },
+          "prev": {
+            "enabled": true,
+            "bypass_reason": null,
+            "spec_ratio_valid": 0.004888117283950617,
+            "alpha": 0.0,
+            "blur_sigma": 3.0
+          },
+          "curr": {
+            "enabled": true,
+            "bypass_reason": null,
+            "spec_ratio_valid": 0.004888117283950617,
+            "alpha": 0.0,
+            "blur_sigma": 3.0
+          }
+        },
+        "err_mask": {
+          "exclude_spec": true,
+          "spec_ratio": 0.004888117283950617,
+          "keep_frac": 0.9951118827160493
+        },
+        "global_pc": {
+          "dx": 4.466022046869398,
+          "dy": 2.70975133478089,
+          "resp": 0.6491723102993435,
+          "err_unaligned": 22.0,
+          "err_aligned": 14.0,
+          "err_ratio": 0.6363636074380178,
+          "improve": 8.0,
+          "resp_thresh": 0.3,
+          "err_ratio_thresh": 0.92,
+          "min_improve": 0.5
+        },
+        "final_dx": 4.466022046869398,
+        "final_dy": 2.70975133478089,
+        "shift_norm": 5.223801797491013,
+        "camera_moving": true
+      },
+      "saved_overlay": "pair02_overlay_dxdy.jpg",
+      "saved_diff": "pair02_diff.jpg"
+    },
+    {
+      "pair_index": 2,
+      "prev_frame": "000105.jpg",
+      "curr_frame": "000106.jpg",
+      "dx": 4.662758218880867,
+      "dy": 0.6162144046327285,
+      "method": "global_phase_correlation",
+      "camera_moving": true,
+      "debug": {
+        "method": "global_phase_correlation",
+        "hard_mask": {
+          "valid_ratio": 1.0,
+          "invalid_ratio": 0.0
+        },
+        "soft_spec": {
+          "union": {
+            "used": true,
+            "ratio_valid": 0.0035951967592592594,
+            "dilated": true
+          },
+          "prev": {
+            "enabled": true,
+            "bypass_reason": null,
+            "spec_ratio_valid": 0.0035951967592592594,
+            "alpha": 0.0,
+            "blur_sigma": 3.0
+          },
+          "curr": {
+            "enabled": true,
+            "bypass_reason": null,
+            "spec_ratio_valid": 0.0035951967592592594,
+            "alpha": 0.0,
+            "blur_sigma": 3.0
+          }
+        },
+        "err_mask": {
+          "exclude_spec": true,
+          "spec_ratio": 0.0035951967592592594,
+          "keep_frac": 0.9964048032407408
+        },
+        "global_pc": {
+          "dx": 4.662758218880867,
+          "dy": 0.6162144046327285,
+          "resp": 0.6799040824984327,
+          "err_unaligned": 22.0,
+          "err_aligned": 13.0,
+          "err_ratio": 0.590909064049588,
+          "improve": 9.0,
+          "resp_thresh": 0.3,
+          "err_ratio_thresh": 0.92,
+          "min_improve": 0.5
+        },
+        "final_dx": 4.662758218880867,
+        "final_dy": 0.6162144046327285,
+        "shift_norm": 4.703300373165416,
+        "camera_moving": true
+      },
+      "saved_overlay": "pair03_overlay_dxdy.jpg",
+      "saved_diff": "pair03_diff.jpg"
+    }
+  ],
+  "pre_cfg": {
+    "subtitle_mask_mode": "spec_roi",
+    "subtitle_roi_y0_ratio": 0.74,
+    "sub_spec_v_min": 180,
+    "sub_spec_delta_th": 12.0,
+    "glare_spec_v_min": 230,
+    "glare_spec_delta_th": 24.0,
+    "spec_enable_mode": "texture_only",
+    "glare_fill_enable": true,
+    "glare_fill_v_offset": 12,
+    "glare_fill_dilate_ksize": 11
+  },
+  "cam_cfg": {
+    "roi_mode": "strips",
+    "use_soft_spec": true,
+    "soft_spec_alpha": 0.0,
+    "soft_spec_blur_sigma": 3.0,
+    "soft_spec_max_ratio": 0.25,
+    "global_pc_resp_thresh": 0.3,
+    "global_err_ratio_thresh": 0.92,
+    "global_min_improve": 0.5,
+    "enable_ecc_fallback": true
+  }
+}

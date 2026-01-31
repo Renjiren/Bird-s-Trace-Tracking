@@ -1,0 +1,14 @@
+\section{Introduction}
+\label{sec:intro}
+
+The BFT dataset captures many of the difficulties encountered in real-world bird videos. Birds appear at highly variable scales, ranging from small background targets to large foreground objects, sometimes within the same sequence. The surrounding environment is often dynamic: water surfaces, vegetation, clouds, and shadows introduce motion patterns that closely resemble object motion. In addition, many sequences contain other moving objects such as humans, animals, or man-made structures, which act as strong distractors and frequently lead to false detections. Camera motion further exacerbates these issues. Handheld recording and camera panning introduce global frame displacement that dominates frame-to-frame differences. Without explicit handling, such motion corrupts motion cues and causes background regions to be incorrectly detected as moving objects, leading to fragmented detections and unstable identity assignment.
+
+Recent approaches to bird tracking rely primarily on deep-learning-based frameworks that combine learned object detectors with appearance-driven tracking components. NetTrack exemplifies this paradigm and achieves strong performance on the BFT dataset by leveraging pretrained models and fine-grained learned features. However, these systems require GPU acceleration, substantial memory resources, and complex training pipelines, which limits their applicability in lightweight or deployment-oriented scenarios.
+
+In contrast, computer vision systems based on motion analysis offer efficiency, interpretability, and ease of control. Yet, it remains unclear how far such systems can be pushed when confronted with the complexity of modern bird tracking datasets. This work is centered around three explicit research questions:
+
+(1) Can a custom-designed OpenCV-based tracking model, built entirely from classical computer vision components, reliably detect birds and associate detections across frames in the presence of scale variation, dynamic backgrounds, camera motion, and non-bird distractors?
+(2) How does the performance of such a model compare quantitatively to a state-of-the-art deep-learning-based tracker, NetTrack, when evaluated under the same protocol on the BFT dataset?
+(3) What trade-off between tracking accuracy and computational efficiency emerges when comparing a carefully engineered OpenCV-based model with a deep-learning-based tracking framework?
+
+To answer these questions, this work designs a new OpenCV-based multi-object tracking model tailored specifically to the characteristics of BFT videos and evaluates it against NetTrack using standard multi-object tracking metrics.

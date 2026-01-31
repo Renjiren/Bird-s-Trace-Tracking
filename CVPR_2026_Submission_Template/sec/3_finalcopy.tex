@@ -1,0 +1,14 @@
+\section{Experimental Setup}
+
+Experiments are conducted on the BFT validation dataset, containing 25 video sequences and 5020 frames with annotated bounding boxes and track identities. The proposed model is compared against NetTrack using its official implementation and pretrained weights. Both methods are evaluated under the same MOT evaluation protocol.
+
+
+\subsection{Deep-Learning Baseline: NetTrack Evaluation Protocol}
+
+The NetTrack baseline is evaluated following the official multi-stage inference pipeline released by the authors. All experiments use the pretrained weights provided with the framework. These weights are employed only for inference, and no additional training or fine-tuning is performed.
+
+Specifically, the evaluation consists of two sequential stages. In the first stage, object detection is performed using Grounding DINO with the official pretrained model. The detector is applied to the BFT validation sequences using a text prompt corresponding to birds, and frame-level detection results are saved in text format. These detection outputs serve as the sole input to the subsequent tracking stage.
+
+In the second stage, tracking is carried out using the official NetTrack demo script. The tracker loads the precomputed detection results and applies CoTracker, initialized with its pretrained weights, to propagate point-level motion across frames. Detection-to-track association is then performed by NetTrack to produce sequence-level tracking results with consistent identities. The final outputs are stored in MOTChallenge format.
+
+After completing both detection and tracking stages, the resulting files are evaluated using the same evaluation script as for the proposed OpenCV-based pipeline. Metrics including IoU, HOTA, MOTA, and IDF1 are computed under identical settings, ensuring a fair comparison between the proposed model and the NetTrack baseline.

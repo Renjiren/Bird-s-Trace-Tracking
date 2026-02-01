@@ -4,7 +4,7 @@
 
 %%%%%%%%% PAPER TYPE  - PLEASE UPDATE FOR FINAL VERSION
 % \usepackage{cvpr}              % To produce the CAMERA-READY version
-\usepackage[review]{cvpr}      % To produce the REVIEW version
+\usepackage{cvpr}      % To produce the REVIEW version
 % \usepackage[pagenumbers]{cvpr} % To force page numbers, e.g. for an arXiv version
 
 % Import additional packages in the preamble file, before hyperref
@@ -25,41 +25,85 @@
 \def\confName{CVPR}
 \def\confYear{2026}
 
+\usepackage{graphicx}
+%\usepackage{subcaption} % 提供 subfigure + \subref
+% 可选：更聪明的引用
+% \usepackage[nameinlink,noabbrev]{cleveref}
+
+\usepackage[section]{placeins} % 自动在每个 \section 前插入 \FloatBarrier
+% 让 LaTeX 自动去 sec/ 里找图
+\graphicspath{{sec/}}
+
+\usepackage{subcaption} % for subfigure + \subref
+
+\usepackage{capt-of}   % 提供 \captionof
+
+\usepackage{algorithm} 
+\usepackage{algorithmic}
+
 %%%%%%%%% TITLE - PLEASE UPDATE
-\title{Bird's Trace Tracking}
+\title{Birds' Track: Tracking Objects from dynamic background with OpenCV}
 
 %%%%%%%%% AUTHORS - PLEASE UPDATE
-\author{Xi Wang\thanks
-Université Paris-Saclay\\
-Institution1 address\\
-{firstauthor@i1.org}
+\author{Jiren Ren\\
+Pairs Saclay University\\
+Orsay, France\\
+{\tt\small renjiren120@gmail.com}
 % For a paper whose authors are all at the same institution,
 % omit the following lines up until the closing ``}''.
 % Additional authors and addresses can be added with ``\and'',
 % just like the second author.
 % To save space, use either the email address or home page, not both
 \and
-Jiren Ren\\
-Université Paris-Saclay\\
-First line of institution2 address\\
-{secondauthor@i2.org}
+Xi Wang\\
+Paris Saclay University\\
+Orsay, France\\
+{\tt\small lilasangwang2227@gmail.com}
 }
 
 \begin{document}
 \maketitle
 \input{sec/0_abstract}    
 \input{sec/1_intro}
-\input{sec/2_formatting}
-\input{sec/3_finalcopy}
-\input{sec/4_results}
-\input{sec/5_conclusion}
+\input{sec/2_related_work}
+\input{sec/3_method}
+\input{sec/4_exp}
+\input{sec/5_results}
+\input{sec/6_con}
+
+NetTrack~\cite{zheng2024nettrack} is a state-of-the-
+art deep tracker, used as the deep-learning baseline.
+
+\clearpage
+\appendix
+
+% --- A. References (as part of Appendix) ---
+% Make the bibliography appear as a numbered Appendix section:
+\renewcommand{\bibsection}{\section{References}}
 {
     \small
     \bibliographystyle{ieeenat_fullname}
     \bibliography{main}
 }
 
-NetTrack~\cite{zheng2024nettrack} is used as the deep-learning baseline.
+% --- B. Additional figures ---、
+\clearpage
+\section{Additional Figures}
+\input{sec/A_figs}
+\clearpage
+
+% --- C. Extra ablations ---
+\section{Extra Ablations}
+\input{sec/ablations}
+
+% --- D. LLM usage statement ---
+\section{LLM Usage Statement}
+\input{sec/A_llm_usage}
+
+% --- E. Contribution statement ---
+\section{Contribution Statement}
+\input{sec/A_contribution}
+
 
 % WARNING: do not forget to delete the supplementary pages from your submission 
 % \input{sec/X_suppl}

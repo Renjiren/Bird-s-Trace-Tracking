@@ -1,4 +1,6 @@
 # main.py
+
+
 from __future__ import annotations
 
 import argparse
@@ -10,6 +12,7 @@ import birds_pipeline as bp
 from preprocessing import PreprocessConfig
 from camera_motion_compensation import CamMotionConfig
 from candidate_generation import CandidateGenConfig
+from step4_refine import RefineConfig
 
 
 def parse_list(s: str) -> Optional[List[str]]:
@@ -24,7 +27,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p.add_argument("--data_root", type=str, required=True, help="val 根路径（每个视频一个子目录）")
     p.add_argument("--out_dir", type=str, required=True)
-    p.add_argument("--step", type=str, default="motion", choices=["pre", "motion", "cand"])
+    p.add_argument("--step", type=str, default="motion", choices=["pre", "motion", "cand", "refine", "track"], help="运行到哪个步骤")
 
     # video selection
     p.add_argument("--video_set", type=str, default="eg", choices=["eg", "all"], help="选择 EG_VIDEOS 或跑全部")
@@ -155,9 +158,46 @@ def main() -> None:
             only_videos=only_videos,
             overwrite=bool(args.overwrite),
         )
+        return
 
+    # refine
+    if args.step == "refine":
+        out_root = os.path.join(args.out_dir, "refine")
+        os.makedirs(out_root, exist_ok=True)
+
+        refine_cfg = RefineConfig()
+
+        bp.run_step_refine(
+            data_root=args.data_root,
+            out_root=out_root,
+            pre_cfg=pre_cfg,
+            cam_cfg=cam_cfg,
+            cand_cfg=cand_cfg,
+            refine_cfg=refine_cfg,
+            video_set=str(args.video_set),
+            only_videos=only_videos,
+            overwrite=bool(args.overwrite),
+        )
+        return
+    
+    # track
+    if args.step == "track":
+        out_root = os.path.join(args.out_dir, "track")
+        os.makedirs(out_root, exist_ok=True)
+
+        refine_cfg = RefineConfig()
+        bp.run_step_track(
+            data_root=args.data_root,
+            out_root=out_root,
+            pre_cfg=pre_cfg,
+            cam_cfg=cam_cfg,
+            cand_cfg=cand_cfg,
+            refine_cfg=refine_cfg,
+            video_set=str(args.video_set),
+            only_videos=only_videos,
+            overwrite=bool(args.overwrite),
+        )
+        return
 
 if __name__ == "__main__":
     main()
-
-

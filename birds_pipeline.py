@@ -834,6 +834,9 @@ def run_step_track(
             if bgr0 is None or bgr1 is None:
                 continue
 
+            prev_gray = cv2.cvtColor(bgr0, cv2.COLOR_BGR2GRAY)
+            curr_gray = cv2.cvtColor(bgr1, cv2.COLOR_BGR2GRAY)
+
             # ---------- Step1 ----------
             pre0 = preprocess_frame(bgr0, pre_cfg)
             pre1 = preprocess_frame(bgr1, pre_cfg)
@@ -877,7 +880,7 @@ def run_step_track(
             )
 
             # ---------- Step5 ----------
-            tracks = tracker.step(boxes_refined)
+            tracks = tracker.step(boxes_refined, prev_gray, curr_gray)
             frame_id = i  # 你这里 i 从 1 开始，正好当 frame_id
 
             for tid, (x, y, w, h) in tracks:

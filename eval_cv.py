@@ -4,7 +4,8 @@ import motmetrics as mm
 import numpy as np
 
 GT_DIR = "val_mot"
-PRED_DIR = "output/track"
+PRED_DIR = "out/track"
+
 
 def load_mot_txt(path):
     data = {}
@@ -19,22 +20,30 @@ def load_mot_txt(path):
             data[frame].append((obj_id, x, y, w, h))
     return data
 
+
 def main():
     accs = []
     names = []
-    for seq in os.listdir(GT_DIR):
-        if not seq.endswith(".txt"):
-            continue
 
-        pred_path = os.path.join(PRED_DIR, seq)
-        if not os.path.exists(pred_path):
-            print(f"[SKIP] {seq} not predicted")
-            continue   # ⭐ 关键：直接跳过
+    gt_files = {f for f in os.listdir(GT_DIR) if f.endswith(".txt")}
+    pr_files = {f for f in os.listdir(PRED_DIR) if f.endswith(".txt")}
 
+    print("GT files:", sorted(gt_files))
+    print("PR files:", sorted(pr_files))
+    print("MATCHED:", sorted(gt_files & pr_files))
+    eval_files = sorted(gt_files & pr_files)
+
+    if len(eval_files) == 0:
+        print("[ERROR] No matched GT & prediction files")
+        return
+
+    print("Evaluating sequences:", eval_files)
+
+    for seq in eval_files:
         print(f"Evaluating {seq}")
+
         gt = load_mot_txt(os.path.join(GT_DIR, seq))
-        #pr = load_mot_txt(os.path.join(PRED_DIR, seq))
-        pr = load_mot_txt(pred_path)
+        pr = load_mot_txt(os.path.join(PRED_DIR, seq))
 
         acc = mm.MOTAccumulator(auto_id=True)
 
@@ -50,29 +59,45 @@ def main():
             pr_boxes = np.array([[o[1], o[2], o[3], o[4]] for o in pr_objs])
 
             if len(gt_boxes) == 0 or len(pr_boxes) == 0:
-                acc.update(gt_ids, pr_ids, np.empty((len(gt_ids), len(pr_ids))))
+                acc.update(
+                    gt_ids,
+                    pr_ids,
+                    np.empty((len(gt_ids), len(pr_ids)))
+                )
                 continue
 
             dists = mm.distances.iou_matrix(
-                gt_boxes, pr_boxes, max_iou=0.5
+                gt_boxes,
+                pr_boxes,
+                max_iou=0.5
             )
             acc.update(gt_ids, pr_ids, dists)
 
+        # ✅ 关键：一定在 for seq 里面
         accs.append(acc)
-        names.append(seq.replace(".txt", ""))  # ⭐ 关键
+        names.append(seq.replace(".txt", ""))
 
     mh = mm.metrics.create()
     summary = mh.compute_many(
         accs,
-        metrics=["mota", "idf1", "num_switches", "num_false_positives", "num_misses"],
-        names=names
+        metrics=[
+            "mota",
+            "idf1",
+            "num_switches",
+            "num_false_positives",
+            "num_misses",
+        ],
+        names=names,
     )
 
-    print(mm.io.render_summary(
-        summary,
-        formatters=mh.formatters,
-        namemap=mm.io.motchallenge_metric_names
-    ))
+    print(
+        mm.io.render_summary(
+            summary,
+            formatters=mh.formatters,
+            namemap=mm.io.motchallenge_metric_names,
+        )
+    )
+
 
 if __name__ == "__main__":
     main()

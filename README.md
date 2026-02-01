@@ -13,7 +13,7 @@ state-of-the-art deep learning tracker, on the BFT validation set.
 
 ### Quantitative Comparison (NetTrack)
 
-![NetTrack Evaluation](readme_data/nettrack_quant.png)
+![NetTrack Evaluation](readme_data/nettrack_quant.jpg)
 
 The table above shows the official NetTrack evaluation results reported using standard
 MOT metrics (MOTA, IDF1, FP, FN).
@@ -22,8 +22,8 @@ deep object detection and point-level feature tracking.
 
 ### Runtime Analysis
 
-![NetTrack Runtime](readme_data/nettrack_time.png)
-![CV Runtime](readme_data/cv_time.png)
+![NetTrack Runtime](readme_data/nettrack_time.jpg)
+![CV Runtime](readme_data/cv_time.jpg)
 
 The figures above compare the per-video runtime of NetTrack and our proposed classical
 CV-based pipeline.

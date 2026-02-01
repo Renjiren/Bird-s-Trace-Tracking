@@ -1,0 +1,182 @@
+\section{Experiments}
+\subsection{Datasets}
+
+We used the BFT val dataset provided in the NetTrace paper as our dataset for this project. This dataset is a highly dynamic bird flock dataset, which comes from documentary,  containing 6 bird species, 25 videos, and a total of 5020 frames, covering various backgrounds such as oceans, mountains, and rivers. The dataset has been manually annotated with bounding boxes and traceIDs, and these annotations are stored in JSON files in the COCO dataset format.
+
+\subsection{Settings}
+\label{sec:exp_settings}
+
+\paragraph{Data split and protocol.}
+All experiments are conducted on the \textbf{BFT validation set} (25 videos, 5020 frames) following the split provided by NetTrack/BFT.
+We process each sequence independently and report the average tracking performance averaged over all sequences.
+Our OpenCV pipeline is \textbf{training-free} and runs in an \textbf{online} manner: at frame $t$ it only uses information from frames $\le t$.
+
+\paragraph{Annotation and file format.}
+BFT annotations are provided in COCO-style JSON with per-frame bounding boxes and \texttt{traceID}s.
+For evaluation, we convert both ground truth and predictions into \textbf{MOTChallenge} text format:
+\texttt{frame, id, x, y, w, h} (pixel coordinates).
+This unified interface is shared by our OpenCV pipeline and the NetTrack baseline, enabling identical evaluation scripts.
+
+\paragraph{Preprocessing and camera-motion compensation.}
+The OpenCV pipeline uses two feature channels:
+(i) a smoothed \textbf{intensity} image for motion differencing and optical flow;
+(ii) a \textbf{LoG} (Laplacian-of-Gaussian) feature map for robust camera-motion estimation under illumination changes.
+We also apply a \textbf{hard valid-mask} for subtitles/invalid regions and a \textbf{soft specular-mask} to suppress reflections/glints.
+Specular thresholds are adapted from the first few frames of each video, while subtitle parameters are fixed across all sequences.
+
+\paragraph{Hyperparameters.}
+We use a fixed configuration for all sequences (no per-video manual tuning beyond Step-1 adaptive glare statistics).
+Key parameters are summarized in Tab.~\ref{tab:opencv_settings}.
+To prevent the table from being truncated in a two-column layout, we present it as a \texttt{table*} spanning both columns.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{p{0.20\textwidth}|p{0.77\textwidth}}
+\hline
+\textbf{Module} & \textbf{Main hyperparameters (used in all experiments)}\\
+\hline
+Step-3 candidate gen. &
+High-thresh percentile $=85$; high/low factors $=0.7/0.3$;
+area filter: min $25$, max $3000$, single-bird max $800$;
+morphology kernels: recon $3$, close $5$, open $3$ \\
+\hline
+Step-4 refinement &
+\texttt{min\_area\_ratio}=5e{-}5; \texttt{max\_box\_area\_ratio}=0.3; \texttt{min\_fg\_pixels}=20;
+\texttt{fg\_ratio\_min}=0.2; \texttt{fill\_ratio\_min}=0.10; \texttt{spec\_frac\_max}=0.6;
+\texttt{min\_side}=4; aspect ratio in $[0.10,10.0]$; \texttt{CENTER\_FRAC}=0.3 \\
+\hline
+Step-5 association &
+IoU gate $\ge 0.3$; center-dist gate $\le 1.5 \times$ diag;
+cost weights: $w_\text{iou}=0.7$, $w_\text{dist}=0.3$;
+\texttt{max\_age}=5, \texttt{min\_hits}=2;
+birth gate: IoU$<0.10$ and dist$>0.8\times$diag \\
+\hline
+Step-5 IK (Iterative LK) &
+Sparse pyramidal LK within each track ROI;
+forward-backward check for outlier rejection;
+robust median flow update for box refinement;
+re-initialize keypoints when too few remain or after long occlusion \\
+\hline
+\end{tabular}
+\caption{Experimental hyperparameters of the OpenCV-based pipeline (fixed across all sequences).}
+\label{tab:opencv_settings}
+\end{table*}
+
+\paragraph{Evaluation metrics.}
+We report classic multi-object tracking metrics including \textbf{MOTA}, \textbf{IDF1}, \textbf{ID switches}, \textbf{false positives}, and \textbf{misses}.
+Associations are computed using an IoU-based matching threshold of 0.5 (i.e., matches require IoU$\ge 0.5$ in the evaluation distance matrix).
+For completeness, we also compute \textbf{HOTA} using TrackEval on the same MOT-format files when available, keeping the IoU threshold consistent.
+
+
+
+\subsection{Implementation details}
+\label{sec:exp_impl}
+
+% (If not already in the preamble)
+% \usepackage{algorithm}
+% \usepackage{algorithmic}
+
+\paragraph{Overview.}
+Our OpenCV-based system is a five-stage, training-free pipeline:
+(1) preprocessing (subtitle removal, glare suppression, feature extraction),
+(2) camera motion compensation,
+(3) motion-based candidate generation,
+(4) ROI refinement with instance splitting and rule-based filtering,
+and (5) online tracking with \textbf{Iterative Lucas--Kanade (IK / LK)} motion refinement and gated association.
+
+\paragraph{Step-1: preprocessing.}
+Given an input frame $I_t$, we compute two channels:
+(i) a smoothed grayscale image $G_t$ used for motion differencing and optical flow;
+(ii) a LoG feature map $L_t$ used for robust camera-motion estimation under illumination changes.
+We further construct a hard \texttt{valid\_mask} to remove subtitles/invalid pixels and a soft \texttt{spec\_mask} to suppress specular highlights.
+Masked regions are filled (blur/inpaint style) to avoid introducing sharp edges that bias motion estimation.
+
+\paragraph{Step-2: camera motion compensation.}
+We estimate the dominant inter-frame camera translation $T_{t-1\rightarrow t}$ from $(L_{t-1},L_t)$ using a coarse-to-fine strategy:
+phase correlation provides a fast initialization, followed by ROI-consensus refinement with outlier rejection; an ECC-based alignment is used as fallback.
+We warp $G_{t-1}$ to $\tilde{G}_{t-1}$ and compute aligned motion cues from $(\tilde{G}_{t-1}, G_t)$.
+
+\paragraph{Step-3: motion-based candidate generation.}
+We compute a motion map $D_t = |\tilde{G}_{t-1}-G_t|$.
+To retain small birds while suppressing noise, we apply a dual-threshold reconstruction:
+high-threshold pixels form seeds and low-threshold pixels provide support regions.
+After morphological cleanup, connected components are filtered by area and simple geometry, yielding coarse candidate boxes $\mathcal{B}_t^{raw}$.
+
+\paragraph{Step-4: candidate refinement (splitting + birdness filters).}
+For each coarse ROI, we refine instances by:
+(1) cleaning the foreground mask via open/close,
+(2) obtaining confident centers by distance transform,
+(3) applying marker-based watershed to split adjacent birds,
+and (4) filtering each instance by area ratio, fill ratio, foreground occupancy, aspect ratio, minimum side length, and specular fraction.
+This produces refined detections $\mathcal{B}_t$.
+
+\paragraph{Step-5: online tracking with IK refinement + gated association.}
+Each track stores a bounding box $b_{t-1}$ and a sparse set of keypoints $\mathcal{P}_{t-1}$ inside the track ROI.
+At frame $t$, we first obtain a \emph{coarse} box prediction $\hat{b}_t$ using the last observed displacement (constant-displacement prior).
+We then refine this prediction using \textbf{Iterative LK (IK)} within the predicted ROI.
+
+\textbf{IK motion refinement.}
+Let $R_{t-1}$ and $R_t$ be the cropped grayscale ROIs from $G_{t-1}$ and $G_t$ around $\hat{b}_t$.
+We track keypoints $\mathcal{P}_{t-1}$ from $R_{t-1}$ to $R_t$ using pyramidal LK and remove outliers via a forward-backward consistency check.
+From the remaining inliers, we compute a robust displacement $\Delta=(\Delta x,\Delta y)$ as the median flow.
+The refined predicted box is obtained by shifting $\hat{b}_t$ by $\Delta$.
+If the number of valid keypoints drops below a threshold (blur, occlusion, low texture), we re-initialize $\mathcal{P}_{t}$ with Shi--Tomasi corners in the current ROI.
+
+\textbf{Association and track management.}
+Given IK-refined predictions and detections $\mathcal{B}_t$, we compute a gated matching cost:
+\[
+\text{cost}(i,j)=w_\text{iou}(1-\text{IoU}_{ij})
++ w_\text{dist}\frac{\|p_i-p_j\|_2}{\text{diag}(b_i)},
+\]
+where $p$ is the box center and $\text{diag}(b_i)$ normalizes distances by track scale.
+Pairs violating IoU and center-distance gates are discarded.
+Matching is solved by a global greedy strategy over feasible pairs.
+Unmatched tracks are kept for up to \texttt{max\_age} frames and removed afterward; tracks are output only after \texttt{min\_hits} confirmations.
+Unmatched detections spawn new tracks subject to a birth gate to reduce duplicate IDs near existing tracks.
+
+\begin{algorithm}[t]
+\small
+\caption{Online tracking with IK (Iterative LK) refinement}
+\label{alg:ik_tracker}
+\begin{algorithmic}[1]
+\REQUIRE Grayscale frames $G_{t-1}, G_t$, detections $\mathcal{B}_t$, active tracks $\mathcal{T}_{t-1}$
+\ENSURE Updated tracks $\mathcal{T}_t$ and MOT outputs at frame $t$
+
+\FOR{each track $\tau \in \mathcal{T}_{t-1}$}
+    \STATE Predict $\hat{b}_\tau \leftarrow b_\tau + \Delta^{last}_\tau$ \hfill (constant displacement prior)
+    \STATE Crop ROIs $(R_{t-1},R_t)$ from $(G_{t-1},G_t)$ around $\hat{b}_\tau$
+    \IF{$\mathcal{P}_\tau$ not initialized \OR $|\mathcal{P}_\tau|$ is small}
+        \STATE Initialize $\mathcal{P}_\tau \leftarrow$ Shi--Tomasi corners in $R_{t-1}$
+    \ENDIF
+    \STATE Track $\mathcal{P}_\tau$ by pyramidal LK: $R_{t-1}\rightarrow R_t$
+    \STATE Forward-backward check; keep inliers $\mathcal{P}_\tau^{in}$
+    \IF{$|\mathcal{P}_\tau^{in}|$ sufficient}
+        \STATE $\Delta_\tau \leftarrow \mathrm{median}(\mathbf{p}_t-\mathbf{p}_{t-1})$ over $\mathcal{P}_\tau^{in}$
+        \STATE Refine prediction: $\hat{b}_\tau \leftarrow \hat{b}_\tau + \Delta_\tau$
+        \STATE Store last displacement: $\Delta^{last}_\tau \leftarrow \Delta_\tau$
+    \ENDIF
+\ENDFOR
+
+\STATE Build feasible pairs between refined predictions $\{\hat{b}_\tau\}$ and detections $\mathcal{B}_t$ using IoU and distance gates
+\STATE Match feasible pairs by global greedy on cost (IoU + normalized center distance)
+\STATE Update matched tracks; age unmatched tracks; spawn new tracks from unmatched detections (birth gate)
+\STATE Output $(t, id, x, y, w, h)$ for confirmed tracks
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Outputs.}
+For each video, predicted trajectories are exported in MOTChallenge format for evaluation under identical settings as the baseline.
+
+
+\subsection{Evaluation}
+
+The NetTrack baseline is evaluated following the official multi-stage inference pipeline released by the authors. All experiments use the pretrained weights provided with the framework. These weights are employed only for inference, and no additional training or fine-tuning is performed.
+
+Specifically, the evaluation consists of two sequential stages. In the first stage, object detection is performed using Grounding DINO with the official pretrained model. The detector is applied to the BFT validation sequences using a text prompt corresponding to birds, and frame-level detection results are saved in text format. These detection outputs serve as the sole input to the subsequent tracking stage.
+
+In the second stage, tracking is carried out using the official NetTrack demo script. The tracker loads the precomputed detection results and applies CoTracker, initialized with its pretrained weights, to propagate point-level motion across frames. Detection-to-track association is then performed by NetTrack to produce sequence-level tracking results with consistent identities. The final outputs are stored in MOTChallenge format.
+
+After completing both detection and tracking stages, the resulting files are evaluated using the same evaluation script as for the proposed OpenCV-based pipeline. Metrics including IoU, HOTA, MOTA, and IDF1 are computed under identical settings, ensuring a fair comparison between the proposed model and the NetTrack baseline.

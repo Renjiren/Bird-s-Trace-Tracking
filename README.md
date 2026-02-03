@@ -26,7 +26,7 @@ deep object detection and point-level feature tracking.
 ![CV Runtime](readme_data/cv_time.jpg)
 
 The figures above compare the per-video runtime of NetTrack and our proposed classical
-CV-based pipeline.
+CV-based pipeline. (30 hours 41 mins 16 secondes [NetTrack] VS 1 hour 1 min 19 secondes [OurModel])
 While NetTrack relies on deep neural network inference and GPU acceleration,
 our method runs entirely on CPU using lightweight OpenCV operations.
 

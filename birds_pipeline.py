@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import cv2
 import numpy as np
+import time
 
 from preprocessing import (
     PreprocessConfig,
@@ -22,6 +23,8 @@ from candidate_generation import (
     MotionCandidateGenerator,
     generate_motion_candidates,
 )
+from step4_refine import RefineConfig, step4_refine
+from step5_tracker import Tracker
 
 IMG_EXTS = (".jpg", ".jpeg", ".png")
 
@@ -669,4 +672,251 @@ def run_step_cand(
         })
 
     write_json(os.path.join(out_root, "summary_step3.json"), global_summary)
+
+
+
+# ============================================================
+# Step REFINE 
+# ============================================================
+def run_step_refine(
+    *,
+    data_root: str,
+    out_root: str,
+    pre_cfg: PreprocessConfig,
+    cam_cfg: CamMotionConfig,
+    cand_cfg: CandidateGenConfig,
+    refine_cfg: RefineConfig,
+    video_set: str = "eg",
+    only_videos: Optional[List[str]] = None,
+    overwrite: bool = False,
+) -> None:
+    """
+    Step1 + Step2 + Step3 + Step4 in ONE PASS
+    完全模仿 run_step_cand，只在末尾接 refine
+    """
+
+    ensure_dir(out_root)
+    videos = select_videos(data_root, video_set=video_set, only_videos=only_videos)
+
+    for v in videos:
+        vdir = os.path.join(data_root, v)
+        frames = list_frames(vdir)
+        if len(frames) < 2:
+            continue
+
+        vout = os.path.join(out_root, v)
+        ensure_dir(vout)
+
+        gen = MotionCandidateGenerator(cand_cfg)
+
+        per_video_dbg = {
+            "video": v,
+            "frames": [],
+        }
+
+        for i in range(1, len(frames)):
+            fp0, fp1 = frames[i - 1], frames[i]
+            bgr0 = imread_bgr(fp0)
+            bgr1 = imread_bgr(fp1)
+            if bgr0 is None or bgr1 is None:
+                continue
+
+            # ---------- Step1 ----------
+            pre0 = preprocess_frame(bgr0, pre_cfg)
+            pre1 = preprocess_frame(bgr1, pre_cfg)
+
+            valid_use = merge_valid_intersection(pre0.valid_mask, pre1.valid_mask)
+            spec_use = merge_spec_union_bad(pre0.spec_mask, pre1.spec_mask)
+
+            # ---------- Step2 ----------
+            step2 = estimate_camera_translation(
+                prev_feat=pre0.log,
+                curr_feat=pre1.log,
+                valid_mask=valid_use,
+                prev_spec_mask=pre0.spec_mask,
+                curr_spec_mask=pre1.spec_mask,
+                cfg=cam_cfg,
+                warp_src=pre0.intensity,
+            )
+
+            prev_int_aligned = step2.prev_aligned
+            prev_log_aligned = warp_u8(pre0.log, step2.T)
+
+            # ---------- Step3 ----------
+            r3 = generate_motion_candidates(
+                curr_intensity=pre1.intensity,
+                prev_intensity_aligned=prev_int_aligned,
+                valid_mask=valid_use,
+                spec_mask=spec_use,
+                gen=gen,
+                camera_moving=bool(step2.debug.get("camera_moving", False)),
+                curr_log=pre1.log,
+                prev_log_aligned=prev_log_aligned,
+            )
+
+            # ---------- Step4 ----------
+            spec_mask_curr = pre1.spec_mask
+
+            boxes_refined = step4_refine(
+                bgr=bgr1,
+                mask_fg=r3.mask,
+                boxes_raw=r3.boxes,
+                spec_mask=spec_mask_curr,
+                cfg=refine_cfg,
+            )
+
+            # ---------- Save ----------
+            stem = os.path.splitext(os.path.basename(fp1))[0]
+            overlay = draw_boxes_on_bgr(bgr1, boxes_refined)
+            out_name = f"{stem}_overlay_refine.jpg"
+            imwrite(os.path.join(vout, out_name), overlay, overwrite)
+
+            per_video_dbg["frames"].append({
+                "idx": i,
+                "curr_frame": os.path.basename(fp1),
+                "n_step3": len(r3.boxes),
+                "n_step4": len(boxes_refined),
+                "boxes_refined": boxes_refined,
+                "saved": out_name,
+            })
+
+        write_json(os.path.join(vout, "debug_step4.json"), per_video_dbg)
+
+
+
+# ============================================================
+# Step TRACKER (step 5)
+# ============================================================
+def run_step_track(
+    *,
+    data_root: str,
+    out_root: str,
+    pre_cfg: PreprocessConfig,
+    cam_cfg: CamMotionConfig,
+    cand_cfg: CandidateGenConfig,
+    refine_cfg: RefineConfig,
+    video_set: str = "eg",
+    only_videos: Optional[List[str]] = None,
+    overwrite: bool = False,
+) -> None:
+    """
+    Step1–4 + Step5 tracking
+    在 run_step_refine 基础上，加 tracker
+    """
+    ensure_dir(out_root)
+    videos = select_videos(data_root, video_set=video_set, only_videos=only_videos)
+
+    for v in videos:
+        t_v_start = time.perf_counter()
+        vdir = os.path.join(data_root, v)
+        frames = list_frames(vdir)
+        if len(frames) < 2:
+            continue
+
+        vout = os.path.join(out_root, v)
+        ensure_dir(vout)
+
+        gen = MotionCandidateGenerator(cand_cfg)
+        tracker = Tracker(iou_thr=0.3, max_age=5, min_hits=2)
+
+        per_video_dbg = {
+            "video": v,
+            "frames": [],
+        }
+
+        txt_path = os.path.join(out_root, f"{v}.txt")
+        f_txt = open(txt_path, "w", encoding="utf-8")
+
+        for i in range(1, len(frames)):
+            fp0, fp1 = frames[i - 1], frames[i]
+            bgr0 = imread_bgr(fp0)
+            bgr1 = imread_bgr(fp1)
+            if bgr0 is None or bgr1 is None:
+                continue
+
+            prev_gray = cv2.cvtColor(bgr0, cv2.COLOR_BGR2GRAY)
+            curr_gray = cv2.cvtColor(bgr1, cv2.COLOR_BGR2GRAY)
+
+            # ---------- Step1 ----------
+            pre0 = preprocess_frame(bgr0, pre_cfg)
+            pre1 = preprocess_frame(bgr1, pre_cfg)
+
+            valid_use = merge_valid_intersection(pre0.valid_mask, pre1.valid_mask)
+            spec_use = merge_spec_union_bad(pre0.spec_mask, pre1.spec_mask)
+
+            # ---------- Step2 ----------
+            step2 = estimate_camera_translation(
+                prev_feat=pre0.log,
+                curr_feat=pre1.log,
+                valid_mask=valid_use,
+                prev_spec_mask=pre0.spec_mask,
+                curr_spec_mask=pre1.spec_mask,
+                cfg=cam_cfg,
+                warp_src=pre0.intensity,
+            )
+
+            prev_int_aligned = step2.prev_aligned
+            prev_log_aligned = warp_u8(pre0.log, step2.T)
+
+            # ---------- Step3 ----------
+            r3 = generate_motion_candidates(
+                curr_intensity=pre1.intensity,
+                prev_intensity_aligned=prev_int_aligned,
+                valid_mask=valid_use,
+                spec_mask=spec_use,
+                gen=gen,
+                camera_moving=bool(step2.debug.get("camera_moving", False)),
+                curr_log=pre1.log,
+                prev_log_aligned=prev_log_aligned,
+            )
+
+            # ---------- Step4 ----------
+            boxes_refined = step4_refine(
+                bgr=bgr1,
+                mask_fg=r3.mask,
+                boxes_raw=r3.boxes,
+                spec_mask=pre1.spec_mask,
+                cfg=refine_cfg,
+            )
+
+            # ---------- Step5 ----------
+            tracks = tracker.step(boxes_refined, prev_gray, curr_gray)
+            frame_id = i  # 你这里 i 从 1 开始，正好当 frame_id
+
+            for tid, (x, y, w, h) in tracks:
+                # MOT challenge 常见格式：frame, id, x, y, w, h, score, -1, -1, -1
+                f_txt.write(f"{frame_id},{tid},{x:.2f},{y:.2f},{w:.2f},{h:.2f},1.00,-1,-1,-1\n")
+
+            # ---------- Save ----------
+            overlay = bgr1.copy()
+            for tid, box in tracks:
+                x, y, w, h = box
+                cv2.rectangle(overlay, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                cv2.putText(
+                    overlay, f"ID {tid}",
+                    (x, max(0, y - 5)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6,
+                    (0, 255, 0), 2
+                )
+
+            stem = os.path.splitext(os.path.basename(fp1))[0]
+            out_name = f"{stem}_overlay_track.jpg"
+            imwrite(os.path.join(vout, out_name), overlay, overwrite)
+
+            per_video_dbg["frames"].append({
+                "idx": i,
+                "curr_frame": os.path.basename(fp1),
+                "n_det": len(boxes_refined),
+                "n_tracks": len(tracks),
+                "tracks": tracks,
+                "saved": out_name,
+            })
+
+        f_txt.close()
+        t_v = time.perf_counter() - t_v_start
+        print(f"[Step5] Video {v}: {t_v:.2f}s")
+
+        write_json(os.path.join(vout, "debug_step5.json"), per_video_dbg)
+    
+
 

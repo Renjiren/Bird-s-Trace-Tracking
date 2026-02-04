@@ -35,7 +35,7 @@ class Track:
         self.miss = 0
         self.time_since_update = 0
 
-        # LK points（用 bbox 中心）
+        # LK points (using bbox center)
         x, y, w, h = box
         self.pts = np.array([[[x + w / 2, y + h / 2]]], dtype=np.float32)
         self.prev_gray = gray.copy()
@@ -57,7 +57,7 @@ class Track:
         dx = next_pts[0, 0, 0] - self.pts[0, 0, 0]
         dy = next_pts[0, 0, 1] - self.pts[0, 0, 1]
 
-        # 更新 bbox
+        # update bbox
         self.box[0] += dx
         self.box[1] += dy
 
@@ -85,13 +85,13 @@ class Tracker:
     def step(self, detections, prev_gray, curr_gray):
         used_det = set()
 
-        # 1️⃣ LK 推所有 track
+        # 1) LK track propagation
         for t in self.tracks:
             ok = t.lk_step(curr_gray)
             if not ok:
                 t.miss += 1
 
-        # 2️⃣ detection 校正（IoU matching）
+        # 2) Detection correction (IoU matching)
         for ti, t in enumerate(self.tracks):
             best_iou = 0
             best_di = -1
@@ -107,15 +107,15 @@ class Tracker:
                 t.update_with_det(detections[best_di], curr_gray)
                 used_det.add(best_di)
 
-        # 3️⃣ 新 detection → 新 track
+        # 3) New detection → new track
         for di, d in enumerate(detections):
             if di not in used_det:
                 self.tracks.append(Track(d, curr_gray))
 
-        # 4️⃣ prune
+        # 4) Prune 
         self.tracks = [t for t in self.tracks if t.miss <= self.max_age]
 
-        # 5️⃣ output
+        # 5) Output
         out = []
         for t in self.tracks:
             if t.hits >= self.min_hits:

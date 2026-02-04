@@ -1,8 +1,5 @@
-# camera_motion_compensation.py
-# Step2: output prev_aligned、T(2x3)、camera_moving
-
+# Camera motion compensation 
 from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Optional, Dict, Any, List, Tuple, Literal
 import numpy as np
@@ -11,7 +8,6 @@ import cv2
 from preprocessing import ensure_gray_u8, preprocess_frame, PreprocessConfig, apply_valid_mask_fill
 
 RoiMode = Literal["corners", "strips", "corners+strips"]
-EccMode = Literal["euclidean", "affine"]
 
 
 @dataclass(frozen=True)
@@ -22,14 +18,27 @@ class CamMotionConfig:
     strip_frac: float = 0.18
     margin_frac: float = 0.02
     use_hanning: bool = True
+
+    # ROI valid pixel ratio minimum
     roi_valid_frac_min: float = 0.45
 
-    # ---------- Stage-1/2 acceptance ----------
-    global_pc_resp_thresh: float = 0.30
-    global_err_ratio_thresh: float = 0.92
-    global_min_improve: float = 0.5
+    # ---------- Acceptance thresholds (shared by PC/ROI/ECC) ----------
+    max_abs_shift_px: float = 50.0
+    moving_thresh_px: float = 1.0
 
+    # Phase correlation response thresholds
+    global_pc_resp_thresh: float = 0.30
     roi_pc_resp_thresh: float = 0.22
+
+    # Error-based acceptance (scheme A: mean abs error + robust handling)
+    err_ratio_thresh: float = 0.92
+    min_improve: float = 0.5
+
+    # When err0 is too small, "improve" and "ratio" become meaningless;
+    # in that case we relax acceptance to rely more on correlation confidence.
+    err0_small: float = 1.0
+
+    # ---------- ROI consensus details ----------
     st_max_corners: int = 300
     st_quality: float = 0.01
     st_min_distance: int = 7
@@ -39,22 +48,15 @@ class CamMotionConfig:
     mad_k: float = 3.0
     min_inlier_rois: int = 3
 
-    # ---------- Stage-3 (ECC fallback) ----------
+    # ---------- ECC fallback ----------
     enable_ecc_fallback: bool = True
-    ecc_order: Tuple[EccMode, ...] = ("euclidean", "affine")  # Euclidean -> Affine(=Affine2)
-    ecc_iterations: int = 70
+    ecc_iterations: int = 60
     ecc_eps: float = 1e-4
+    ecc_cc_thresh: float = 0.40   # optional ECC correlation threshold
 
-    # ---------- moving decision ----------
-    moving_thresh_px: float = 1.0
-    max_abs_shift_px: float = 60.0
-
-    # ---------- spec_mask weighting suppression ----------
-    # spec_mask: 255 normal, 0 glare-like
-    use_spec_weight: bool = True
-    spec_weight: float = 0.25               # spec region weight (the smaller the value, the more suppressed)
-    spec_dilate_ksize: int = 5              # covering glare margin
-    spec_weight_max_ratio: float = 0.25     # If the spec component is too large, do not use spec weights at all (to avoid false positives on large areas of the sky).
+    # ---------- Soft spec weighting ----------
+    use_soft_spec_weight: bool = True
+    specular_weight: float = 0.35  # weight applied to error inside spec region (0..1)
 
     save_roi_infos: bool = False
 
@@ -62,23 +64,18 @@ class CamMotionConfig:
 @dataclass
 class CameraMotionResult:
     prev_aligned: np.ndarray
-    T: Optional[np.ndarray]          # 2x3
+    T: Optional[np.ndarray]          # 2x3 warp matrix
     camera_moving: bool
     debug: Dict[str, Any]
 
 
-def odd(k: int) -> int:
-    k = int(k)
-    if k <= 1:
-        return 1
-    return k + (k % 2 == 0)
-
-
+#--------------- utils ---------------
 def make_rois(H: int, W: int, cfg: CamMotionConfig) -> List[Tuple[int, int, int, int, str]]:
+    """Generate ROIs for robust consensus estimation."""
     mx = int(W * cfg.margin_frac)
     my = int(H * cfg.margin_frac)
 
-    def clamp_rect(x, y, w, h):
+    def clamp_rect(x: int, y: int, w: int, h: int) -> Tuple[int, int, int, int]:
         x = max(0, min(x, W - w))
         y = max(0, min(y, H - h))
         return x, y, w, h
@@ -106,42 +103,86 @@ def make_rois(H: int, W: int, cfg: CamMotionConfig) -> List[Tuple[int, int, int,
     return rois
 
 
-def warp_u8(img_u8: np.ndarray, T_2x3: np.ndarray) -> np.ndarray:
-    H, W = img_u8.shape[:2]
-    return cv2.warpAffine(img_u8, T_2x3.astype(np.float32), (W, H),
-                          flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
-
-
-def median_abs_error(a_u8: np.ndarray, b_u8: np.ndarray, mask_u8: Optional[np.ndarray]) -> float:
-    diff = cv2.absdiff(a_u8, b_u8)
-    if mask_u8 is not None and np.any(mask_u8 > 0):
-        vals = diff[mask_u8 > 0]
-    else:
-        vals = diff.reshape(-1)
-    if vals.size == 0:
-        return float(np.median(diff))
-    return float(np.median(vals))
-
-
-def weighted_zero_mean(img_u8: np.ndarray, w_f32: np.ndarray) -> np.ndarray:
-    x = img_u8.astype(np.float32)
-    w = w_f32.astype(np.float32)
-    s = float(np.sum(w))
-    if s <= 1e-6:
-        return x
-    mu = float(np.sum(x * w) / s)
-    return (x - mu) * w
-
-
 def phase_corr_shift(a_u8: np.ndarray, b_u8: np.ndarray, use_hanning: bool) -> Tuple[Tuple[float, float], float]:
+    """Phase correlation shift between two uint8 gray images."""
     a = a_u8.astype(np.float32)
     b = b_u8.astype(np.float32)
+
     if use_hanning:
         win = cv2.createHanningWindow((a.shape[1], a.shape[0]), cv2.CV_32F)
         shift, resp = cv2.phaseCorrelate(a, b, win)
     else:
         shift, resp = cv2.phaseCorrelate(a, b)
+
     return (float(shift[0]), float(shift[1])), float(resp)
+
+
+def warp_u8(img_u8: np.ndarray, dx: float, dy: float) -> np.ndarray:
+    """Warp with translation (dx, dy)."""
+    H, W = img_u8.shape[:2]
+    T = np.array([[1.0, 0.0, dx],
+                  [0.0, 1.0, dy]], dtype=np.float32)
+    return cv2.warpAffine(img_u8, T, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+
+
+def build_spec_union_bad(prev_spec_mask: Optional[np.ndarray],
+                          curr_spec_mask: Optional[np.ndarray],
+                          H: int,
+                          W: int) -> Optional[np.ndarray]:
+    """
+    Build a boolean 'spec_bad' map:
+      True  -> specular-like (spec_mask==0)
+      False -> normal
+    We use union across prev/curr if both exist (more robust).
+    """
+    if prev_spec_mask is None and curr_spec_mask is None:
+        return None
+
+    if prev_spec_mask is None:
+        bad = (curr_spec_mask == 0)
+    elif curr_spec_mask is None:
+        bad = (prev_spec_mask == 0)
+    else:
+        bad = (prev_spec_mask == 0) | (curr_spec_mask == 0)
+
+    if bad.shape != (H, W):
+        # best-effort shape fix (avoid hard crash)
+        bad = cv2.resize(bad.astype(np.uint8), (W, H), interpolation=cv2.INTER_NEAREST) > 0
+
+    return bad.astype(bool)
+
+
+def weighted_mean_abs_error(curr_u8: np.ndarray,
+                             prev_u8: np.ndarray,
+                             valid_mask: Optional[np.ndarray],
+                             spec_bad: Optional[np.ndarray],
+                             cfg: CamMotionConfig) -> float:
+    """
+    Scheme-A error metric:
+      mean(|curr-prev|) computed only on valid pixels,
+      and down-weighted inside specular-like pixels.
+    This matches Step3's idea: "soft spec weighting" instead of hard ignore.
+    """
+    diff = cv2.absdiff(curr_u8, prev_u8).astype(np.float32)
+
+    if valid_mask is not None:
+        v = (valid_mask > 0)
+    else:
+        v = np.ones(diff.shape, dtype=bool)
+
+    if not np.any(v):
+        return float(np.mean(diff))
+
+    if cfg.use_soft_spec_weight and spec_bad is not None:
+        w = float(np.clip(cfg.specular_weight, 0.0, 1.0))
+        if w < 0.999:
+            s = spec_bad & v
+            diff[s] *= w
+
+    vals = diff[v]
+    if vals.size == 0:
+        return float(np.mean(diff))
+    return float(np.mean(vals))
 
 
 def shi_tomasi_count(roi_u8: np.ndarray, roi_mask_u8: Optional[np.ndarray], cfg: CamMotionConfig) -> int:
@@ -157,75 +198,26 @@ def shi_tomasi_count(roi_u8: np.ndarray, roi_mask_u8: Optional[np.ndarray], cfg:
     return 0 if corners is None else int(len(corners))
 
 
-def build_weight_and_err_mask(
-    valid_mask: Optional[np.ndarray],
-    prev_spec_mask: Optional[np.ndarray],
-    curr_spec_mask: Optional[np.ndarray],
-    cfg: CamMotionConfig,
-) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
-    """
-    统一生成：
-      - w_f32: phase-corr 输入的软权重（valid=1, invalid=0, spec=spec_weight）
-      - err_mask_u8: 误差评估/ECC 的硬 mask（默认 valid；可在 spec 比例小的时候排除 spec）
-    """
-    dbg: Dict[str, Any] = {}
-
-    if valid_mask is None:
-        raise ValueError("valid_mask is required for stable motion estimation.")
-    hard = valid_mask.astype(np.uint8) if valid_mask.dtype != np.uint8 else valid_mask
-    valid = (hard > 0)
-
-    # spec union
-    spec_union = None
-    if prev_spec_mask is not None or curr_spec_mask is not None:
-        if prev_spec_mask is None:
-            spec_union = (curr_spec_mask == 0)
-        elif curr_spec_mask is None:
-            spec_union = (prev_spec_mask == 0)
-        else:
-            spec_union = (prev_spec_mask == 0) | (curr_spec_mask == 0)
-
-    spec_ratio = 0.0
-    if spec_union is not None and np.any(valid):
-        spec_ratio = float(np.mean(spec_union[valid]))
-
-    dbg["valid_ratio"] = float(np.mean(valid))
-    dbg["spec_ratio_valid"] = float(spec_ratio)
-
-    # weight map
-    w = valid.astype(np.float32)
-    use_spec = bool(cfg.use_spec_weight and spec_union is not None and spec_ratio <= float(cfg.spec_weight_max_ratio))
-    dbg["use_spec_weight"] = use_spec
-    dbg["spec_weight"] = float(cfg.spec_weight)
-
-    if use_spec:
-        bad = spec_union.astype(np.uint8) * 255
-        k = odd(cfg.spec_dilate_ksize)
-        if k >= 3:
-            ker = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (k, k))
-            bad = cv2.dilate(bad, ker, iterations=1)
-        bad_bool = (bad > 0) & valid
-        w[bad_bool] *= float(np.clip(cfg.spec_weight, 0.0, 1.0))
-
-    # err mask：硬 mask，默认 valid；如果 spec 占比不大，则 ECC/误差评估时排除 spec（更稳）
-    err = hard.copy()
-    if spec_union is not None and spec_ratio <= float(cfg.spec_weight_max_ratio):
-        err[(spec_union & valid)] = 0
-
-    keep_frac = float(np.mean(err > 0))
-    if keep_frac < 0.20:
-        # 保底：别把 mask 削太狠
-        err = hard.copy()
-        dbg["err_mask_fallback"] = "keep_frac_too_low"
-    dbg["err_keep_frac"] = float(np.mean(err > 0))
-
-    return w, err, dbg
+def weighted_median(values: np.ndarray, weights: np.ndarray) -> float:
+    idx = np.argsort(values)
+    v = values[idx]
+    w = weights[idx]
+    c = np.cumsum(w)
+    cutoff = 0.5 * float(c[-1])
+    j = int(np.searchsorted(c, cutoff))
+    return float(v[min(j, len(v) - 1)])
 
 
 def roi_consensus_shift(prev_u8: np.ndarray,
                          curr_u8: np.ndarray,
-                         mask_u8: np.ndarray,
+                         valid_mask: Optional[np.ndarray],
                          cfg: CamMotionConfig) -> Tuple[Optional[Tuple[float, float]], Dict[str, Any]]:
+    """
+    Robust shift estimation:
+    - phase correlation in multiple ROIs
+    - weight by (resp * corner_ratio * sqrt(valid_frac))
+    - MAD-based outlier rejection
+    """
     H, W = curr_u8.shape[:2]
     rois = make_rois(H, W, cfg)
 
@@ -233,29 +225,42 @@ def roi_consensus_shift(prev_u8: np.ndarray,
     for (x, y, w, h, name) in rois:
         pr = prev_u8[y:y+h, x:x+w]
         cr = curr_u8[y:y+h, x:x+w]
-        m = mask_u8[y:y+h, x:x+w]
 
-        valid_frac = float(np.mean(m > 0))
-        if valid_frac < float(cfg.roi_valid_frac_min):
-            meas.append({"roi": name, "rect": [x, y, w, h], "skip": True, "reason": "low_valid_frac", "valid_frac": valid_frac})
-            continue
+        if valid_mask is not None and valid_mask.shape == (H, W):
+            m = valid_mask[y:y+h, x:x+w]
+            valid_frac = float(np.mean(m > 0))
+            if valid_frac < float(cfg.roi_valid_frac_min):
+                meas.append({"roi": name, "rect": [x, y, w, h], "skip": True, "reason": "low_valid_frac", "valid_frac": valid_frac})
+                continue
+            m_use = m
+        else:
+            valid_frac = 1.0
+            m_use = None
 
-        n_corners = shi_tomasi_count(pr, m, cfg)
+        n_corners = shi_tomasi_count(pr, m_use, cfg)
         (dx, dy), resp = phase_corr_shift(pr, cr, cfg.use_hanning)
 
         corner_ratio = min(1.0, n_corners / max(1.0, float(cfg.st_min_corners)))
         weight = max(0.0, resp * corner_ratio * np.sqrt(valid_frac))
 
         meas.append({
-            "roi": name, "rect": [x, y, w, h],
+            "roi": name,
+            "rect": [int(x), int(y), int(w), int(h)],
             "dx": float(dx), "dy": float(dy),
-            "resp": float(resp), "corners": int(n_corners),
-            "valid_frac": float(valid_frac), "weight": float(weight),
-            "skip": False
+            "resp": float(resp),
+            "corners": int(n_corners),
+            "valid_frac": float(valid_frac),
+            "weight": float(weight),
+            "skip": False,
         })
 
-    usable = [m for m in meas if (not m["skip"]) and (m["resp"] >= cfg.roi_pc_resp_thresh)
-              and (m["corners"] >= cfg.st_min_corners) and (m["weight"] > 0)]
+    usable = [
+        m for m in meas
+        if (not m.get("skip", False))
+        and (m["resp"] >= cfg.roi_pc_resp_thresh)
+        and (m["corners"] >= cfg.st_min_corners)
+        and (m["weight"] > 0)
+    ]
 
     dbg: Dict[str, Any] = {
         "roi_total": int(len(meas)),
@@ -275,235 +280,315 @@ def roi_consensus_shift(prev_u8: np.ndarray,
     dys = np.array([m["dy"] for m in usable], dtype=np.float32)
     ws = np.array([m["weight"] for m in usable], dtype=np.float32)
 
-    # weighted median
-    def wmed(v: np.ndarray, w: np.ndarray) -> float:
-        idx = np.argsort(v)
-        v2, w2 = v[idx], w[idx]
-        c = np.cumsum(w2)
-        cut = 0.5 * float(c[-1])
-        j = int(np.searchsorted(c, cut))
-        return float(v2[min(j, len(v2) - 1)])
-
-    dx0 = wmed(dxs, ws)
-    dy0 = wmed(dys, ws)
+    dx0 = weighted_median(dxs, ws)
+    dy0 = weighted_median(dys, ws)
 
     res = np.sqrt((dxs - dx0) ** 2 + (dys - dy0) ** 2)
     mad = float(np.median(np.abs(res - np.median(res))) + 1e-6)
-    thr = float(cfg.mad_k) * (1.4826 * mad + 1e-6)
+    thr = cfg.mad_k * (1.4826 * mad + 1e-6)
 
     inlier = res <= max(thr, 1.0)
     inliers = [u for u, keep in zip(usable, inlier.tolist()) if keep]
 
-    dbg["dx0"] = float(dx0)
-    dbg["dy0"] = float(dy0)
-    dbg["mad"] = float(mad)
-    dbg["inliers"] = int(len(inliers))
-    dbg["inlier_thr"] = float(max(thr, 1.0))
+    dbg.update({
+        "dx0": float(dx0),
+        "dy0": float(dy0),
+        "mad": float(mad),
+        "inliers": int(len(inliers)),
+        "inlier_thr": float(max(thr, 1.0)),
+    })
 
     if len(inliers) < cfg.min_inlier_rois:
         dbg["reason"] = "not_enough_inliers_after_mad"
         return None, dbg
 
-    dx = wmed(np.array([m["dx"] for m in inliers], np.float32),
-              np.array([m["weight"] for m in inliers], np.float32))
-    dy = wmed(np.array([m["dy"] for m in inliers], np.float32),
-              np.array([m["weight"] for m in inliers], np.float32))
-    dbg["dx_final"] = float(dx)
-    dbg["dy_final"] = float(dy)
-    dbg["resp_mean_inliers"] = float(np.mean([m["resp"] for m in inliers]))
+    dxs2 = np.array([m["dx"] for m in inliers], dtype=np.float32)
+    dys2 = np.array([m["dy"] for m in inliers], dtype=np.float32)
+    ws2 = np.array([m["weight"] for m in inliers], dtype=np.float32)
+
+    dx = weighted_median(dxs2, ws2)
+    dy = weighted_median(dys2, ws2)
+
+    dbg.update({
+        "dx_final": float(dx),
+        "dy_final": float(dy),
+        "resp_mean_inliers": float(np.mean([m["resp"] for m in inliers])),
+    })
+
     return (float(dx), float(dy)), dbg
 
 
-def ecc_try(prev_f32: np.ndarray,
-             curr_f32: np.ndarray,
-             mask_u8: np.ndarray,
-             init_T: np.ndarray,
-             mode: EccMode,
-             cfg: CamMotionConfig) -> Tuple[Optional[np.ndarray], Dict[str, Any]]:
-    dbg: Dict[str, Any] = {"mode": mode, "ok": False}
-
-    if mode == "euclidean":
-        motion = cv2.MOTION_EUCLIDEAN
-    else:
-        motion = cv2.MOTION_AFFINE  # Affine2
-
-    warp = init_T.astype(np.float32).copy()
-
-    criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT,
-                int(cfg.ecc_iterations),
-                float(cfg.ecc_eps))
+def ecc_translation(prev_u8: np.ndarray,
+                     curr_u8: np.ndarray,
+                     valid_mask: Optional[np.ndarray],
+                     cfg: CamMotionConfig,
+                     init_shift: Optional[Tuple[float, float]] = None) -> Tuple[Optional[Tuple[float, float]], Dict[str, Any]]:
+    """
+    ECC translation (masked). IMPORTANT:
+    - We also return debug and let the caller apply the same acceptance logic.
+    - Use init_shift from PC/ROI as initialization for better convergence.
+    """
+    dbg: Dict[str, Any] = {"ecc_enabled": True}
     try:
+        template = curr_u8.astype(np.float32) / 255.0
+        inp = prev_u8.astype(np.float32) / 255.0
+
+        warp = np.array([[1.0, 0.0, 0.0],
+                         [0.0, 1.0, 0.0]], dtype=np.float32)
+        if init_shift is not None:
+            warp[0, 2] = float(init_shift[0])
+            warp[1, 2] = float(init_shift[1])
+            dbg["init_dx"] = float(init_shift[0])
+            dbg["init_dy"] = float(init_shift[1])
+
+        criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT,
+                    int(cfg.ecc_iterations),
+                    float(cfg.ecc_eps))
+
         cc, warp = cv2.findTransformECC(
-            templateImage=curr_f32,
-            inputImage=prev_f32,
+            templateImage=template,
+            inputImage=inp,
             warpMatrix=warp,
-            motionType=motion,
+            motionType=cv2.MOTION_TRANSLATION,
             criteria=criteria,
-            inputMask=mask_u8
+            inputMask=valid_mask
         )
+
+        dx = float(warp[0, 2])
+        dy = float(warp[1, 2])
         dbg["ecc_cc"] = float(cc)
-        dbg["ok"] = True
-        return warp, dbg
+        dbg["dx"] = dx
+        dbg["dy"] = dy
+        return (dx, dy), dbg
     except cv2.error as e:
         dbg["reason"] = "ecc_failed"
         dbg["cv2_error"] = str(e)[:200]
         return None, dbg
 
 
-def max_corner_displacement(T_2x3: np.ndarray, H: int, W: int) -> float:
-    pts = np.array([[0, 0], [W-1, 0], [0, H-1], [W-1, H-1]], dtype=np.float32).reshape(-1, 1, 2)
-    pts2 = cv2.transform(pts, T_2x3.astype(np.float32))
-    d = np.linalg.norm(pts2 - pts, axis=2).reshape(-1)
-    return float(np.max(d)) if d.size else 0.0
+def accept_candidate(resp_like: float,
+                      resp_thresh: float,
+                      dx: float, dy: float,
+                      err0: float, err1: float,
+                      cfg: CamMotionConfig) -> Tuple[bool, Dict[str, Any]]:
+    """
+    Shared acceptance logic for PC/ROI/ECC.
+    When err0 is tiny, error improvement is unreliable, so we relax to resp-only gate.
+    """
+    info: Dict[str, Any] = {}
+
+    if abs(dx) > cfg.max_abs_shift_px or abs(dy) > cfg.max_abs_shift_px:
+        info["reject_reason"] = "shift_too_large"
+        return False, info
+
+    ratio = float(err1 / (err0 + 1e-6))
+    improve = float(err0 - err1)
+
+    info.update({"err0": float(err0), "err1": float(err1), "ratio": ratio, "improve": improve})
+
+    # If baseline error is too small, rely mainly on correlation confidence
+    if err0 <= float(cfg.err0_small):
+        ok = (resp_like >= resp_thresh)
+        info["mode"] = "err0_small_relaxed"
+        info["resp_like"] = float(resp_like)
+        info["resp_thresh"] = float(resp_thresh)
+        if not ok:
+            info["reject_reason"] = "low_resp_like"
+        return ok, info
+
+    # Normal gate: resp + error improvements
+    ok = (
+        (resp_like >= resp_thresh) and
+        (ratio <= float(cfg.err_ratio_thresh)) and
+        (improve >= float(cfg.min_improve))
+    )
+    info["mode"] = "normal"
+    info["resp_like"] = float(resp_like)
+    info["resp_thresh"] = float(resp_thresh)
+    info["err_ratio_thresh"] = float(cfg.err_ratio_thresh)
+    info["min_improve"] = float(cfg.min_improve)
+
+    if not ok:
+        info["reject_reason"] = "resp_or_error_gate_failed"
+    return ok, info
 
 
-def estimate_camera_motion(
+# ------------- main function ---------------
+def estimate_camera_translation(
     prev_feat: np.ndarray,
     curr_feat: np.ndarray,
-    valid_mask: np.ndarray,
-    prev_spec_mask: Optional[np.ndarray],
-    curr_spec_mask: Optional[np.ndarray],
+    valid_mask: Optional[np.ndarray],            # current-frame hard mask (255 valid / 0 invalid)
+    prev_spec_mask: Optional[np.ndarray],        # 255 normal / 0 spec-like
+    curr_spec_mask: Optional[np.ndarray],        # 255 normal / 0 spec-like
     cfg: CamMotionConfig,
     warp_src: Optional[np.ndarray] = None,
 ) -> CameraMotionResult:
     """
-    Step2（统一技术路径）：
-    - 输入建议 LoG（prev_feat/curr_feat），valid_mask 必须给（字幕 hard mask）
-    - spec_mask 仅用于“权重抑制”（不再做任何反光/模糊替换链条）
-    - Stage1/2：PhaseCorrelation（global + ROI consensus）
-    - Stage3：ECC 回退：Euclidean(平移+旋转) -> Affine2
+    Estimate translation that warps prev -> curr.
+
+    Key design (aligned with your Step3):
+    - Hard subtitle mask is handled by apply_valid_mask_fill() (no hard 0 holes).
+    - Spec is NOT hard-ignored; it is down-weighted only in the error metric (acceptance).
+    - Error metric uses mean absolute error (scheme A), which is much more stable than median on LoG-u8.
+    - ECC is accepted/rejected using the same gates as PC/ROI, and initialized from the best PC/ROI guess.
     """
-    prev_u8 = ensure_gray_u8(prev_feat)
-    curr_u8 = ensure_gray_u8(curr_feat)
-    H, W = curr_u8.shape[:2]
+    prev_feat = ensure_gray_u8(prev_feat)
+    curr_feat = ensure_gray_u8(curr_feat)
+    H, W = curr_feat.shape[:2]
 
-    if valid_mask.shape != (H, W):
-        raise ValueError("valid_mask shape mismatch")
+    # ----- build hard mask -----
+    hard_mask: Optional[np.ndarray]
+    if valid_mask is None:
+        hard_mask = None
+    else:
+        hard_mask = valid_mask.astype(np.uint8)
+        # normalize to 0/255 in case it is 0/1
+        if hard_mask.max() <= 1:
+            hard_mask = (hard_mask * 255).astype(np.uint8)
 
-    # hard invalid fill（字幕洞补齐）：复用 preprocessing 的公共逻辑
-    prev_fill = apply_valid_mask_fill(prev_u8, valid_mask, sigma=3.0)
-    curr_fill = apply_valid_mask_fill(curr_u8, valid_mask, sigma=3.0)
+    # ----- build spec union (soft) -----
+    spec_bad = build_spec_union_bad(prev_spec_mask, curr_spec_mask, H, W)
 
-    # weight + err mask（核心：spec_mask 只走这里）
-    w_f32, err_mask, wdbg = build_weight_and_err_mask(valid_mask, prev_spec_mask, curr_spec_mask, cfg)
+    # ----- apply Step3-style hard mask fill (avoid edges/holes) -----
+    prev_use = apply_valid_mask_fill(prev_feat, hard_mask, sigma=3.0)
+    curr_use = apply_valid_mask_fill(curr_feat, hard_mask, sigma=3.0)
 
-    # phase-corr 输入：weighted zero-mean
-    prev_use = weighted_zero_mean(prev_fill, w_f32)
-    curr_use = weighted_zero_mean(curr_fill, w_f32)
-
-    debug: Dict[str, Any] = {"method": "identity", "weighting": wdbg}
-
-    # ---------- Stage 1: global phase correlation ----------
-    (dx, dy), resp = phase_corr_shift(prev_use, curr_use, cfg.use_hanning)
-
-    err0 = median_abs_error(curr_fill, prev_fill, err_mask)
-    T_test = np.array([[1.0, 0.0, dx], [0.0, 1.0, dy]], dtype=np.float32)
-    prev_warp_test = warp_u8(prev_fill, T_test)
-    err1 = median_abs_error(curr_fill, prev_warp_test, err_mask)
-
-    debug["global_pc"] = {
-        "dx": float(dx), "dy": float(dy), "resp": float(resp),
-        "err_unaligned": float(err0),
-        "err_aligned": float(err1),
-        "err_ratio": float(err1 / (err0 + 1e-6)),
-        "improve": float(err0 - err1),
-        "resp_thresh": float(cfg.global_pc_resp_thresh),
-        "err_ratio_thresh": float(cfg.global_err_ratio_thresh),
-        "min_improve": float(cfg.global_min_improve),
+    debug: Dict[str, Any] = {
+        "hard_mask": None if hard_mask is None else {
+            "valid_ratio": float(np.mean(hard_mask > 0)),
+            "invalid_ratio": float(np.mean(hard_mask == 0)),
+        },
+        "spec_union": None if spec_bad is None else {
+            "spec_ratio_valid": float(np.mean(spec_bad[hard_mask > 0])) if hard_mask is not None and np.any(hard_mask > 0) else float(np.mean(spec_bad))
+        },
+        "method": "identity",
     }
 
-    used_T: Optional[np.ndarray] = None
-    global_ok = (
-        resp >= cfg.global_pc_resp_thresh and
-        abs(dx) <= cfg.max_abs_shift_px and abs(dy) <= cfg.max_abs_shift_px and
-        (err1 / (err0 + 1e-6) <= cfg.global_err_ratio_thresh) and
-        (err0 - err1 >= cfg.global_min_improve)
-    )
-    if global_ok:
-        used_T = T_test
-        debug["method"] = "global_phase_correlation"
+    # Precompute baseline error (unaligned)
+    err0 = weighted_mean_abs_error(curr_use, prev_use, hard_mask, spec_bad, cfg)
 
-    # ---------- Stage 2: ROI consensus ----------
-    if used_T is None:
-        shift2, roi_dbg = roi_consensus_shift(prev_use.astype(np.uint8), curr_use.astype(np.uint8), err_mask, cfg)
-        debug["roi_consensus"] = roi_dbg
+
+    # --------------- Stage 1: global PC ---------------
+    (dx1, dy1), resp1 = phase_corr_shift(prev_use, curr_use, cfg.use_hanning)
+    prev_w1 = warp_u8(prev_use, dx1, dy1)
+    err1 = weighted_mean_abs_error(curr_use, prev_w1, hard_mask, spec_bad, cfg)
+
+    ok1, ok1_info = accept_candidate(resp1, cfg.global_pc_resp_thresh, dx1, dy1, err0, err1, cfg)
+    debug["global_pc"] = {
+        "dx": float(dx1), "dy": float(dy1), "resp": float(resp1),
+        **ok1_info
+    }
+
+    best_shift: Optional[Tuple[float, float]] = None
+    best_err: float = float("inf")
+    best_tag: str = "identity"
+
+    if ok1 and err1 < best_err:
+        best_shift = (float(dx1), float(dy1))
+        best_err = float(err1)
+        best_tag = "global_phase_correlation"
+
+    # ------------- Stage 2: ROI consensus ---------------
+    shift2, roi_dbg = roi_consensus_shift(prev_use, curr_use, hard_mask, cfg)
+    debug["roi_consensus"] = roi_dbg
+
+    if shift2 is not None:
+        dx2, dy2 = shift2
+        dx2 = float(np.clip(dx2, -cfg.max_abs_shift_px, cfg.max_abs_shift_px))
+        dy2 = float(np.clip(dy2, -cfg.max_abs_shift_px, cfg.max_abs_shift_px))
+
+        prev_w2 = warp_u8(prev_use, dx2, dy2)
+        err2 = weighted_mean_abs_error(curr_use, prev_w2, hard_mask, spec_bad, cfg)
+
+        # ROI uses resp threshold from cfg.roi_pc_resp_thresh, but ROI itself has multiple resps;
+        # we use the mean-inlier response as "resp_like" when available.
+        resp2_like = float(roi_dbg.get("resp_mean_inliers", 0.0))
+        ok2, ok2_info = accept_candidate(resp2_like, cfg.roi_pc_resp_thresh, dx2, dy2, err0, err2, cfg)
+
+        debug["roi_check"] = {
+            "dx": float(dx2), "dy": float(dy2),
+            "resp_like": float(resp2_like),
+            **ok2_info
+        }
+
+        if ok2 and err2 < best_err:
+            best_shift = (dx2, dy2)
+            best_err = float(err2)
+            best_tag = "roi_consensus_phase_correlation"
+
+
+    # ----------------- Stage 3: ECC fallback -----------------
+    if cfg.enable_ecc_fallback:
+        # Initialization: use the best PC/ROI guess (even if not accepted),
+        # because it often helps ECC converge.
+        init = None
         if shift2 is not None:
-            dx2, dy2 = shift2
-            dx2 = float(np.clip(dx2, -cfg.max_abs_shift_px, cfg.max_abs_shift_px))
-            dy2 = float(np.clip(dy2, -cfg.max_abs_shift_px, cfg.max_abs_shift_px))
-            T2 = np.array([[1.0, 0.0, dx2], [0.0, 1.0, dy2]], dtype=np.float32)
-            prev_warp2 = warp_u8(prev_fill, T2)
-            err2 = median_abs_error(curr_fill, prev_warp2, err_mask)
+            init = (float(np.clip(shift2[0], -cfg.max_abs_shift_px, cfg.max_abs_shift_px)),
+                    float(np.clip(shift2[1], -cfg.max_abs_shift_px, cfg.max_abs_shift_px)))
+        else:
+            init = (float(np.clip(dx1, -cfg.max_abs_shift_px, cfg.max_abs_shift_px)),
+                    float(np.clip(dy1, -cfg.max_abs_shift_px, cfg.max_abs_shift_px)))
 
-            debug["roi_consensus_check"] = {
-                "dx": float(dx2), "dy": float(dy2),
-                "err_aligned": float(err2),
-                "err_ratio": float(err2 / (err0 + 1e-6)),
-                "improve": float(err0 - err2),
+        ecc_shift, ecc_dbg = ecc_translation(prev_use, curr_use, hard_mask, cfg, init_shift=init)
+        debug["ecc"] = ecc_dbg
+
+        if ecc_shift is not None:
+            dx3, dy3 = ecc_shift
+            dx3 = float(np.clip(dx3, -cfg.max_abs_shift_px, cfg.max_abs_shift_px))
+            dy3 = float(np.clip(dy3, -cfg.max_abs_shift_px, cfg.max_abs_shift_px))
+
+            prev_w3 = warp_u8(prev_use, dx3, dy3)
+            err3 = weighted_mean_abs_error(curr_use, prev_w3, hard_mask, spec_bad, cfg)
+
+            # ECC has "ecc_cc" as resp-like score
+            cc = float(ecc_dbg.get("ecc_cc", 0.0))
+            # Optionally require ecc_cc above a threshold (and also apply the same error gates)
+            ok3, ok3_info = accept_candidate(cc, cfg.ecc_cc_thresh, dx3, dy3, err0, err3, cfg)
+
+            debug["ecc_check"] = {
+                "dx": float(dx3), "dy": float(dy3),
+                **ok3_info
             }
-            if (err2 / (err0 + 1e-6) <= cfg.global_err_ratio_thresh) and (err0 - err2 >= cfg.global_min_improve):
-                used_T = T2
-                debug["method"] = "roi_consensus_phase_correlation"
 
-    # ---------- Stage 3: ECC fallback (EUCLIDEAN -> AFFINE) ----------
-    if used_T is None and cfg.enable_ecc_fallback:
-        # ECC 用 float32 [0,1]
-        prev_f32 = (prev_fill.astype(np.float32) / 255.0)
-        curr_f32 = (curr_fill.astype(np.float32) / 255.0)
+            if ok3 and err3 < best_err:
+                best_shift = (dx3, dy3)
+                best_err = float(err3)
+                best_tag = "ecc_translation"
 
-        # init：用 global dx/dy 作为“还不错的初值”
-        init = np.array([[1.0, 0.0, float(np.clip(dx, -cfg.max_abs_shift_px, cfg.max_abs_shift_px))],
-                         [0.0, 1.0, float(np.clip(dy, -cfg.max_abs_shift_px, cfg.max_abs_shift_px))]], dtype=np.float32)
 
-        ecc_dbg_all: List[Dict[str, Any]] = []
-        for mode in cfg.ecc_order:
-            warp, edbg = ecc_try(prev_f32, curr_f32, err_mask, init, mode, cfg)
-            ecc_dbg_all.append(edbg)
-            if warp is None:
-                continue
-
-            # clip translation
-            warp = warp.astype(np.float32)
-            warp[0, 2] = float(np.clip(warp[0, 2], -cfg.max_abs_shift_px, cfg.max_abs_shift_px))
-            warp[1, 2] = float(np.clip(warp[1, 2], -cfg.max_abs_shift_px, cfg.max_abs_shift_px))
-
-            prev_warp3 = warp_u8(prev_fill, warp)
-            err3 = median_abs_error(curr_fill, prev_warp3, err_mask)
-
-            edbg["err_aligned"] = float(err3)
-            edbg["err_ratio"] = float(err3 / (err0 + 1e-6))
-            edbg["improve"] = float(err0 - err3)
-
-            if (err3 / (err0 + 1e-6) <= cfg.global_err_ratio_thresh) and (err0 - err3 >= cfg.global_min_improve):
-                used_T = warp
-                debug["method"] = f"ecc_{mode}"
-                break
-
-        debug["ecc"] = ecc_dbg_all
-
-    # ---------- Final warp ----------
-    if used_T is None:
-        out = warp_src if warp_src is not None else prev_u8
+    # ------------ Finalize ------------
+    if best_shift is None:
+        # no valid candidate accepted -> identity
+        out = warp_src if warp_src is not None else prev_feat
         out = ensure_gray_u8(out)
+        debug["method"] = "identity"
         return CameraMotionResult(prev_aligned=out.copy(), T=None, camera_moving=False, debug=debug)
 
-    src = warp_src if warp_src is not None else prev_u8
-    src = ensure_gray_u8(src)
-    prev_aligned = warp_u8(src, used_T)
+    dx_f, dy_f = best_shift
+    T = np.array([[1.0, 0.0, dx_f],
+                  [0.0, 1.0, dy_f]], dtype=np.float32)
 
-    max_disp = max_corner_displacement(used_T, H, W)
-    camera_moving = bool(max_disp >= float(cfg.moving_thresh_px))
+    src = warp_src if warp_src is not None else prev_feat
+    src = ensure_gray_u8(src)
+    prev_aligned = cv2.warpAffine(src, T, (W, H), flags=cv2.INTER_LINEAR, borderMode=cv2.BORDER_REPLICATE)
+
+    shift_norm = float(np.hypot(dx_f, dy_f))
+    camera_moving = bool(shift_norm >= float(cfg.moving_thresh_px))
 
     debug.update({
-        "final_T": used_T.tolist(),
-        "max_corner_displacement": float(max_disp),
-        "camera_moving": bool(camera_moving),
+        "method": best_tag,
+        "final_dx": float(dx_f),
+        "final_dy": float(dy_f),
+        "shift_norm": float(shift_norm),
+        "camera_moving": camera_moving,
+        "err0_unaligned": float(err0),
+        "best_err_aligned": float(best_err),
     })
-    return CameraMotionResult(prev_aligned=prev_aligned, T=used_T, camera_moving=camera_moving, debug=debug)
+
+    return CameraMotionResult(prev_aligned=prev_aligned, T=T, camera_moving=camera_moving, debug=debug)
 
 
-# convenience: run step2 from BGR directly
-def estimate_camera_motion_from_bgr(
+def estimate_camera_translation_from_bgr(
     prev_bgr: np.ndarray,
     curr_bgr: np.ndarray,
     pre_cfg: PreprocessConfig,
@@ -511,22 +596,29 @@ def estimate_camera_motion_from_bgr(
     feature: Literal["log", "intensity"] = "log",
     warp_src: Optional[np.ndarray] = None,
 ) -> CameraMotionResult:
+    """
+    Recommended entry point:
+    - feature="log" for estimating motion (robust), then warp intensity as warp_src if needed.
+    - IMPORTANT: we use CURRENT-FRAME valid_mask (subtitle mask) to match Step3 behavior.
+    """
     pre_prev = preprocess_frame(prev_bgr, pre_cfg)
     pre_curr = preprocess_frame(curr_bgr, pre_cfg)
 
-    prev_feat = pre_prev.log if feature == "log" else pre_prev.intensity
-    curr_feat = pre_curr.log if feature == "log" else pre_curr.intensity
+    if feature == "log":
+        prev_feat = pre_prev.log
+        curr_feat = pre_curr.log
+    else:
+        prev_feat = pre_prev.intensity
+        curr_feat = pre_curr.intensity
 
+    # Warp source defaults to the same feature if not provided
     src = warp_src if warp_src is not None else prev_feat
 
-    # motion 用更稳的 valid：交集
-    valid_use = cv2.bitwise_and(pre_prev.valid_mask, pre_curr.valid_mask)
-
-    return estimate_camera_motion(
+    return estimate_camera_translation(
         prev_feat=prev_feat,
         curr_feat=curr_feat,
-        valid_mask=valid_use,
-        prev_spec_mask=pre_prev.spec_mask,
+        valid_mask=pre_curr.valid_mask,        # <-- current frame hard subtitle mask
+        prev_spec_mask=pre_prev.spec_mask,     # for spec union (soft)
         curr_spec_mask=pre_curr.spec_mask,
         cfg=cam_cfg,
         warp_src=src,

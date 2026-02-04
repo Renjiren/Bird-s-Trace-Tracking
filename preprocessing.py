@@ -1,28 +1,28 @@
 # preprocessing.py
-# Step1: output features（LoG based on local energy normalization & intensity_smooth）+  mask（valid_mask & spec_mask）
-
+# Step1: output two features（LoG and intensity）+ two masks（valid_mask and spec_mask）
 from __future__ import annotations
 
 from dataclasses import dataclass, replace
-from typing import Any, Dict, Tuple, Literal, List, Optional
+from typing import Any, Dict, Optional, Tuple, Literal, List
+
 import cv2
 import numpy as np
 
-SubtitleMaskMode = Literal["none", "spec_roi"]
+SubtitleMaskMode = Literal["none", "spec_roi"]       # use subtitle spec-like find subtitoe in ROI
 SmoothMode = Literal["none", "bilateral"]
-SpecEnableMode = Literal["always", "texture_only"]
+SpecEnableMode = Literal["always", "texture_only"]   # glare spec enable mode (diferent from subtitle)
 
 
 @dataclass(frozen=True)
 class PreprocessConfig:
-    """Preprocessing configuration parameters - fixed subtitle parameters, adaptive glare parameters"""
-
-    # ---------- Subtitle detection configuration (fixed parameters, not involved in adaptive testing) ----------
-    # decide the roi for subtitle detection
+    # ---------- subtitle ROI ----------
     subtitle_mask_mode: SubtitleMaskMode = "spec_roi"
+
+    # subtitle hight = 0.74
     subtitle_roi_y0_ratio: float = 0.74
     subtitle_roi_y1_ratio: float = 1.00
 
+    # Filter subtitles by connected components: width, height, and bottom (for "grouped blocks").
     subtitle_min_area: int = 80
     subtitle_min_width_ratio: float = 0.12
     subtitle_max_height_ratio: float = 0.20
@@ -30,63 +30,70 @@ class PreprocessConfig:
     subtitle_center_x_min: float = 0.03
     subtitle_center_x_max: float = 0.97
 
-    # dilation kernel sizes
+    # two-stage dilation sizes
+    # (A) group：
+    # Strong dilation is only used for connected component filtering to "group a line of text into a block" 
+    # (not for final masking).
     subtitle_group_dilate_ksize: Tuple[int, int] = (25, 3)
+    # (B) glyph：The final result is invalid, which only covers the shape of the character
+    # (lightly fills in the broken strokes, without erasing the gaps between the characters).
     subtitle_glyph_dilate_ksize: Tuple[int, int] = (3, 1)
 
-    # Subtitle spec-like detection parameters
+    # ---------- subtitle spec-like params (fixed,no apdative) ----------
+    # top-hat style: delta = V - blur(V)
     sub_spec_v_min: int = 180
     sub_spec_delta_sigma: float = 6.0
     sub_spec_delta_th: float = 12.0
     sub_spec_s_low: int = 55
     sub_spec_delta_strong_mul: float = 2.0
 
-    # ---------- Background smooth configuration ----------
+    # ---------- background suppression ----------
     smooth_mode: SmoothMode = "bilateral"
     bilateral_d: int = 7
     bilateral_sigma_color: float = 35.0
     bilateral_sigma_space: float = 15.0
 
-    # ---------- LoG feature configuration ----------
+    # ---------- LoG feature ----------
     log_blur_sigma: float = 1.2
     log_ksize: int = 3
-    log_edge_th: int = 35
-    use_local_normalization: bool = True  # Local energy normalization
+    log_edge_th: int = 35  # edge_density statistical threshold
 
-    # ---------- Glare detection basic configuration ----------
-    glare_fill_enable: bool = True
-    glare_fill_v_offset: int = 12
-    glare_fill_delta_th: float = 6.0
-    glare_fill_dilate_ksize: int = 11
-    glare_fill_iters: int = 1
-
-    glare_cc_min_area: int = 8
-    glare_cc_max_area_ratio: float = 0.030
-    glare_total_ratio_max: float = 0.080
-    glare_max_component_ratio_max: float = 0.050
-    glare_cc_edge_density_min: float = 0.010
-
-    # ---------- Glare detection adaptive configuration (adjusted according to video)----------
-    spec_enable_mode: SpecEnableMode = "texture_only"
-    spec_texture_edge_density_min: float = 0.020
-
+# ---------- glare spec params (allow apdative per vedio) ----------
     glare_spec_v_min: int = 230
     glare_spec_delta_sigma: float = 6.0
     glare_spec_delta_th: float = 24.0
     glare_spec_s_low: int = 55
-    glare_spec_delta_strong_mul: float = 2.5
+    glare_spec_delta_strong_mul: float = 2.0
+
+    # glare fill： seed→grow
+    glare_fill_enable: bool = True
+    glare_fill_v_offset: int = 12          # v_fill_min = glare_v_min - offset
+    glare_fill_dilate_ksize: int = 11      # seed → grow kernel size (odd)
+    glare_fill_iters: int = 1
+
+    # ---------- glare gating + CC + fallback ----------
+    spec_enable_mode: SpecEnableMode = "texture_only"
+    spec_texture_edge_density_min: float = 0.020
+
+    glare_cc_min_area: int = 5                # Minimum size of a single block >= 5 px
+    glare_cc_max_area_ratio: float = 0.05     # Maximum single block size <= 5% of total image pixels
+    glare_total_ratio_max: float = 0.015      # Total spec > 15% -> Turn off Glare (believes it's broken)
+    glare_max_component_ratio_max: float = 0.050  # Maximum block > 5% -> Turn off glare
+
+    # Local texture filtering: Prevents accidental retention of large areas of sky/smooth surfaces.
+    glare_cc_edge_density_min: float = 0.010
 
 
 @dataclass
 class PreprocessResult:
-    intensity: np.ndarray     # uint8 HxW, gray image after smooth  (intensity_smooth)
-    log: np.ndarray           # uint8 HxW, LoG feature
-    valid_mask: np.ndarray    # uint8 HxW, 255 valid / 0 invalid（subtitle）
-    spec_mask: np.ndarray     # uint8 HxW, 255 normal / 0 mask（soft mask）
-    smooth_bgr: np.ndarray    # uint8 HxWx3, bgr image after smooth
-    debug: Dict[str, Any]     # debug info for analysis
+    intensity: np.ndarray     # uint8 HxW, smooth gray
+    log: np.ndarray           # uint8 HxW
+    valid_mask: np.ndarray    # uint8 HxW, 255 valid / 0 invalid
+    spec_mask: np.ndarray     # uint8 HxW, 255 normal / 0 glare-like (soft suppression)
+    smooth_bgr: np.ndarray    # uint8 HxWx3
+    debug: Dict[str, Any]
 
-
+# ---------------- utils -----------------
 def ensure_bgr_u8(img: np.ndarray) -> np.ndarray:
     if img.ndim == 2:
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
@@ -103,33 +110,51 @@ def ensure_gray_u8(img: np.ndarray) -> np.ndarray:
     return img
 
 
+def odd(k: int) -> int:
+    k = int(k)
+    if k <= 1:
+        return 1
+    return k + (k % 2 == 0)
+
+def scaled_k(base: int, H: int, W: int, ref: int) -> int:
+    s = float(min(H, W)) / float(max(1, ref))
+    return odd(max(1, int(round(base * s))))
+
+
+def apply_valid_mask_fill(gray_u8: np.ndarray, valid_mask: Optional[np.ndarray], sigma: float = 3.0) -> np.ndarray:
+    """
+    Fill invalid areas (valid_mask=0) by Gaussian blur.
+    valid_mask: 255 valid / 0 invalid
+    """
+    if valid_mask is None:
+        return gray_u8
+    m = valid_mask.astype(np.uint8)
+    if not np.any(m == 0):
+        return gray_u8
+    blur = cv2.GaussianBlur(gray_u8, (0, 0), sigmaX=float(max(0.0, sigma)), sigmaY=float(max(0.0, sigma)))
+    out = gray_u8.copy()
+    out[m == 0] = blur[m == 0]
+    return out
+
+
+# ---------------- core processing functions -----------------
 def smooth_background(bgr_u8: np.ndarray, cfg: PreprocessConfig) -> np.ndarray:
     if cfg.smooth_mode == "none":
         return bgr_u8
-    return cv2.bilateralFilter(
-        bgr_u8,
-        d=cfg.bilateral_d,
-        sigmaColor=cfg.bilateral_sigma_color,
-        sigmaSpace=cfg.bilateral_sigma_space,
-    )
+    if cfg.smooth_mode == "bilateral":
+        d = int(max(1, cfg.bilateral_d))
+        return cv2.bilateralFilter(
+            bgr_u8,
+            d=d,
+            sigmaColor=float(cfg.bilateral_sigma_color),
+            sigmaSpace=float(cfg.bilateral_sigma_space),
+        )
+    raise ValueError(f"Unknown smooth_mode: {cfg.smooth_mode}")
 
 
 def compute_log_feature(gray_u8: np.ndarray, cfg: PreprocessConfig) -> np.ndarray:
-    """
-    LoG features (more robust to continuous illumination changes):
-
-    - Light Gaussian first
-
-    - Laplacian -> abs
-
-    - Choice: Local energy normalization (effective when use_local_normalization=True)
-
-    - Finally, robust percentile mapping to 0..255
-    """
-    g = gray_u8
     sigma = float(max(0.0, cfg.log_blur_sigma))
-    if sigma > 0:
-        g = cv2.GaussianBlur(g, (0, 0), sigmaX=sigma, sigmaY=sigma)
+    blur = cv2.GaussianBlur(gray_u8, (0, 0), sigmaX=sigma, sigmaY=sigma) if sigma > 0 else gray_u8
 
     k = int(cfg.log_ksize)
     if k <= 0:
@@ -137,14 +162,8 @@ def compute_log_feature(gray_u8: np.ndarray, cfg: PreprocessConfig) -> np.ndarra
     if k % 2 == 0:
         k += 1
 
-    lap = cv2.Laplacian(g, cv2.CV_32F, ksize=k)
+    lap = cv2.Laplacian(blur, cv2.CV_32F, ksize=k)
     lap = np.abs(lap)
-
-    if cfg.use_local_normalization:
-        # Local energy normalization: Suppressing false edge changes caused by "overall brightening/darkening"
-        s = float(max(2.5, 3.0 * sigma + 2.0))
-        energy = cv2.GaussianBlur(lap, (0, 0), sigmaX=s, sigmaY=s)
-        lap = lap / (energy + 1e-6)
 
     p1 = float(np.percentile(lap, 1.0))
     p99 = float(np.percentile(lap, 99.0))
@@ -154,58 +173,43 @@ def compute_log_feature(gray_u8: np.ndarray, cfg: PreprocessConfig) -> np.ndarra
     return (norm * 255.0).astype(np.uint8)
 
 
-def apply_valid_mask_fill(gray_u8: np.ndarray, valid_mask: Optional[np.ndarray], sigma: float = 3.0) -> np.ndarray:
-    """
-    Hard mask (for invalid subtitles area) "filling in the gaps":
-
-    Replacing invalid areas with blur prevents strong false signals from appearing at subtitle edges due to diff/phase-corr.
-
-    This isn't "strengthening the chain," but rather ensuring subsequent operators see a continuous image.
-    """
-    g = ensure_gray_u8(gray_u8)
-    if valid_mask is None:
-        return g
-    m = valid_mask.astype(np.uint8) if valid_mask.dtype != np.uint8 else valid_mask
-    if m.shape != g.shape or (not np.any(m == 0)):
-        return g
-    blur = cv2.GaussianBlur(g, (0, 0), sigmaX=float(max(0.0, sigma)), sigmaY=float(max(0.0, sigma)))
-    out = g.copy()
-    out[m == 0] = blur[m == 0]
-    return out
-
-
-def _compute_delta_from_v(V_u8: np.ndarray, sigma: float) -> np.ndarray:
-    V_f = V_u8.astype(np.float32)
-    s = float(max(0.0, sigma))
-    V_blur = cv2.GaussianBlur(V_f, (0, 0), sigmaX=s, sigmaY=s) if s > 0 else V_f
-    return np.maximum(V_f - V_blur, 0.0)
-
-
-def _spec_like_from_svdelta(
-    S_u8: np.ndarray,
-    V_u8: np.ndarray,
-    delta_f32: np.ndarray,
+def spec_like_tophat(
+    bgr_u8: np.ndarray,
     *,
     v_min: int,
+    delta_sigma: float,
     delta_th: float,
     s_low: int,
     delta_strong_mul: float,
 ) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """
+    top-hat: delta = V - blur(V)
+    spec_like = (V >= v_min) & (delta >= delta_th) & (S is low or delta is strong)
+    """
+    hsv = cv2.cvtColor(bgr_u8, cv2.COLOR_BGR2HSV)
+    _, S, V = cv2.split(hsv)
+
+    V_f = V.astype(np.float32)
+    sigma = float(max(0.0, delta_sigma))
+    V_blur = cv2.GaussianBlur(V_f, (0, 0), sigmaX=sigma, sigmaY=sigma) if sigma > 0 else V_f
+    delta = np.maximum(V_f - V_blur, 0.0)
+
     v_min_i = int(v_min)
     d_th = float(delta_th)
     d_strong = float(delta_th * max(1.0, delta_strong_mul))
 
-    low_s = (S_u8 <= int(s_low))
-    core = (V_u8 >= v_min_i) & (delta_f32 >= d_th)
-    spec_like = core & (low_s | (delta_f32 >= d_strong))
+    low_s = (S <= int(s_low))
+    core = (V >= v_min_i) & (delta >= d_th)
+    spec_like = core & (low_s | (delta >= d_strong))
 
     dbg = {
         "v_min": v_min_i,
+        "delta_sigma": sigma,
         "delta_th": d_th,
         "s_low": int(s_low),
         "delta_strong": d_strong,
-        "v_p99": float(np.percentile(V_u8.astype(np.float32), 99.0)),
-        "delta_p995": float(np.percentile(delta_f32, 99.5)),
+        "v_p99": float(np.percentile(V_f, 99.0)),
+        "delta_p995": float(np.percentile(delta, 99.5)),
         "raw_spec_ratio": float(np.mean(spec_like)),
     }
     return spec_like, dbg
@@ -215,6 +219,12 @@ def compute_valid_mask_from_spec_roi(
     sub_spec_like: np.ndarray,
     cfg: PreprocessConfig,
 ) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """
+    subtitle mask ：
+    - in ROI, fisrtly use sub_spec_like to get character highlighting”
+    - (A) group：Strong dilation connects the entire line of subtitles into a single block -> Connectivity filtering uses "subtitle blocks".
+    - (B) glyph：Ultimately, invalid only applies to character pixels (slightly filling in broken strokes without obscuring character gaps).
+    """
     h, w = sub_spec_like.shape[:2]
     valid_mask = np.full((h, w), 255, dtype=np.uint8)
     dbg: Dict[str, Any] = {
@@ -240,6 +250,7 @@ def compute_valid_mask_from_spec_roi(
     roi = sub_spec_like[y0:y1, :]
     glyph_u8 = (roi.astype(np.uint8) * 255)
 
+    # (A) Grouped Expansion: Used only to connect entire lines of text into blocks, facilitating connected component filtering.
     gx, gy = cfg.subtitle_group_dilate_ksize
     gx, gy = max(1, int(gx)), max(1, int(gy))
     group_u8 = glyph_u8
@@ -250,6 +261,7 @@ def compute_valid_mask_from_spec_roi(
     num, labels, stats, centroids = cv2.connectedComponentsWithStats(group_u8, connectivity=8)
     dbg["components_total"] = int(max(0, num - 1))
 
+    # Connected domain filtering for "subtitle blocks"
     min_area = int(cfg.subtitle_min_area)
     min_w = int(round(float(cfg.subtitle_min_width_ratio) * w))
     max_h = int(round(float(cfg.subtitle_max_height_ratio) * h))
@@ -281,6 +293,7 @@ def compute_valid_mask_from_spec_roi(
     dbg["components_kept"] = int(kept)
 
     if kept > 0:
+        # (B) Lightly fill in the gaps between characters: only fill in the broken strokes, do not erase the gaps between characters.
         kx, ky = cfg.subtitle_glyph_dilate_ksize
         kx, ky = max(1, int(kx)), max(1, int(ky))
         glyph_final = glyph_u8
@@ -307,16 +320,20 @@ def edge_density(log_u8: np.ndarray, valid_mask: np.ndarray, edge_th: int) -> fl
 
 
 def compute_spec_mask_glare(
+    bgr_u8: np.ndarray,
     glare_spec_like: np.ndarray,
     valid_mask: np.ndarray,
     log_u8: np.ndarray,
-    V_u8: np.ndarray,
-    delta_f32: np.ndarray,
     cfg: PreprocessConfig,
 ) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
-    spec detection：
-    output spec_mask：255 normal / 0 glare-like
+    spec_mask for glare suppression:
+    1) gating by texture (edge density)
+    2) seed from strong glare-like spec areas
+    3) seed → grow fill
+    4) CC filtering (area + local texture)
+    5) fallback shutoff
+    6) output spec_mask (glare-like = 0)
     """
     h, w = glare_spec_like.shape[:2]
     dbg: Dict[str, Any] = {
@@ -324,8 +341,6 @@ def compute_spec_mask_glare(
         "enabled": True,
         "edge_density": 0.0,
         "fill_used": False,
-        "fill_v_min": None,
-        "fill_delta_th": None,
         "cc_total": 0,
         "cc_kept": 0,
         "spec_ratio_valid_final": 0.0,
@@ -334,7 +349,7 @@ def compute_spec_mask_glare(
 
     valid = (valid_mask > 0)
 
-    # texture density check
+    # 1) texture gating: closed in non-texture scenes (to prevent entire sky/bird from being red)
     ed = edge_density(log_u8, valid_mask, cfg.log_edge_th)
     dbg["edge_density"] = float(ed)
 
@@ -347,18 +362,19 @@ def compute_spec_mask_glare(
     if not enabled:
         return spec_mask, dbg
 
+    # 2) seed：glare-like strong spec areas
     seed_u8 = np.zeros((h, w), dtype=np.uint8)
     seed_u8[glare_spec_like & valid] = 255
+
     glare_u8 = seed_u8
 
-    # V+delta filling
+    # 3) seed→grow fill： from strong edges to the interior of the glare spot
     if cfg.glare_fill_enable and np.any(seed_u8 > 0):
-        v_fill_min = max(0, int(cfg.glare_spec_v_min) - int(cfg.glare_fill_v_offset))
-        d_fill_th = float(max(0.0, cfg.glare_fill_delta_th))
-        dbg["fill_v_min"] = int(v_fill_min)
-        dbg["fill_delta_th"] = float(d_fill_th)
+        hsv = cv2.cvtColor(bgr_u8, cv2.COLOR_BGR2HSV)
+        _, _, V = cv2.split(hsv)
 
-        bright = (V_u8 >= v_fill_min) & (delta_f32 >= d_fill_th) & valid
+        v_fill_min = max(0, int(cfg.glare_spec_v_min) - int(cfg.glare_fill_v_offset))
+        bright = ((V >= v_fill_min) & valid)
 
         k = max(1, int(cfg.glare_fill_dilate_ksize))
         if k % 2 == 0:
@@ -372,7 +388,7 @@ def compute_spec_mask_glare(
         glare_u8 = cv2.bitwise_or(seed_u8, filled)
         dbg["fill_used"] = True
 
-    # CC filtering
+    # 4) CC filtering
     num, labels, stats, _ = cv2.connectedComponentsWithStats(glare_u8, connectivity=8)
     dbg["cc_total"] = int(max(0, num - 1))
 
@@ -393,8 +409,9 @@ def compute_spec_mask_glare(
         if area > max_area_px:
             continue
 
-        patch_log = log_u8[y:y + hh, x:x + ww]
-        patch_valid = valid_mask[y:y + hh, x:x + ww] > 0
+        # partial local texture check
+        patch_log = log_u8[y:y+hh, x:x+ww]
+        patch_valid = valid_mask[y:y+hh, x:x+ww] > 0
         if np.any(patch_valid):
             local_ed = float(np.mean((patch_log >= int(cfg.log_edge_th)) & patch_valid))
             if local_ed < float(cfg.glare_cc_edge_density_min):
@@ -407,154 +424,136 @@ def compute_spec_mask_glare(
 
     dbg["cc_kept"] = int(kept)
 
+
+    # 5) fallback shutoff: total_ratio high => shutoff only if it looks like "big-area failure"
     valid_count = int(np.count_nonzero(valid))
     total_ratio = float(sum_area) / float(valid_count) if valid_count > 0 else 0.0
-    max_ratio = float(max_comp_area) / float(valid_count) if valid_count > 0 else 0.0
+    max_ratio   = float(max_comp_area) / float(valid_count) if valid_count > 0 else 0.0
+    largest_share = float(max_comp_area) / sum_area if sum_area > 0 else 0.0
 
-    if total_ratio > float(cfg.glare_total_ratio_max):
-        dbg["fallback"] = {"reason": "total_ratio_too_high", "total_ratio": total_ratio}
-        return np.full((h, w), 255, dtype=np.uint8), dbg
+    dbg.update(total_ratio=total_ratio, max_ratio=max_ratio, largest_share=largest_share)
 
+    # hard shutoff: single huge component
     if max_ratio > float(cfg.glare_max_component_ratio_max):
         dbg["fallback"] = {"reason": "max_component_too_high", "max_ratio": max_ratio}
         return np.full((h, w), 255, dtype=np.uint8), dbg
 
+    # soft shutoff: total too high + (area concentrated OR too few comps OR mid-size blob)
+    if total_ratio > float(cfg.glare_total_ratio_max):
+        looks_like_failure = (largest_share >= 0.30) or (kept < 10) or (max_ratio >= 0.01)
+        if looks_like_failure:
+            dbg["fallback"] = {
+                "reason": "total_ratio_high_and_bigblock",
+                "total_ratio": total_ratio,
+                "largest_share": largest_share,
+                "cc_kept": int(kept),
+                "max_ratio": max_ratio,
+            }
+            return np.full((h, w), 255, dtype=np.uint8), dbg
+
+
+    # 6) outpit spec_mask
     spec_mask[keep > 0] = 0
+
+    # subtitle invalid area set to normal
     spec_mask[~valid] = 255
 
     dbg["spec_ratio_valid_final"] = float(np.mean((spec_mask == 0)[valid])) if valid_count > 0 else 0.0
     return spec_mask, dbg
 
 
-# ---------- Video adaptive: based on fisrt N frames -> replace cfg adaptive ----------
-def compute_frame_stats(bgr_u8: np.ndarray, cfg: PreprocessConfig) -> Dict[str, float]:
-    h, w = bgr_u8.shape[:2]
+# ---------- adaptive：only in glare，no subtitle ----------
+def glare_stats_one_frame(bgr_u8: np.ndarray, cfg: PreprocessConfig) -> Dict[str, float]:
     hsv = cv2.cvtColor(bgr_u8, cv2.COLOR_BGR2HSV)
-    _, S, V = cv2.split(hsv)
+    _, _, V = cv2.split(hsv)
+    V_f = V.astype(np.float32)
 
-    delta = _compute_delta_from_v(V, cfg.glare_spec_delta_sigma)
-
-    gray_u8 = ensure_gray_u8(bgr_u8)
-    log_u8 = compute_log_feature(gray_u8, cfg)
-
-    border = int(min(h, w) * 0.1)
-    valid_region = np.zeros((h, w), dtype=bool)
-    if h > 2 * border and w > 2 * border:
-        valid_region[border:h-border, border:w-border] = True
-
-    V_valid = V[valid_region] if np.any(valid_region) else V
-    brightness_mean = float(np.mean(V_valid)) if V_valid.size > 0 else 128.0
-
-    delta_valid = delta[valid_region] if np.any(valid_region) else delta
-    delta_p995 = float(np.percentile(delta_valid, 99.5)) if delta_valid.size > 0 else 0.0
-
-    valid_mask_u8 = (valid_region * 255).astype(np.uint8)
-    edge_density = edge_density(log_u8, valid_mask_u8, cfg.log_edge_th)
+    sigma = float(max(0.0, cfg.glare_spec_delta_sigma))
+    V_blur = cv2.GaussianBlur(V_f, (0, 0), sigmaX=sigma, sigmaY=sigma) if sigma > 0 else V_f
+    delta = np.maximum(V_f - V_blur, 0.0)
 
     return {
-        "brightness_mean": float(brightness_mean),
-        "delta_p995": float(delta_p995),
-        "edge_density": float(edge_density),
+        "v_p99": float(np.percentile(V_f, 99.0)),
+        "delta_p995": float(np.percentile(delta, 99.5)),
     }
 
 
-def adapt_glare_params_for_video(
+def adapt_glare_params_from_stats(
     stats_list: List[Dict[str, float]],
-    base_cfg: PreprocessConfig
+    base_cfg: PreprocessConfig,
+    edge_density_med: float,
 ) -> Tuple[PreprocessConfig, Dict[str, Any]]:
+    """
+    output：per-video cfg） + debug
+    """
     if not stats_list:
-        return base_cfg, {"used": False, "reason": "no_stats"}
+        return base_cfg, {"used": False}
 
-    brightness_med = float(np.median([s["brightness_mean"] for s in stats_list]))
-    delta_p995_med = float(np.median([s["delta_p995"] for s in stats_list]))
-    edge_density_med = float(np.median([s["edge_density"] for s in stats_list]))
+    v_p99 = float(np.median([s["v_p99"] for s in stats_list]))
+    d_p995 = float(np.median([s["delta_p995"] for s in stats_list]))
 
-    # brightness adaptive v_min
-    if brightness_med < 100:
-        new_glare_v_min = max(210, int(brightness_med * 1.8))
-    elif brightness_med > 180:
-        new_glare_v_min = min(250, int(brightness_med * 1.2))
-    else:
-        new_glare_v_min = int(brightness_med * 1.4)
-    new_glare_v_min = max(200, min(250, new_glare_v_min))
+    # v_min： slightly lower than p99
+    new_v_min = int(np.clip(round(v_p99 - 5.0), 210, 245))
 
-    # contrast adaptive delta_th
-    contrast_scale = delta_p995_med / 30.0
-    contrast_scale = max(0.5, min(2.0, contrast_scale))
-    new_glare_delta_th = float(base_cfg.glare_spec_delta_th * contrast_scale)
-    new_glare_delta_th = max(15.0, min(60.0, new_glare_delta_th))
+    # delta_th： based on p99.5
+    new_delta_th = float(np.clip(d_p995 * 0.45, 12.0, 60.0))
 
-    # texture adaptive edge_density_min & enable_mode
-    if edge_density_med < 0.01:
-        new_texture_min = 0.005
-        new_enable_mode: SpecEnableMode = "always"
-    elif edge_density_med > 0.08:
-        new_texture_min = edge_density_med * 0.4
-        new_enable_mode = "texture_only"
-    else:
-        new_texture_min = edge_density_med * 0.6
-        new_enable_mode = "texture_only"
+    # gating texture threshold adaptive
+    new_texture_min = float(np.clip(edge_density_med * 0.65, 0.010, 0.060))
 
-    new_texture_min = max(0.005, min(0.08, float(new_texture_min)))
-
-    adapted_cfg = replace(
+    cfg2 = replace(
         base_cfg,
-        spec_enable_mode=new_enable_mode,
+        glare_spec_v_min=new_v_min,
+        glare_spec_delta_th=new_delta_th,
         spec_texture_edge_density_min=new_texture_min,
-        glare_spec_v_min=new_glare_v_min,
-        glare_spec_delta_th=new_glare_delta_th,
     )
 
-    debug_info = {
+    dbg = {
         "used": True,
-        "brightness_med": brightness_med,
-        "delta_p995_med": delta_p995_med,
-        "edge_density_med": edge_density_med,
-        "glare_spec_v_min": int(new_glare_v_min),
-        "glare_spec_delta_th": float(new_glare_delta_th),
-        "spec_texture_edge_density_min": float(new_texture_min),
-        "spec_enable_mode": new_enable_mode,
+        "v_p99_med": v_p99,
+        "delta_p995_med": d_p995,
+        "edge_density_med": float(edge_density_med),
+        "glare_spec_v_min": new_v_min,
+        "glare_spec_delta_th": new_delta_th,
+        "spec_texture_edge_density_min": new_texture_min,
     }
-    return adapted_cfg, debug_info
+    return cfg2, dbg
 
 
 def preprocess_frame(bgr: np.ndarray, cfg: PreprocessConfig) -> PreprocessResult:
     bgr_u8 = ensure_bgr_u8(bgr)
 
-    gray_u8 = ensure_gray_u8(bgr_u8)
+    # smooth -> intensity/log
     smooth_bgr = smooth_background(bgr_u8, cfg)
     smooth_gray = ensure_gray_u8(smooth_bgr)
+    log_u8 = compute_log_feature(smooth_gray, cfg)
 
-    log_u8 = compute_log_feature(gray_u8, cfg)
-
-    hsv = cv2.cvtColor(bgr_u8, cv2.COLOR_BGR2HSV)
-    _, S_u8, V_u8 = cv2.split(hsv)
-
-    # subtitle（fixied paramaters）
-    sub_delta = _compute_delta_from_v(V_u8, cfg.sub_spec_delta_sigma)
-    sub_spec_like, dbg_sub_spec = _spec_like_from_svdelta(
-        S_u8, V_u8, sub_delta,
+    # 1) subtitle special spec-(fixed params)
+    sub_spec_like, dbg_sub_spec = spec_like_tophat(
+        bgr_u8,
         v_min=cfg.sub_spec_v_min,
+        delta_sigma=cfg.sub_spec_delta_sigma,
         delta_th=cfg.sub_spec_delta_th,
         s_low=cfg.sub_spec_s_low,
         delta_strong_mul=cfg.sub_spec_delta_strong_mul,
     )
-    dbg_sub_spec["delta_sigma"] = float(cfg.sub_spec_delta_sigma)
+
+    # 2) valid_mask
     valid_mask, dbg_valid = compute_valid_mask_from_spec_roi(sub_spec_like, cfg)
 
-    # glare（adaptive paramaters）
-    glare_delta = _compute_delta_from_v(V_u8, cfg.glare_spec_delta_sigma)
-    glare_spec_like, dbg_glare_spec_base = _spec_like_from_svdelta(
-        S_u8, V_u8, glare_delta,
+    # 3) glare spcieal spec（adaptive params）
+    glare_spec_like, dbg_glare_spec_base = spec_like_tophat(
+        bgr_u8,
         v_min=cfg.glare_spec_v_min,
+        delta_sigma=cfg.glare_spec_delta_sigma,
         delta_th=cfg.glare_spec_delta_th,
         s_low=cfg.glare_spec_s_low,
         delta_strong_mul=cfg.glare_spec_delta_strong_mul,
     )
-    dbg_glare_spec_base["delta_sigma"] = float(cfg.glare_spec_delta_sigma)
 
+    # 4) glare spec_mask：gating + fill + CC + fallback + invalid
     spec_mask, dbg_spec_glare = compute_spec_mask_glare(
-        glare_spec_like, valid_mask, log_u8, V_u8, glare_delta, cfg
+        bgr_u8, glare_spec_like, valid_mask, log_u8, cfg
     )
 
     dbg = {
@@ -562,27 +561,17 @@ def preprocess_frame(bgr: np.ndarray, cfg: PreprocessConfig) -> PreprocessResult
         "subtitle_spec": dbg_sub_spec,
         "glare_spec_base": dbg_glare_spec_base,
         "glare_spec": dbg_spec_glare,
-        "config_info": {
-            "subtitle": {
-                "v_min": cfg.sub_spec_v_min,
-                "delta_th": cfg.sub_spec_delta_th,
-                "delta_sigma": cfg.sub_spec_delta_sigma,
-                "s_low": cfg.sub_spec_s_low,
-                "fixed": True,
-            },
-            "glare": {
-                "v_min": cfg.glare_spec_v_min,
-                "delta_th": cfg.glare_spec_delta_th,
-                "delta_sigma": cfg.glare_spec_delta_sigma,
-                "texture_min": cfg.spec_texture_edge_density_min,
-                "enable_mode": cfg.spec_enable_mode,
-                "adaptive": True,
-            },
-            "log": {
-                "use_local_normalization": bool(cfg.use_local_normalization),
-                "blur_sigma": float(cfg.log_blur_sigma),
-            }
-        }
+        "smooth": {
+            "mode": cfg.smooth_mode,
+            "bilateral_d": int(cfg.bilateral_d),
+            "sigmaColor": float(cfg.bilateral_sigma_color),
+            "sigmaSpace": float(cfg.bilateral_sigma_space),
+        },
+        "log": {
+            "sigma": float(cfg.log_blur_sigma),
+            "ksize": int(cfg.log_ksize),
+            "edge_th": int(cfg.log_edge_th),
+        },
     }
 
     return PreprocessResult(
@@ -593,4 +582,3 @@ def preprocess_frame(bgr: np.ndarray, cfg: PreprocessConfig) -> PreprocessResult
         smooth_bgr=smooth_bgr,
         debug=dbg,
     )
-

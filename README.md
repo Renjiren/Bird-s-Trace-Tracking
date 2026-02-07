@@ -6,7 +6,7 @@ Tracking fast-moving objects in unconstrained natural videos remains a challengi
 
 ![Birds' Track Architecture](readme_data/pic_framework.png)
 
-The proposed pipeline incorporates camera motion compensation, adaptive motion-based detection, region refinement, and Kalman-filter-based data association. Quantitative experiments using IoU, HOTA, MOTA, and IDF1 demonstrate that the classical pipeline achieves competitive results in simpler scenarios（e.g., dataset Su2001), while deep-learning-based methods consistently outperform it in highly dynamic and cluttered environments(e.g.,dataset Ci3001).These findings reveal a clear trade-off between tracking
+The proposed pipeline incorporates camera motion compensation, adaptive motion-based detection, region refinement, and Kalman-filter-based data association. Quantitative experiments using MOTA, IDF1,IDs, NP and FP demonstrate that the classical pipeline achieves competitive results in simpler scenarios（e.g., dataset Su2001), while deep-learning-based methods consistently outperform it in highly dynamic and cluttered environments(e.g.,dataset Ci3001).These findings reveal a clear trade-off between tracking
 accuracy and computational efficiency.
 
 ![e.g.,Su2001](readme_data/Su2001.jpg)![e.g.,Ci3001](readme_data/Ci3001.jpg)

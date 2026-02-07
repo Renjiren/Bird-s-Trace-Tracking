@@ -1,9 +1,17 @@
 # Bird-s-Trace-Tracking
 
-Due to size limitations, the dataset is not included in this repository.
+## Abastract
 
-Here is the link of dataset: https://drive.google.com/file/d/1fwswUfxxmvcd7GQhveXThVYfK0eR0nbw/view?usp=share_link
+Tracking fast-moving objects in unconstrained natural videos remains a challenging problem due to background dynamics, illumination changes, camera motion, and scale variation. Classical motion-based pipelines offer efficiency and interpretability, whereas modern deep-learning-based trackers achieve high performance at greater computational cost. This work revisits classical computer vision approaches for multi-object tracking in the context of bird detection and tracking by systematically designing and evaluating an OpenCV-based pipeline against a state-of-the-art deep tracker, NetTrack, on the BFT dataset. 
 
+![Birds' Track Architecture](readme_data/pic_framework.png)
+
+The proposed pipeline incorporates camera motion compensation, adaptive motion-based detection, region refinement, and Kalman-filter-based data association. Quantitative experiments using IoU, HOTA, MOTA, and IDF1 demonstrate that the classical pipeline achieves competitive results in simpler scenarios（e.g., dataset Su2001), while deep-learning-based methods consistently outperform it in highly dynamic and cluttered environments(e.g.,dataset Ci3001).These findings reveal a clear trade-off between tracking
+accuracy and computational efficiency.
+
+![e.g.,Su2001](readme_data/Su2001.jpg)![e.g.,Ci3001](readme_data/Ci3001.jpg)
+
+The dataset is available at https://drive.google.com/drive/folders/140mPnOVZY - 2apH76at9yYuVGIDWOvsH _ ?usp =share_link(Due to size limitations, the dataset is not included in this repository).
 
 
 ## Evaluation Results
@@ -19,6 +27,8 @@ The table above shows the official NetTrack evaluation results reported using st
 MOT metrics (MOTA, IDF1, FP, FN).
 NetTrack achieves strong quantitative performance on most sequences, benefiting from
 deep object detection and point-level feature tracking.
+
+Our results can be seen in readme_data folder.
 
 ### Runtime Analysis
 

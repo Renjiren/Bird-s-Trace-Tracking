@@ -5,10 +5,10 @@ import os
 import json
 import random
 import time
-from time import time
 from typing import Any, Dict, List, Optional, Tuple
 
 import cv2
+from matplotlib.pyplot import stem
 import numpy as np
 
 from preprocessing import PreprocessConfig, preprocess_frame
@@ -95,8 +95,10 @@ def draw_boxes(bgr: np.ndarray, boxes: List[Tuple[int, int, int, int]], max_draw
     img = bgr.copy()
     for i, (x, y, w, h) in enumerate(boxes[:max_draw]):
         cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        cv2.putText(img, str(i), (x, max(0, y - 3)),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(
+            img, str(i), (x, max(0, y - 3)),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 0), 2, cv2.LINE_AA
+        )
     return img
 
 
@@ -186,10 +188,16 @@ def run_step_pre(
             })
 
             if saved < int(save_first_n):
-                imwrite(os.path.join(vout, f"sample{saved+1:02d}_valid_overlay.jpg"),
-                        overlay_mask(bgr, pre.valid_mask, (255, 0, 0), 0.35), overwrite)
-                imwrite(os.path.join(vout, f"sample{saved+1:02d}_spec_overlay.jpg"),
-                        overlay_mask(bgr, pre.spec_mask, (0, 0, 255), 0.35), overwrite)
+                imwrite(
+                    os.path.join(vout, f"sample{saved+1:02d}_valid_overlay.jpg"),
+                    overlay_mask(bgr, pre.valid_mask, (255, 0, 0), 0.35),
+                    overwrite
+                )
+                imwrite(
+                    os.path.join(vout, f"sample{saved+1:02d}_spec_overlay.jpg"),
+                    overlay_mask(bgr, pre.spec_mask, (0, 0, 255), 0.35),
+                    overwrite
+                )
                 saved += 1
 
         summary_video = {
@@ -257,7 +265,8 @@ def run_step_motion(
             pre0 = preprocess_frame(bgr0, pre_cfg)
             pre1 = preprocess_frame(bgr1, pre_cfg)
 
-            valid_use = merge_valid_intersection(pre0.valid_mask, pre1.valid_mask) or pre1.valid_mask
+            # FIX(1): 不要 numpy 的 `or fallback`
+            valid_use = merge_valid_intersection(pre0.valid_mask, pre1.valid_mask)
 
             step2 = estimate_camera_translation(
                 prev_feat=pre0.log,
@@ -276,8 +285,13 @@ def run_step_motion(
 
             diff_vis = make_diff_vis(pre1.intensity, step2.prev_aligned)
             overlay = bgr1.copy()
-            cv2.putText(overlay, f"dx={dx:+.2f} dy={dy:+.2f} {method} moving={int(cam_moving)}",
-                        (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+            cv2.putText(
+                overlay,
+                f"dx={dx:+.2f} dy={dy:+.2f} {method} moving={int(cam_moving)}",
+                (10, 30),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7,
+                (255, 255, 255), 2
+            )
 
             imwrite(os.path.join(vout, f"pair{pi+1:02d}_diff.jpg"), diff_vis, overwrite)
             imwrite(os.path.join(vout, f"pair{pi+1:02d}_overlay.jpg"), overlay, overwrite)
@@ -339,8 +353,9 @@ def run_step_cand(
             pre0 = preprocess_frame(bgr0, pre_cfg)
             pre1 = preprocess_frame(bgr1, pre_cfg)
 
-            valid_use = merge_valid_intersection(pre0.valid_mask, pre1.valid_mask) or pre1.valid_mask
-            spec_use = merge_spec_union_bad(pre0.spec_mask, pre1.spec_mask) or pre1.spec_mask
+            # FIX(1): 不要 numpy 的 `or fallback`
+            valid_use = merge_valid_intersection(pre0.valid_mask, pre1.valid_mask)
+            spec_use = merge_spec_union_bad(pre0.spec_mask, pre1.spec_mask)
 
             step2 = estimate_camera_translation(
                 prev_feat=pre0.log,
@@ -370,16 +385,29 @@ def run_step_cand(
             stem = os.path.splitext(os.path.basename(fp1))[0]
             mask_name = f"{stem}_mask.png"
             overlay_name = f"{stem}_overlay.jpg"
+            diff_name = f"{stem}_diff.jpg"  # 新增：差分图
 
+            diff_vis = make_diff_vis(pre1.intensity, prev_int_aligned)
+            imwrite(os.path.join(vout, diff_name), diff_vis, overwrite)
             imwrite(os.path.join(vout, mask_name), r3.mask, overwrite)
             imwrite(os.path.join(vout, overlay_name), draw_boxes(bgr1, r3.boxes), overwrite)
+
+            # 保存原始差分和主差分
+            if hasattr(r3, 'diff_n') and r3.diff_n is not None:
+                diff_n_name = f"{stem}_diff_raw.png"
+                imwrite(os.path.join(vout, diff_n_name), r3.diff_n, overwrite)
+    
+            if hasattr(r3, 'diff_main') and r3.diff_main is not None:
+                diff_main_name = f"{stem}_diff_main.png"
+                imwrite(os.path.join(vout, diff_main_name), r3.diff_main, overwrite)
+
 
             per_video_dbg["frames"].append({
                 "idx": int(i),
                 "prev_frame": os.path.basename(fp0),
                 "curr_frame": os.path.basename(fp1),
                 "n_boxes": int(len(r3.boxes)),
-                "saved": {"mask": mask_name, "overlay": overlay_name},
+                "saved": {"mask": mask_name, "overlay": overlay_name, "diff": diff_name},
                 "step2": {
                     "dx": float(step2.debug.get("final_dx", 0.0)),
                     "dy": float(step2.debug.get("final_dy", 0.0)),
@@ -395,7 +423,7 @@ def run_step_cand(
 
 
 # ============================================================
-# Step REFINE 
+# Step REFINE
 # ============================================================
 def run_step_refine(
     *,
@@ -413,7 +441,6 @@ def run_step_refine(
     Step1 + Step2 + Step3 + Step4 in ONE PASS
     完全模仿 run_step_cand，只在末尾接 refine
     """
-
     ensure_dir(out_root)
     videos = select_videos(data_root, video_set=video_set, only_videos=only_videos)
 
@@ -474,19 +501,18 @@ def run_step_refine(
             )
 
             # ---------- Step4 ----------
-            spec_mask_curr = pre1.spec_mask
-
             boxes_refined = step4_refine(
                 bgr=bgr1,
                 mask_fg=r3.mask,
                 boxes_raw=r3.boxes,
-                spec_mask=spec_mask_curr,
+                spec_mask=pre1.spec_mask,
                 cfg=refine_cfg,
             )
 
             # ---------- Save ----------
             stem = os.path.splitext(os.path.basename(fp1))[0]
-            overlay = draw_boxes_on_bgr(bgr1, boxes_refined)
+            # FIX(3): 用已有 draw_boxes，并且在 bgr 图上画
+            overlay = draw_boxes(bgr1, boxes_refined)
             out_name = f"{stem}_overlay_refine.jpg"
             imwrite(os.path.join(vout, out_name), overlay, overwrite)
 
@@ -500,7 +526,6 @@ def run_step_refine(
             })
 
         write_json(os.path.join(vout, "debug_step4.json"), per_video_dbg)
-
 
 
 # ============================================================
@@ -536,6 +561,7 @@ def run_step_track(
         ensure_dir(vout)
 
         gen = MotionCandidateGenerator(cand_cfg)
+        # step5_tracker.py 里已保证每个 Tracker 实例从 0 开始分配 Track ID
         tracker = Tracker(iou_thr=0.3, max_age=5, min_hits=2)
 
         per_video_dbg = {
@@ -600,10 +626,9 @@ def run_step_track(
 
             # ---------- Step5 ----------
             tracks = tracker.step(boxes_refined, prev_gray, curr_gray)
-            frame_id = i  # 你这里 i 从 1 开始，正好当 frame_id
+            frame_id = i  # i 从 1 开始
 
             for tid, (x, y, w, h) in tracks:
-                # MOT challenge 常见格式：frame, id, x, y, w, h, score, -1, -1, -1
                 f_txt.write(f"{frame_id},{tid},{x:.2f},{y:.2f},{w:.2f},{h:.2f},1.00,-1,-1,-1\n")
 
             # ---------- Save ----------

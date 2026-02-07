@@ -41,10 +41,10 @@ class PreprocessConfig:
 
     # ---------- subtitle spec-like params (fixed,no apdative) ----------
     # top-hat style: delta = V - blur(V)
-    sub_spec_v_min: int = 180
+    sub_spec_v_min: int = 150
     sub_spec_delta_sigma: float = 6.0
-    sub_spec_delta_th: float = 12.0
-    sub_spec_s_low: int = 55
+    sub_spec_delta_th: float = 8.0 # before 12
+    sub_spec_s_low: int = 55 # increase to 70
     sub_spec_delta_strong_mul: float = 2.0
 
     # ---------- background suppression ----------
@@ -123,7 +123,7 @@ def scaled_k(base: int, H: int, W: int, ref: int) -> int:
 
 def apply_valid_mask_fill(gray_u8: np.ndarray, valid_mask: Optional[np.ndarray], sigma: float = 3.0) -> np.ndarray:
     """
-    Fill invalid areas (valid_mask=0) by Gaussian blur.
+    # Fill invalid areas (valid_mask=0) by Gaussian blur.
     valid_mask: 255 valid / 0 invalid
     """
     if valid_mask is None:

@@ -1,12 +1,9 @@
 # candidate_generation.py
 from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import List, Tuple, Optional, Dict, Any
-
 import numpy as np
 import cv2
-
 from preprocessing import ensure_gray_u8, apply_valid_mask_fill, odd, scaled_k
 
 
@@ -130,6 +127,8 @@ class CandidateGenResult:
     mask: np.ndarray
     boxes: List[Tuple[int, int, int, int]]
     debug: Dict[str, Any]
+    diff_n: Optional[np.ndarray] = None  # 新增：原始差分图
+    diff_main: Optional[np.ndarray] = None  # 新增：主差分mask
 
 
 class MotionCandidateGenerator:
@@ -288,7 +287,7 @@ def suppress_nested_boxes(
             bj = boxes[idxj]
             aj = areas[idxj]
             if aj <= area_ratio * ai:
-                if _ioa(bj, bi) >= ioa_thresh:
+                if ioa(bj, bi) >= ioa_thresh:
                     keep[idxj] = False
 
     return [b for b, k in zip(boxes, keep) if k]
@@ -439,9 +438,13 @@ def generate_motion_candidates(
     }
 
     # ---------- hard valid handling ----------
-    # Use fill instead of hard 0 holes to avoid strong edges near subtitles/borders.
+    #Use fill instead of hard 0 holes to avoid strong edges near subtitles/borders.
     curr_use = apply_valid_mask_fill(curr, valid_mask)
     prev_use = apply_valid_mask_fill(prev, valid_mask)
+
+    # 在generate_motion_candidates函数中，修改填充部分：
+    # curr_use = apply_valid_mask_fill(curr, valid_mask, fill_value=0)
+    # prev_use = apply_valid_mask_fill(prev, valid_mask, fill_value=0)
 
     # ------------------------
     # Main trunk: diff_n + MAD
@@ -639,7 +642,7 @@ def generate_motion_candidates(
     update_persistence(gen, fused_m, valid_mask)
 
     # ------------------------
-    # NEW: Build diff support mask for bg-only suppression
+    # Build diff support mask for bg-only suppression
     # ------------------------
     diff_support = diff_main.copy()
     # Optional dilation: tolerate small misalignment and morphology bridging
@@ -775,8 +778,7 @@ def generate_motion_candidates(
             for i, t in enumerate(scored[:min(10, len(scored))])
         ],
     }
-
-    return CandidateGenResult(mask=fused_m, boxes=boxes_sorted, debug=debug)
+    return CandidateGenResult(mask=fused_m, boxes=boxes_sorted, debug=debug, diff_n=diff_n, diff_main=diff_main)
 
 
 def draw_overlay(gray_u8: np.ndarray, boxes: List[Tuple[int, int, int, int]], max_draw: int = 50) -> np.ndarray:

@@ -1,0 +1,17 @@
+[
+  {
+    "video": "Ac4002",
+    "debug_json": "debug_step3.json",
+    "out_dir": "./metric\\cand\\Ac4002"
+  },
+  {
+    "video": "Ci3001",
+    "debug_json": "debug_step3.json",
+    "out_dir": "./metric\\cand\\Ci3001"
+  },
+  {
+    "video": "Su2001",
+    "debug_json": "debug_step3.json",
+    "out_dir": "./metric\\cand\\Su2001"
+  }
+]

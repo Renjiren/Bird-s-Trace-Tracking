@@ -73,7 +73,7 @@ def main():
             )
             acc.update(gt_ids, pr_ids, dists)
 
-        # ✅ 关键：一定在 for seq 里面
+        # key：must in for seq
         accs.append(acc)
         names.append(seq.replace(".txt", ""))
 

@@ -21,12 +21,12 @@ def parse_list(s: str) -> Optional[List[str]]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser("birds pipeline (step1-3 minimal)")
+    p = argparse.ArgumentParser("birds pipeline (step1-5)")
 
     # dataset selection 
     p.add_argument("--data_root", type=str, required=True)
     p.add_argument("--out_dir", type=str, required=True)
-    p.add_argument("--step", type=str, required=True, choices=["pre", "motion", "cand"])
+    p.add_argument("--step", type=str, required=True, choices=["pre", "motion", "cand", "refine", "track"])
     p.add_argument("--video_set", type=str, default="eg", choices=["eg", "all"])
     p.add_argument("--videos", type=str, default="", help="comma list, e.g. v1,v2")
     p.add_argument("--overwrite", action="store_true")

@@ -30,10 +30,9 @@ class Track:
         self.id = Track._next_id
         Track._next_id += 1
 
-        self.box = list(box)  # x,y,w,h
+        self.box = list(box)  # x,y,w,h (float ok)
         self.hits = 1
         self.miss = 0
-        self.time_since_update = 0
 
         # LK points (using bbox center)
         x, y, w, h = box
@@ -51,13 +50,14 @@ class Track:
             criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03),
         )
 
-        if status[0, 0] == 0:
+        if next_pts is None or status is None:
+            return False
+        if status.size < 1 or status[0, 0] == 0:
             return False
 
-        dx = next_pts[0, 0, 0] - self.pts[0, 0, 0]
-        dy = next_pts[0, 0, 1] - self.pts[0, 0, 1]
+        dx = float(next_pts[0, 0, 0] - self.pts[0, 0, 0])
+        dy = float(next_pts[0, 0, 1] - self.pts[0, 0, 1])
 
-        # update bbox
         self.box[0] += dx
         self.box[1] += dy
 
@@ -72,11 +72,13 @@ class Track:
         self.prev_gray = gray.copy()
         self.hits += 1
         self.miss = 0
-
+        
 
 # ---------------- Tracker ----------------
 class Tracker:
     def __init__(self, iou_thr=0.3, max_age=5, min_hits=2):
+        Track._next_id = 0
+
         self.tracks = []
         self.iou_thr = iou_thr
         self.max_age = max_age
@@ -88,12 +90,14 @@ class Tracker:
         # 1) LK track propagation
         for t in self.tracks:
             ok = t.lk_step(curr_gray)
-            if not ok:
+            if ok:
+                t.miss = 0
+            else:
                 t.miss += 1
 
         # 2) Detection correction (IoU matching)
-        for ti, t in enumerate(self.tracks):
-            best_iou = 0
+        for t in self.tracks:
+            best_iou = 0.0
             best_di = -1
             for di, d in enumerate(detections):
                 if di in used_det:
@@ -103,7 +107,7 @@ class Tracker:
                     best_iou = v
                     best_di = di
 
-            if best_iou >= self.iou_thr:
+            if best_iou >= self.iou_thr and best_di >= 0:
                 t.update_with_det(detections[best_di], curr_gray)
                 used_det.add(best_di)
 
@@ -112,7 +116,7 @@ class Tracker:
             if di not in used_det:
                 self.tracks.append(Track(d, curr_gray))
 
-        # 4) Prune 
+        # 4) Prune
         self.tracks = [t for t in self.tracks if t.miss <= self.max_age]
 
         # 5) Output

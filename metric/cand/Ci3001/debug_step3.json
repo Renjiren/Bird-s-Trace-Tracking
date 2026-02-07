@@ -1,0 +1,2691 @@
+{
+  "video": "Ci3001",
+  "frames": [
+    {
+      "idx": 1,
+      "prev_frame": "000001.jpg",
+      "curr_frame": "000002.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000002_mask.png",
+        "overlay": "000002_overlay.jpg",
+        "diff": "000002_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 2,
+      "prev_frame": "000002.jpg",
+      "curr_frame": "000003.jpg",
+      "n_boxes": 0,
+      "saved": {
+        "mask": "000003_mask.png",
+        "overlay": "000003_overlay.jpg",
+        "diff": "000003_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 3,
+      "prev_frame": "000003.jpg",
+      "curr_frame": "000004.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000004_mask.png",
+        "overlay": "000004_overlay.jpg",
+        "diff": "000004_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 4,
+      "prev_frame": "000004.jpg",
+      "curr_frame": "000005.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000005_mask.png",
+        "overlay": "000005_overlay.jpg",
+        "diff": "000005_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 5,
+      "prev_frame": "000005.jpg",
+      "curr_frame": "000006.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000006_mask.png",
+        "overlay": "000006_overlay.jpg",
+        "diff": "000006_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 6,
+      "prev_frame": "000006.jpg",
+      "curr_frame": "000007.jpg",
+      "n_boxes": 42,
+      "saved": {
+        "mask": "000007_mask.png",
+        "overlay": "000007_overlay.jpg",
+        "diff": "000007_diff.jpg"
+      },
+      "step2": {
+        "dx": -17.75410270690918,
+        "dy": 39.809120178222656,
+        "method": "roi_consensus_phase_correlation",
+        "camera_moving": true
+      }
+    },
+    {
+      "idx": 7,
+      "prev_frame": "000007.jpg",
+      "curr_frame": "000008.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000008_mask.png",
+        "overlay": "000008_overlay.jpg",
+        "diff": "000008_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 8,
+      "prev_frame": "000008.jpg",
+      "curr_frame": "000009.jpg",
+      "n_boxes": 0,
+      "saved": {
+        "mask": "000009_mask.png",
+        "overlay": "000009_overlay.jpg",
+        "diff": "000009_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 9,
+      "prev_frame": "000009.jpg",
+      "curr_frame": "000010.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000010_mask.png",
+        "overlay": "000010_overlay.jpg",
+        "diff": "000010_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 10,
+      "prev_frame": "000010.jpg",
+      "curr_frame": "000011.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000011_mask.png",
+        "overlay": "000011_overlay.jpg",
+        "diff": "000011_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 11,
+      "prev_frame": "000011.jpg",
+      "curr_frame": "000012.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000012_mask.png",
+        "overlay": "000012_overlay.jpg",
+        "diff": "000012_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 12,
+      "prev_frame": "000012.jpg",
+      "curr_frame": "000013.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000013_mask.png",
+        "overlay": "000013_overlay.jpg",
+        "diff": "000013_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 13,
+      "prev_frame": "000013.jpg",
+      "curr_frame": "000014.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000014_mask.png",
+        "overlay": "000014_overlay.jpg",
+        "diff": "000014_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 14,
+      "prev_frame": "000014.jpg",
+      "curr_frame": "000015.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000015_mask.png",
+        "overlay": "000015_overlay.jpg",
+        "diff": "000015_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 15,
+      "prev_frame": "000015.jpg",
+      "curr_frame": "000016.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000016_mask.png",
+        "overlay": "000016_overlay.jpg",
+        "diff": "000016_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 16,
+      "prev_frame": "000016.jpg",
+      "curr_frame": "000017.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000017_mask.png",
+        "overlay": "000017_overlay.jpg",
+        "diff": "000017_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 17,
+      "prev_frame": "000017.jpg",
+      "curr_frame": "000018.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000018_mask.png",
+        "overlay": "000018_overlay.jpg",
+        "diff": "000018_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 18,
+      "prev_frame": "000018.jpg",
+      "curr_frame": "000019.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000019_mask.png",
+        "overlay": "000019_overlay.jpg",
+        "diff": "000019_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 19,
+      "prev_frame": "000019.jpg",
+      "curr_frame": "000020.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000020_mask.png",
+        "overlay": "000020_overlay.jpg",
+        "diff": "000020_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 20,
+      "prev_frame": "000020.jpg",
+      "curr_frame": "000021.jpg",
+      "n_boxes": 2,
+      "saved": {
+        "mask": "000021_mask.png",
+        "overlay": "000021_overlay.jpg",
+        "diff": "000021_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 21,
+      "prev_frame": "000021.jpg",
+      "curr_frame": "000022.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000022_mask.png",
+        "overlay": "000022_overlay.jpg",
+        "diff": "000022_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 22,
+      "prev_frame": "000022.jpg",
+      "curr_frame": "000023.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000023_mask.png",
+        "overlay": "000023_overlay.jpg",
+        "diff": "000023_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 23,
+      "prev_frame": "000023.jpg",
+      "curr_frame": "000024.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000024_mask.png",
+        "overlay": "000024_overlay.jpg",
+        "diff": "000024_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 24,
+      "prev_frame": "000024.jpg",
+      "curr_frame": "000025.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000025_mask.png",
+        "overlay": "000025_overlay.jpg",
+        "diff": "000025_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 25,
+      "prev_frame": "000025.jpg",
+      "curr_frame": "000026.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000026_mask.png",
+        "overlay": "000026_overlay.jpg",
+        "diff": "000026_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 26,
+      "prev_frame": "000026.jpg",
+      "curr_frame": "000027.jpg",
+      "n_boxes": 0,
+      "saved": {
+        "mask": "000027_mask.png",
+        "overlay": "000027_overlay.jpg",
+        "diff": "000027_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 27,
+      "prev_frame": "000027.jpg",
+      "curr_frame": "000028.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000028_mask.png",
+        "overlay": "000028_overlay.jpg",
+        "diff": "000028_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 28,
+      "prev_frame": "000028.jpg",
+      "curr_frame": "000029.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000029_mask.png",
+        "overlay": "000029_overlay.jpg",
+        "diff": "000029_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 29,
+      "prev_frame": "000029.jpg",
+      "curr_frame": "000030.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000030_mask.png",
+        "overlay": "000030_overlay.jpg",
+        "diff": "000030_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 30,
+      "prev_frame": "000030.jpg",
+      "curr_frame": "000031.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000031_mask.png",
+        "overlay": "000031_overlay.jpg",
+        "diff": "000031_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 31,
+      "prev_frame": "000031.jpg",
+      "curr_frame": "000032.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000032_mask.png",
+        "overlay": "000032_overlay.jpg",
+        "diff": "000032_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 32,
+      "prev_frame": "000032.jpg",
+      "curr_frame": "000033.jpg",
+      "n_boxes": 0,
+      "saved": {
+        "mask": "000033_mask.png",
+        "overlay": "000033_overlay.jpg",
+        "diff": "000033_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 33,
+      "prev_frame": "000033.jpg",
+      "curr_frame": "000034.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000034_mask.png",
+        "overlay": "000034_overlay.jpg",
+        "diff": "000034_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 34,
+      "prev_frame": "000034.jpg",
+      "curr_frame": "000035.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000035_mask.png",
+        "overlay": "000035_overlay.jpg",
+        "diff": "000035_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 35,
+      "prev_frame": "000035.jpg",
+      "curr_frame": "000036.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000036_mask.png",
+        "overlay": "000036_overlay.jpg",
+        "diff": "000036_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 36,
+      "prev_frame": "000036.jpg",
+      "curr_frame": "000037.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000037_mask.png",
+        "overlay": "000037_overlay.jpg",
+        "diff": "000037_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 37,
+      "prev_frame": "000037.jpg",
+      "curr_frame": "000038.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000038_mask.png",
+        "overlay": "000038_overlay.jpg",
+        "diff": "000038_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 38,
+      "prev_frame": "000038.jpg",
+      "curr_frame": "000039.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000039_mask.png",
+        "overlay": "000039_overlay.jpg",
+        "diff": "000039_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 39,
+      "prev_frame": "000039.jpg",
+      "curr_frame": "000040.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000040_mask.png",
+        "overlay": "000040_overlay.jpg",
+        "diff": "000040_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 40,
+      "prev_frame": "000040.jpg",
+      "curr_frame": "000041.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000041_mask.png",
+        "overlay": "000041_overlay.jpg",
+        "diff": "000041_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 41,
+      "prev_frame": "000041.jpg",
+      "curr_frame": "000042.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000042_mask.png",
+        "overlay": "000042_overlay.jpg",
+        "diff": "000042_diff.jpg"
+      },
+      "step2": {
+        "dx": -0.022978560999035835,
+        "dy": -0.3748108744621277,
+        "method": "ecc_translation",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 42,
+      "prev_frame": "000042.jpg",
+      "curr_frame": "000043.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000043_mask.png",
+        "overlay": "000043_overlay.jpg",
+        "diff": "000043_diff.jpg"
+      },
+      "step2": {
+        "dx": -0.03142188861966133,
+        "dy": -0.002250310266390443,
+        "method": "ecc_translation",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 43,
+      "prev_frame": "000043.jpg",
+      "curr_frame": "000044.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000044_mask.png",
+        "overlay": "000044_overlay.jpg",
+        "diff": "000044_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 44,
+      "prev_frame": "000044.jpg",
+      "curr_frame": "000045.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000045_mask.png",
+        "overlay": "000045_overlay.jpg",
+        "diff": "000045_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 45,
+      "prev_frame": "000045.jpg",
+      "curr_frame": "000046.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000046_mask.png",
+        "overlay": "000046_overlay.jpg",
+        "diff": "000046_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 46,
+      "prev_frame": "000046.jpg",
+      "curr_frame": "000047.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000047_mask.png",
+        "overlay": "000047_overlay.jpg",
+        "diff": "000047_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 47,
+      "prev_frame": "000047.jpg",
+      "curr_frame": "000048.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000048_mask.png",
+        "overlay": "000048_overlay.jpg",
+        "diff": "000048_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 48,
+      "prev_frame": "000048.jpg",
+      "curr_frame": "000049.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000049_mask.png",
+        "overlay": "000049_overlay.jpg",
+        "diff": "000049_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 49,
+      "prev_frame": "000049.jpg",
+      "curr_frame": "000050.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000050_mask.png",
+        "overlay": "000050_overlay.jpg",
+        "diff": "000050_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 50,
+      "prev_frame": "000050.jpg",
+      "curr_frame": "000051.jpg",
+      "n_boxes": 0,
+      "saved": {
+        "mask": "000051_mask.png",
+        "overlay": "000051_overlay.jpg",
+        "diff": "000051_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 51,
+      "prev_frame": "000051.jpg",
+      "curr_frame": "000052.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000052_mask.png",
+        "overlay": "000052_overlay.jpg",
+        "diff": "000052_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 52,
+      "prev_frame": "000052.jpg",
+      "curr_frame": "000053.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000053_mask.png",
+        "overlay": "000053_overlay.jpg",
+        "diff": "000053_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 53,
+      "prev_frame": "000053.jpg",
+      "curr_frame": "000054.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000054_mask.png",
+        "overlay": "000054_overlay.jpg",
+        "diff": "000054_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 54,
+      "prev_frame": "000054.jpg",
+      "curr_frame": "000055.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000055_mask.png",
+        "overlay": "000055_overlay.jpg",
+        "diff": "000055_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 55,
+      "prev_frame": "000055.jpg",
+      "curr_frame": "000056.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000056_mask.png",
+        "overlay": "000056_overlay.jpg",
+        "diff": "000056_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 56,
+      "prev_frame": "000056.jpg",
+      "curr_frame": "000057.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000057_mask.png",
+        "overlay": "000057_overlay.jpg",
+        "diff": "000057_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 57,
+      "prev_frame": "000057.jpg",
+      "curr_frame": "000058.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000058_mask.png",
+        "overlay": "000058_overlay.jpg",
+        "diff": "000058_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 58,
+      "prev_frame": "000058.jpg",
+      "curr_frame": "000059.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000059_mask.png",
+        "overlay": "000059_overlay.jpg",
+        "diff": "000059_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 59,
+      "prev_frame": "000059.jpg",
+      "curr_frame": "000060.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000060_mask.png",
+        "overlay": "000060_overlay.jpg",
+        "diff": "000060_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 60,
+      "prev_frame": "000060.jpg",
+      "curr_frame": "000061.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000061_mask.png",
+        "overlay": "000061_overlay.jpg",
+        "diff": "000061_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 61,
+      "prev_frame": "000061.jpg",
+      "curr_frame": "000062.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000062_mask.png",
+        "overlay": "000062_overlay.jpg",
+        "diff": "000062_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 62,
+      "prev_frame": "000062.jpg",
+      "curr_frame": "000063.jpg",
+      "n_boxes": 2,
+      "saved": {
+        "mask": "000063_mask.png",
+        "overlay": "000063_overlay.jpg",
+        "diff": "000063_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 63,
+      "prev_frame": "000063.jpg",
+      "curr_frame": "000064.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000064_mask.png",
+        "overlay": "000064_overlay.jpg",
+        "diff": "000064_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 64,
+      "prev_frame": "000064.jpg",
+      "curr_frame": "000065.jpg",
+      "n_boxes": 2,
+      "saved": {
+        "mask": "000065_mask.png",
+        "overlay": "000065_overlay.jpg",
+        "diff": "000065_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 65,
+      "prev_frame": "000065.jpg",
+      "curr_frame": "000066.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000066_mask.png",
+        "overlay": "000066_overlay.jpg",
+        "diff": "000066_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 66,
+      "prev_frame": "000066.jpg",
+      "curr_frame": "000067.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000067_mask.png",
+        "overlay": "000067_overlay.jpg",
+        "diff": "000067_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 67,
+      "prev_frame": "000067.jpg",
+      "curr_frame": "000068.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000068_mask.png",
+        "overlay": "000068_overlay.jpg",
+        "diff": "000068_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 68,
+      "prev_frame": "000068.jpg",
+      "curr_frame": "000069.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000069_mask.png",
+        "overlay": "000069_overlay.jpg",
+        "diff": "000069_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 69,
+      "prev_frame": "000069.jpg",
+      "curr_frame": "000070.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000070_mask.png",
+        "overlay": "000070_overlay.jpg",
+        "diff": "000070_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 70,
+      "prev_frame": "000070.jpg",
+      "curr_frame": "000071.jpg",
+      "n_boxes": 29,
+      "saved": {
+        "mask": "000071_mask.png",
+        "overlay": "000071_overlay.jpg",
+        "diff": "000071_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 71,
+      "prev_frame": "000071.jpg",
+      "curr_frame": "000072.jpg",
+      "n_boxes": 30,
+      "saved": {
+        "mask": "000072_mask.png",
+        "overlay": "000072_overlay.jpg",
+        "diff": "000072_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 72,
+      "prev_frame": "000072.jpg",
+      "curr_frame": "000073.jpg",
+      "n_boxes": 15,
+      "saved": {
+        "mask": "000073_mask.png",
+        "overlay": "000073_overlay.jpg",
+        "diff": "000073_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 73,
+      "prev_frame": "000073.jpg",
+      "curr_frame": "000074.jpg",
+      "n_boxes": 15,
+      "saved": {
+        "mask": "000074_mask.png",
+        "overlay": "000074_overlay.jpg",
+        "diff": "000074_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 74,
+      "prev_frame": "000074.jpg",
+      "curr_frame": "000075.jpg",
+      "n_boxes": 3,
+      "saved": {
+        "mask": "000075_mask.png",
+        "overlay": "000075_overlay.jpg",
+        "diff": "000075_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 75,
+      "prev_frame": "000075.jpg",
+      "curr_frame": "000076.jpg",
+      "n_boxes": 46,
+      "saved": {
+        "mask": "000076_mask.png",
+        "overlay": "000076_overlay.jpg",
+        "diff": "000076_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 76,
+      "prev_frame": "000076.jpg",
+      "curr_frame": "000077.jpg",
+      "n_boxes": 31,
+      "saved": {
+        "mask": "000077_mask.png",
+        "overlay": "000077_overlay.jpg",
+        "diff": "000077_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 77,
+      "prev_frame": "000077.jpg",
+      "curr_frame": "000078.jpg",
+      "n_boxes": 13,
+      "saved": {
+        "mask": "000078_mask.png",
+        "overlay": "000078_overlay.jpg",
+        "diff": "000078_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 78,
+      "prev_frame": "000078.jpg",
+      "curr_frame": "000079.jpg",
+      "n_boxes": 35,
+      "saved": {
+        "mask": "000079_mask.png",
+        "overlay": "000079_overlay.jpg",
+        "diff": "000079_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 79,
+      "prev_frame": "000079.jpg",
+      "curr_frame": "000080.jpg",
+      "n_boxes": 31,
+      "saved": {
+        "mask": "000080_mask.png",
+        "overlay": "000080_overlay.jpg",
+        "diff": "000080_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 80,
+      "prev_frame": "000080.jpg",
+      "curr_frame": "000081.jpg",
+      "n_boxes": 2,
+      "saved": {
+        "mask": "000081_mask.png",
+        "overlay": "000081_overlay.jpg",
+        "diff": "000081_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 81,
+      "prev_frame": "000081.jpg",
+      "curr_frame": "000082.jpg",
+      "n_boxes": 15,
+      "saved": {
+        "mask": "000082_mask.png",
+        "overlay": "000082_overlay.jpg",
+        "diff": "000082_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 82,
+      "prev_frame": "000082.jpg",
+      "curr_frame": "000083.jpg",
+      "n_boxes": 2,
+      "saved": {
+        "mask": "000083_mask.png",
+        "overlay": "000083_overlay.jpg",
+        "diff": "000083_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 83,
+      "prev_frame": "000083.jpg",
+      "curr_frame": "000084.jpg",
+      "n_boxes": 3,
+      "saved": {
+        "mask": "000084_mask.png",
+        "overlay": "000084_overlay.jpg",
+        "diff": "000084_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 84,
+      "prev_frame": "000084.jpg",
+      "curr_frame": "000085.jpg",
+      "n_boxes": 3,
+      "saved": {
+        "mask": "000085_mask.png",
+        "overlay": "000085_overlay.jpg",
+        "diff": "000085_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 85,
+      "prev_frame": "000085.jpg",
+      "curr_frame": "000086.jpg",
+      "n_boxes": 3,
+      "saved": {
+        "mask": "000086_mask.png",
+        "overlay": "000086_overlay.jpg",
+        "diff": "000086_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 86,
+      "prev_frame": "000086.jpg",
+      "curr_frame": "000087.jpg",
+      "n_boxes": 2,
+      "saved": {
+        "mask": "000087_mask.png",
+        "overlay": "000087_overlay.jpg",
+        "diff": "000087_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 87,
+      "prev_frame": "000087.jpg",
+      "curr_frame": "000088.jpg",
+      "n_boxes": 3,
+      "saved": {
+        "mask": "000088_mask.png",
+        "overlay": "000088_overlay.jpg",
+        "diff": "000088_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.019647745415568352,
+        "dy": -0.0056990766897797585,
+        "method": "ecc_translation",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 88,
+      "prev_frame": "000088.jpg",
+      "curr_frame": "000089.jpg",
+      "n_boxes": 3,
+      "saved": {
+        "mask": "000089_mask.png",
+        "overlay": "000089_overlay.jpg",
+        "diff": "000089_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 89,
+      "prev_frame": "000089.jpg",
+      "curr_frame": "000090.jpg",
+      "n_boxes": 3,
+      "saved": {
+        "mask": "000090_mask.png",
+        "overlay": "000090_overlay.jpg",
+        "diff": "000090_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 90,
+      "prev_frame": "000090.jpg",
+      "curr_frame": "000091.jpg",
+      "n_boxes": 11,
+      "saved": {
+        "mask": "000091_mask.png",
+        "overlay": "000091_overlay.jpg",
+        "diff": "000091_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 91,
+      "prev_frame": "000091.jpg",
+      "curr_frame": "000092.jpg",
+      "n_boxes": 9,
+      "saved": {
+        "mask": "000092_mask.png",
+        "overlay": "000092_overlay.jpg",
+        "diff": "000092_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 92,
+      "prev_frame": "000092.jpg",
+      "curr_frame": "000093.jpg",
+      "n_boxes": 0,
+      "saved": {
+        "mask": "000093_mask.png",
+        "overlay": "000093_overlay.jpg",
+        "diff": "000093_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 93,
+      "prev_frame": "000093.jpg",
+      "curr_frame": "000094.jpg",
+      "n_boxes": 17,
+      "saved": {
+        "mask": "000094_mask.png",
+        "overlay": "000094_overlay.jpg",
+        "diff": "000094_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 94,
+      "prev_frame": "000094.jpg",
+      "curr_frame": "000095.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000095_mask.png",
+        "overlay": "000095_overlay.jpg",
+        "diff": "000095_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 95,
+      "prev_frame": "000095.jpg",
+      "curr_frame": "000096.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000096_mask.png",
+        "overlay": "000096_overlay.jpg",
+        "diff": "000096_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 96,
+      "prev_frame": "000096.jpg",
+      "curr_frame": "000097.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000097_mask.png",
+        "overlay": "000097_overlay.jpg",
+        "diff": "000097_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 97,
+      "prev_frame": "000097.jpg",
+      "curr_frame": "000098.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000098_mask.png",
+        "overlay": "000098_overlay.jpg",
+        "diff": "000098_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 98,
+      "prev_frame": "000098.jpg",
+      "curr_frame": "000099.jpg",
+      "n_boxes": 0,
+      "saved": {
+        "mask": "000099_mask.png",
+        "overlay": "000099_overlay.jpg",
+        "diff": "000099_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 99,
+      "prev_frame": "000099.jpg",
+      "curr_frame": "000100.jpg",
+      "n_boxes": 20,
+      "saved": {
+        "mask": "000100_mask.png",
+        "overlay": "000100_overlay.jpg",
+        "diff": "000100_diff.jpg"
+      },
+      "step2": {
+        "dx": 1.740712285041809,
+        "dy": 50.0,
+        "method": "roi_consensus_phase_correlation",
+        "camera_moving": true
+      }
+    },
+    {
+      "idx": 100,
+      "prev_frame": "000100.jpg",
+      "curr_frame": "000101.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000101_mask.png",
+        "overlay": "000101_overlay.jpg",
+        "diff": "000101_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 101,
+      "prev_frame": "000101.jpg",
+      "curr_frame": "000102.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000102_mask.png",
+        "overlay": "000102_overlay.jpg",
+        "diff": "000102_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 102,
+      "prev_frame": "000102.jpg",
+      "curr_frame": "000103.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000103_mask.png",
+        "overlay": "000103_overlay.jpg",
+        "diff": "000103_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 103,
+      "prev_frame": "000103.jpg",
+      "curr_frame": "000104.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000104_mask.png",
+        "overlay": "000104_overlay.jpg",
+        "diff": "000104_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 104,
+      "prev_frame": "000104.jpg",
+      "curr_frame": "000105.jpg",
+      "n_boxes": 4,
+      "saved": {
+        "mask": "000105_mask.png",
+        "overlay": "000105_overlay.jpg",
+        "diff": "000105_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 105,
+      "prev_frame": "000105.jpg",
+      "curr_frame": "000106.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000106_mask.png",
+        "overlay": "000106_overlay.jpg",
+        "diff": "000106_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 106,
+      "prev_frame": "000106.jpg",
+      "curr_frame": "000107.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000107_mask.png",
+        "overlay": "000107_overlay.jpg",
+        "diff": "000107_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 107,
+      "prev_frame": "000107.jpg",
+      "curr_frame": "000108.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000108_mask.png",
+        "overlay": "000108_overlay.jpg",
+        "diff": "000108_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 108,
+      "prev_frame": "000108.jpg",
+      "curr_frame": "000109.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000109_mask.png",
+        "overlay": "000109_overlay.jpg",
+        "diff": "000109_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 109,
+      "prev_frame": "000109.jpg",
+      "curr_frame": "000110.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000110_mask.png",
+        "overlay": "000110_overlay.jpg",
+        "diff": "000110_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 110,
+      "prev_frame": "000110.jpg",
+      "curr_frame": "000111.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000111_mask.png",
+        "overlay": "000111_overlay.jpg",
+        "diff": "000111_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 111,
+      "prev_frame": "000111.jpg",
+      "curr_frame": "000112.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000112_mask.png",
+        "overlay": "000112_overlay.jpg",
+        "diff": "000112_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 112,
+      "prev_frame": "000112.jpg",
+      "curr_frame": "000113.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000113_mask.png",
+        "overlay": "000113_overlay.jpg",
+        "diff": "000113_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 113,
+      "prev_frame": "000113.jpg",
+      "curr_frame": "000114.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000114_mask.png",
+        "overlay": "000114_overlay.jpg",
+        "diff": "000114_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 114,
+      "prev_frame": "000114.jpg",
+      "curr_frame": "000115.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000115_mask.png",
+        "overlay": "000115_overlay.jpg",
+        "diff": "000115_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 115,
+      "prev_frame": "000115.jpg",
+      "curr_frame": "000116.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000116_mask.png",
+        "overlay": "000116_overlay.jpg",
+        "diff": "000116_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.017921961843967438,
+        "dy": -0.4717269241809845,
+        "method": "ecc_translation",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 116,
+      "prev_frame": "000116.jpg",
+      "curr_frame": "000117.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000117_mask.png",
+        "overlay": "000117_overlay.jpg",
+        "diff": "000117_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 117,
+      "prev_frame": "000117.jpg",
+      "curr_frame": "000118.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000118_mask.png",
+        "overlay": "000118_overlay.jpg",
+        "diff": "000118_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 118,
+      "prev_frame": "000118.jpg",
+      "curr_frame": "000119.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000119_mask.png",
+        "overlay": "000119_overlay.jpg",
+        "diff": "000119_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 119,
+      "prev_frame": "000119.jpg",
+      "curr_frame": "000120.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000120_mask.png",
+        "overlay": "000120_overlay.jpg",
+        "diff": "000120_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 120,
+      "prev_frame": "000120.jpg",
+      "curr_frame": "000121.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000121_mask.png",
+        "overlay": "000121_overlay.jpg",
+        "diff": "000121_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 121,
+      "prev_frame": "000121.jpg",
+      "curr_frame": "000122.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000122_mask.png",
+        "overlay": "000122_overlay.jpg",
+        "diff": "000122_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.03733953833580017,
+        "dy": -0.047639504075050354,
+        "method": "ecc_translation",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 122,
+      "prev_frame": "000122.jpg",
+      "curr_frame": "000123.jpg",
+      "n_boxes": 0,
+      "saved": {
+        "mask": "000123_mask.png",
+        "overlay": "000123_overlay.jpg",
+        "diff": "000123_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 123,
+      "prev_frame": "000123.jpg",
+      "curr_frame": "000124.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000124_mask.png",
+        "overlay": "000124_overlay.jpg",
+        "diff": "000124_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 124,
+      "prev_frame": "000124.jpg",
+      "curr_frame": "000125.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000125_mask.png",
+        "overlay": "000125_overlay.jpg",
+        "diff": "000125_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 125,
+      "prev_frame": "000125.jpg",
+      "curr_frame": "000126.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000126_mask.png",
+        "overlay": "000126_overlay.jpg",
+        "diff": "000126_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 126,
+      "prev_frame": "000126.jpg",
+      "curr_frame": "000127.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000127_mask.png",
+        "overlay": "000127_overlay.jpg",
+        "diff": "000127_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 127,
+      "prev_frame": "000127.jpg",
+      "curr_frame": "000128.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000128_mask.png",
+        "overlay": "000128_overlay.jpg",
+        "diff": "000128_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.03314872086048126,
+        "dy": -0.20981235802173615,
+        "method": "ecc_translation",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 128,
+      "prev_frame": "000128.jpg",
+      "curr_frame": "000129.jpg",
+      "n_boxes": 0,
+      "saved": {
+        "mask": "000129_mask.png",
+        "overlay": "000129_overlay.jpg",
+        "diff": "000129_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 129,
+      "prev_frame": "000129.jpg",
+      "curr_frame": "000130.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000130_mask.png",
+        "overlay": "000130_overlay.jpg",
+        "diff": "000130_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 130,
+      "prev_frame": "000130.jpg",
+      "curr_frame": "000131.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000131_mask.png",
+        "overlay": "000131_overlay.jpg",
+        "diff": "000131_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 131,
+      "prev_frame": "000131.jpg",
+      "curr_frame": "000132.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000132_mask.png",
+        "overlay": "000132_overlay.jpg",
+        "diff": "000132_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 132,
+      "prev_frame": "000132.jpg",
+      "curr_frame": "000133.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000133_mask.png",
+        "overlay": "000133_overlay.jpg",
+        "diff": "000133_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 133,
+      "prev_frame": "000133.jpg",
+      "curr_frame": "000134.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000134_mask.png",
+        "overlay": "000134_overlay.jpg",
+        "diff": "000134_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 134,
+      "prev_frame": "000134.jpg",
+      "curr_frame": "000135.jpg",
+      "n_boxes": 6,
+      "saved": {
+        "mask": "000135_mask.png",
+        "overlay": "000135_overlay.jpg",
+        "diff": "000135_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 135,
+      "prev_frame": "000135.jpg",
+      "curr_frame": "000136.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000136_mask.png",
+        "overlay": "000136_overlay.jpg",
+        "diff": "000136_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 136,
+      "prev_frame": "000136.jpg",
+      "curr_frame": "000137.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000137_mask.png",
+        "overlay": "000137_overlay.jpg",
+        "diff": "000137_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 137,
+      "prev_frame": "000137.jpg",
+      "curr_frame": "000138.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000138_mask.png",
+        "overlay": "000138_overlay.jpg",
+        "diff": "000138_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 138,
+      "prev_frame": "000138.jpg",
+      "curr_frame": "000139.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000139_mask.png",
+        "overlay": "000139_overlay.jpg",
+        "diff": "000139_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 139,
+      "prev_frame": "000139.jpg",
+      "curr_frame": "000140.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000140_mask.png",
+        "overlay": "000140_overlay.jpg",
+        "diff": "000140_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 140,
+      "prev_frame": "000140.jpg",
+      "curr_frame": "000141.jpg",
+      "n_boxes": 7,
+      "saved": {
+        "mask": "000141_mask.png",
+        "overlay": "000141_overlay.jpg",
+        "diff": "000141_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 141,
+      "prev_frame": "000141.jpg",
+      "curr_frame": "000142.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000142_mask.png",
+        "overlay": "000142_overlay.jpg",
+        "diff": "000142_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0766393169760704,
+        "dy": -0.24161988496780396,
+        "method": "ecc_translation",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 142,
+      "prev_frame": "000142.jpg",
+      "curr_frame": "000143.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000143_mask.png",
+        "overlay": "000143_overlay.jpg",
+        "diff": "000143_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 143,
+      "prev_frame": "000143.jpg",
+      "curr_frame": "000144.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000144_mask.png",
+        "overlay": "000144_overlay.jpg",
+        "diff": "000144_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 144,
+      "prev_frame": "000144.jpg",
+      "curr_frame": "000145.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000145_mask.png",
+        "overlay": "000145_overlay.jpg",
+        "diff": "000145_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 145,
+      "prev_frame": "000145.jpg",
+      "curr_frame": "000146.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000146_mask.png",
+        "overlay": "000146_overlay.jpg",
+        "diff": "000146_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.05108414962887764,
+        "dy": 0.07557699084281921,
+        "method": "ecc_translation",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 146,
+      "prev_frame": "000146.jpg",
+      "curr_frame": "000147.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000147_mask.png",
+        "overlay": "000147_overlay.jpg",
+        "diff": "000147_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 147,
+      "prev_frame": "000147.jpg",
+      "curr_frame": "000148.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000148_mask.png",
+        "overlay": "000148_overlay.jpg",
+        "diff": "000148_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 148,
+      "prev_frame": "000148.jpg",
+      "curr_frame": "000149.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000149_mask.png",
+        "overlay": "000149_overlay.jpg",
+        "diff": "000149_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 149,
+      "prev_frame": "000149.jpg",
+      "curr_frame": "000150.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000150_mask.png",
+        "overlay": "000150_overlay.jpg",
+        "diff": "000150_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 150,
+      "prev_frame": "000150.jpg",
+      "curr_frame": "000151.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000151_mask.png",
+        "overlay": "000151_overlay.jpg",
+        "diff": "000151_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 151,
+      "prev_frame": "000151.jpg",
+      "curr_frame": "000152.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000152_mask.png",
+        "overlay": "000152_overlay.jpg",
+        "diff": "000152_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 152,
+      "prev_frame": "000152.jpg",
+      "curr_frame": "000153.jpg",
+      "n_boxes": 1,
+      "saved": {
+        "mask": "000153_mask.png",
+        "overlay": "000153_overlay.jpg",
+        "diff": "000153_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 153,
+      "prev_frame": "000153.jpg",
+      "curr_frame": "000154.jpg",
+      "n_boxes": 2,
+      "saved": {
+        "mask": "000154_mask.png",
+        "overlay": "000154_overlay.jpg",
+        "diff": "000154_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 154,
+      "prev_frame": "000154.jpg",
+      "curr_frame": "000155.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000155_mask.png",
+        "overlay": "000155_overlay.jpg",
+        "diff": "000155_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 155,
+      "prev_frame": "000155.jpg",
+      "curr_frame": "000156.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000156_mask.png",
+        "overlay": "000156_overlay.jpg",
+        "diff": "000156_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 156,
+      "prev_frame": "000156.jpg",
+      "curr_frame": "000157.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000157_mask.png",
+        "overlay": "000157_overlay.jpg",
+        "diff": "000157_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 157,
+      "prev_frame": "000157.jpg",
+      "curr_frame": "000158.jpg",
+      "n_boxes": 50,
+      "saved": {
+        "mask": "000158_mask.png",
+        "overlay": "000158_overlay.jpg",
+        "diff": "000158_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    },
+    {
+      "idx": 158,
+      "prev_frame": "000158.jpg",
+      "curr_frame": "000159.jpg",
+      "n_boxes": 26,
+      "saved": {
+        "mask": "000159_mask.png",
+        "overlay": "000159_overlay.jpg",
+        "diff": "000159_diff.jpg"
+      },
+      "step2": {
+        "dx": 0.0,
+        "dy": 0.0,
+        "method": "identity",
+        "camera_moving": false
+      }
+    }
+  ]
+}

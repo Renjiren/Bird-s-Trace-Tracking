@@ -13,19 +13,19 @@ class CandidateGenConfig:
     # Main trunk: diff_n + MAD
     # ------------------------
     eps: float = 3.0                 # normalized diff denominator
-    diff_blur_ksize: int = 5         # blur on diff maps to suppress tiny sparkle
+    diff_blur_ksize: int = 7         # blur on diff maps to suppress tiny sparkle(before is 5)
     mad_k: float = 8.0               # thr = median + k*(1.4826*MAD)
     thr_min: int = 8                 # clamp threshold to avoid too low
     thr_max: int = 80                # clamp threshold to avoid too high
 
     # specular suppression (soft mask)
     # weight applied to diff inside specular-like region (0..1)
-    specular_weight: float = 0.35
+    specular_weight: float = 0.45 # the smaller, the stronger the suppression; before is 0.35
 
     # only when specular is extreme, allow "conditional hard suppression"
     # (still not always; and only suppress spec region)
-    spec_ratio_hard: float = 0.20
-    fg_ratio_hard: float = 0.30
+    spec_ratio_hard: float = 0.35 # before is 0.20
+    fg_ratio_hard: float = 0.45   # before is 0.30
 
     # ------------------------
     # Optional branch A: diff_g (LoG-based) auto switch
@@ -83,7 +83,7 @@ class CandidateGenConfig:
     # Morphology (adaptive scaling by resolution)
     # ------------------------
     kernel_scale_ref: int = 720
-    open_ksize: int = 3
+    open_ksize: int = 5 # before is 3
     close_ksize: int = 9
     bridge_dilate_ksize: int = 5
     bridge_close_ksize: int = 11
@@ -97,7 +97,7 @@ class CandidateGenConfig:
     max_area: Optional[int] = None
     min_wh: int = 5
     max_aspect_ratio: float = 10.0
-    max_boxes: int = 50
+    max_boxes: int = 12
     bbox_pad_frac: float = 0.20
 
     # nested box suppression
@@ -117,8 +117,8 @@ class CandidateGenConfig:
     # ------------------------
     # Optional global persistence filter (usually keep disabled; bg-only is the main win)
     # ------------------------
-    enable_global_persistence_filter: bool = False
-    global_persistence_min: float = 0.80
+    enable_global_persistence_filter: bool = True #before is False
+    global_persistence_min: float = 1.35 # before is 0.80
     global_persistence_warmup: int = 5
 
 
@@ -127,8 +127,8 @@ class CandidateGenResult:
     mask: np.ndarray
     boxes: List[Tuple[int, int, int, int]]
     debug: Dict[str, Any]
-    diff_n: Optional[np.ndarray] = None  # 新增：原始差分图
-    diff_main: Optional[np.ndarray] = None  # 新增：主差分mask
+    diff_n: Optional[np.ndarray] = None  # mask_row_diff
+    diff_main: Optional[np.ndarray] = None  # mask_main_diff
 
 
 class MotionCandidateGenerator:

@@ -19,7 +19,7 @@ class CamMotionConfig:
 
     roi_valid_frac_min: float = 0.45
     max_abs_shift_px: float = 50.0
-    moving_thresh_px: float = 0.5  # sensitive for slow camera motion
+    moving_thresh_px: float = 1.2  # no sensitive for slow camera motion, before is 0.5
 
     global_pc_resp_thresh: float = 0.15  
     roi_pc_resp_thresh: float = 0.12     

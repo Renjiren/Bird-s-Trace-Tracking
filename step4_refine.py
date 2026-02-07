@@ -4,11 +4,36 @@ import numpy as np
 from dataclasses import dataclass
 
 
+def ioa(inner, outer):
+    '''
+    IoA: Intersection over Area of the inner box (not union)
+    Useful for checking if a small box is mostly contained within a larger box 
+    '''
+    ix, iy, iw, ih = inner
+    ox, oy, ow, oh = outer
+
+    ix2, iy2 = ix + iw, iy + ih
+    ox2, oy2 = ox + ow, oy + oh
+
+    x1 = max(ix, ox)
+    y1 = max(iy, oy)
+    x2 = min(ix2, ox2)
+    y2 = min(iy2, oy2)
+
+    if x2 <= x1 or y2 <= y1:
+        return 0.0
+
+    inter = (x2 - x1) * (y2 - y1)
+    return inter / (iw * ih + 1e-6)
+
+
+
+# ---------------- Refine ----------------
 @dataclass
 class RefineConfig:
     min_area_ratio: float = 0.00005
     max_box_area_ratio: float = 0.3
-    min_fg_pixels: int = 20
+    min_fg_pixels: int = 50
     fg_ratio_min: float = 0.2
     fill_ratio_min: float = 0.10
     spec_frac_max: float = 0.6
@@ -149,4 +174,42 @@ def step4_refine(bgr, mask_fg, boxes_raw, spec_mask, cfg: RefineConfig):
         _, bx, by, bw, bh = inst_boxes[0]
         refined.append((bx, by, bw, bh))
 
-    return refined
+    # ---- Final global suppression: remove boxes inside larger boxes ----
+    no_overlap = []
+    for i, b in enumerate(refined):
+        keep = True
+        bx, by, bw, bh = b
+        area_b = bw * bh
+
+        for j, other in enumerate(refined):
+            if i == j:
+                continue
+            ox, oy, ow, oh = other
+            area_o = ow * oh
+
+            # only consider larger boxes
+            if area_o <= area_b:
+                continue
+
+            # if b is almost fully inside other → drop b
+            if ioa(b, other) > 0.9:
+                keep = False
+                break
+
+        if keep:
+            no_overlap.append(b)
+
+    areas = [w*h for (_,_,w,h) in no_overlap]
+    if not areas:
+        return []
+
+    max_area = max(areas)
+
+    clean_boxes = []
+    for (x,y,w,h) in no_overlap:
+        area = w*h
+        if area < 0.01 * max_area:
+            continue   # too small, reject.
+        clean_boxes.append((x,y,w,h))
+        
+    return clean_boxes

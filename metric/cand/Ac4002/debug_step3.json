@@ -5,7 +5,7 @@
       "idx": 1,
       "prev_frame": "000001.jpg",
       "curr_frame": "000002.jpg",
-      "n_boxes": 13,
+      "n_boxes": 12,
       "saved": {
         "mask": "000002_mask.png",
         "overlay": "000002_overlay.jpg",
@@ -22,7 +22,7 @@
       "idx": 2,
       "prev_frame": "000002.jpg",
       "curr_frame": "000003.jpg",
-      "n_boxes": 18,
+      "n_boxes": 12,
       "saved": {
         "mask": "000003_mask.png",
         "overlay": "000003_overlay.jpg",
@@ -56,7 +56,7 @@
       "idx": 4,
       "prev_frame": "000004.jpg",
       "curr_frame": "000005.jpg",
-      "n_boxes": 17,
+      "n_boxes": 12,
       "saved": {
         "mask": "000005_mask.png",
         "overlay": "000005_overlay.jpg",
@@ -73,7 +73,7 @@
       "idx": 5,
       "prev_frame": "000005.jpg",
       "curr_frame": "000006.jpg",
-      "n_boxes": 31,
+      "n_boxes": 8,
       "saved": {
         "mask": "000006_mask.png",
         "overlay": "000006_overlay.jpg",
@@ -90,7 +90,7 @@
       "idx": 6,
       "prev_frame": "000006.jpg",
       "curr_frame": "000007.jpg",
-      "n_boxes": 34,
+      "n_boxes": 8,
       "saved": {
         "mask": "000007_mask.png",
         "overlay": "000007_overlay.jpg",
@@ -107,7 +107,7 @@
       "idx": 7,
       "prev_frame": "000007.jpg",
       "curr_frame": "000008.jpg",
-      "n_boxes": 7,
+      "n_boxes": 10,
       "saved": {
         "mask": "000008_mask.png",
         "overlay": "000008_overlay.jpg",
@@ -124,7 +124,7 @@
       "idx": 8,
       "prev_frame": "000008.jpg",
       "curr_frame": "000009.jpg",
-      "n_boxes": 11,
+      "n_boxes": 9,
       "saved": {
         "mask": "000009_mask.png",
         "overlay": "000009_overlay.jpg",
@@ -158,7 +158,7 @@
       "idx": 10,
       "prev_frame": "000010.jpg",
       "curr_frame": "000011.jpg",
-      "n_boxes": 12,
+      "n_boxes": 9,
       "saved": {
         "mask": "000011_mask.png",
         "overlay": "000011_overlay.jpg",
@@ -175,7 +175,7 @@
       "idx": 11,
       "prev_frame": "000011.jpg",
       "curr_frame": "000012.jpg",
-      "n_boxes": 15,
+      "n_boxes": 7,
       "saved": {
         "mask": "000012_mask.png",
         "overlay": "000012_overlay.jpg",
@@ -192,7 +192,7 @@
       "idx": 12,
       "prev_frame": "000012.jpg",
       "curr_frame": "000013.jpg",
-      "n_boxes": 13,
+      "n_boxes": 12,
       "saved": {
         "mask": "000013_mask.png",
         "overlay": "000013_overlay.jpg",
@@ -209,7 +209,7 @@
       "idx": 13,
       "prev_frame": "000013.jpg",
       "curr_frame": "000014.jpg",
-      "n_boxes": 20,
+      "n_boxes": 12,
       "saved": {
         "mask": "000014_mask.png",
         "overlay": "000014_overlay.jpg",
@@ -226,7 +226,7 @@
       "idx": 14,
       "prev_frame": "000014.jpg",
       "curr_frame": "000015.jpg",
-      "n_boxes": 22,
+      "n_boxes": 12,
       "saved": {
         "mask": "000015_mask.png",
         "overlay": "000015_overlay.jpg",
@@ -260,7 +260,7 @@
       "idx": 16,
       "prev_frame": "000016.jpg",
       "curr_frame": "000017.jpg",
-      "n_boxes": 9,
+      "n_boxes": 12,
       "saved": {
         "mask": "000017_mask.png",
         "overlay": "000017_overlay.jpg",
@@ -277,7 +277,7 @@
       "idx": 17,
       "prev_frame": "000017.jpg",
       "curr_frame": "000018.jpg",
-      "n_boxes": 13,
+      "n_boxes": 12,
       "saved": {
         "mask": "000018_mask.png",
         "overlay": "000018_overlay.jpg",
@@ -294,7 +294,7 @@
       "idx": 18,
       "prev_frame": "000018.jpg",
       "curr_frame": "000019.jpg",
-      "n_boxes": 13,
+      "n_boxes": 11,
       "saved": {
         "mask": "000019_mask.png",
         "overlay": "000019_overlay.jpg",
@@ -311,7 +311,7 @@
       "idx": 19,
       "prev_frame": "000019.jpg",
       "curr_frame": "000020.jpg",
-      "n_boxes": 9,
+      "n_boxes": 12,
       "saved": {
         "mask": "000020_mask.png",
         "overlay": "000020_overlay.jpg",
@@ -328,7 +328,7 @@
       "idx": 20,
       "prev_frame": "000020.jpg",
       "curr_frame": "000021.jpg",
-      "n_boxes": 9,
+      "n_boxes": 7,
       "saved": {
         "mask": "000021_mask.png",
         "overlay": "000021_overlay.jpg",
@@ -362,7 +362,7 @@
       "idx": 22,
       "prev_frame": "000022.jpg",
       "curr_frame": "000023.jpg",
-      "n_boxes": 5,
+      "n_boxes": 9,
       "saved": {
         "mask": "000023_mask.png",
         "overlay": "000023_overlay.jpg",
@@ -379,7 +379,7 @@
       "idx": 23,
       "prev_frame": "000023.jpg",
       "curr_frame": "000024.jpg",
-      "n_boxes": 8,
+      "n_boxes": 11,
       "saved": {
         "mask": "000024_mask.png",
         "overlay": "000024_overlay.jpg",
@@ -396,7 +396,7 @@
       "idx": 24,
       "prev_frame": "000024.jpg",
       "curr_frame": "000025.jpg",
-      "n_boxes": 9,
+      "n_boxes": 12,
       "saved": {
         "mask": "000025_mask.png",
         "overlay": "000025_overlay.jpg",
@@ -413,7 +413,7 @@
       "idx": 25,
       "prev_frame": "000025.jpg",
       "curr_frame": "000026.jpg",
-      "n_boxes": 11,
+      "n_boxes": 12,
       "saved": {
         "mask": "000026_mask.png",
         "overlay": "000026_overlay.jpg",
@@ -430,7 +430,7 @@
       "idx": 26,
       "prev_frame": "000026.jpg",
       "curr_frame": "000027.jpg",
-      "n_boxes": 5,
+      "n_boxes": 7,
       "saved": {
         "mask": "000027_mask.png",
         "overlay": "000027_overlay.jpg",
@@ -464,7 +464,7 @@
       "idx": 28,
       "prev_frame": "000028.jpg",
       "curr_frame": "000029.jpg",
-      "n_boxes": 6,
+      "n_boxes": 8,
       "saved": {
         "mask": "000029_mask.png",
         "overlay": "000029_overlay.jpg",
@@ -481,7 +481,7 @@
       "idx": 29,
       "prev_frame": "000029.jpg",
       "curr_frame": "000030.jpg",
-      "n_boxes": 8,
+      "n_boxes": 10,
       "saved": {
         "mask": "000030_mask.png",
         "overlay": "000030_overlay.jpg",
@@ -498,7 +498,7 @@
       "idx": 30,
       "prev_frame": "000030.jpg",
       "curr_frame": "000031.jpg",
-      "n_boxes": 8,
+      "n_boxes": 10,
       "saved": {
         "mask": "000031_mask.png",
         "overlay": "000031_overlay.jpg",
@@ -515,7 +515,7 @@
       "idx": 31,
       "prev_frame": "000031.jpg",
       "curr_frame": "000032.jpg",
-      "n_boxes": 30,
+      "n_boxes": 12,
       "saved": {
         "mask": "000032_mask.png",
         "overlay": "000032_overlay.jpg",
@@ -532,7 +532,7 @@
       "idx": 32,
       "prev_frame": "000032.jpg",
       "curr_frame": "000033.jpg",
-      "n_boxes": 19,
+      "n_boxes": 12,
       "saved": {
         "mask": "000033_mask.png",
         "overlay": "000033_overlay.jpg",
@@ -566,7 +566,7 @@
       "idx": 34,
       "prev_frame": "000034.jpg",
       "curr_frame": "000035.jpg",
-      "n_boxes": 15,
+      "n_boxes": 8,
       "saved": {
         "mask": "000035_mask.png",
         "overlay": "000035_overlay.jpg",
@@ -583,7 +583,7 @@
       "idx": 35,
       "prev_frame": "000035.jpg",
       "curr_frame": "000036.jpg",
-      "n_boxes": 11,
+      "n_boxes": 12,
       "saved": {
         "mask": "000036_mask.png",
         "overlay": "000036_overlay.jpg",
@@ -600,7 +600,7 @@
       "idx": 36,
       "prev_frame": "000036.jpg",
       "curr_frame": "000037.jpg",
-      "n_boxes": 11,
+      "n_boxes": 12,
       "saved": {
         "mask": "000037_mask.png",
         "overlay": "000037_overlay.jpg",
@@ -617,7 +617,7 @@
       "idx": 37,
       "prev_frame": "000037.jpg",
       "curr_frame": "000038.jpg",
-      "n_boxes": 7,
+      "n_boxes": 9,
       "saved": {
         "mask": "000038_mask.png",
         "overlay": "000038_overlay.jpg",
@@ -634,7 +634,7 @@
       "idx": 38,
       "prev_frame": "000038.jpg",
       "curr_frame": "000039.jpg",
-      "n_boxes": 13,
+      "n_boxes": 12,
       "saved": {
         "mask": "000039_mask.png",
         "overlay": "000039_overlay.jpg",
@@ -668,7 +668,7 @@
       "idx": 40,
       "prev_frame": "000040.jpg",
       "curr_frame": "000041.jpg",
-      "n_boxes": 18,
+      "n_boxes": 12,
       "saved": {
         "mask": "000041_mask.png",
         "overlay": "000041_overlay.jpg",
@@ -685,7 +685,7 @@
       "idx": 41,
       "prev_frame": "000041.jpg",
       "curr_frame": "000042.jpg",
-      "n_boxes": 15,
+      "n_boxes": 12,
       "saved": {
         "mask": "000042_mask.png",
         "overlay": "000042_overlay.jpg",
@@ -702,7 +702,7 @@
       "idx": 42,
       "prev_frame": "000042.jpg",
       "curr_frame": "000043.jpg",
-      "n_boxes": 14,
+      "n_boxes": 12,
       "saved": {
         "mask": "000043_mask.png",
         "overlay": "000043_overlay.jpg",
@@ -719,7 +719,7 @@
       "idx": 43,
       "prev_frame": "000043.jpg",
       "curr_frame": "000044.jpg",
-      "n_boxes": 14,
+      "n_boxes": 12,
       "saved": {
         "mask": "000044_mask.png",
         "overlay": "000044_overlay.jpg",
@@ -736,7 +736,7 @@
       "idx": 44,
       "prev_frame": "000044.jpg",
       "curr_frame": "000045.jpg",
-      "n_boxes": 24,
+      "n_boxes": 12,
       "saved": {
         "mask": "000045_mask.png",
         "overlay": "000045_overlay.jpg",
@@ -770,7 +770,7 @@
       "idx": 46,
       "prev_frame": "000046.jpg",
       "curr_frame": "000047.jpg",
-      "n_boxes": 11,
+      "n_boxes": 12,
       "saved": {
         "mask": "000047_mask.png",
         "overlay": "000047_overlay.jpg",
@@ -787,7 +787,7 @@
       "idx": 47,
       "prev_frame": "000047.jpg",
       "curr_frame": "000048.jpg",
-      "n_boxes": 13,
+      "n_boxes": 12,
       "saved": {
         "mask": "000048_mask.png",
         "overlay": "000048_overlay.jpg",
@@ -804,7 +804,7 @@
       "idx": 48,
       "prev_frame": "000048.jpg",
       "curr_frame": "000049.jpg",
-      "n_boxes": 8,
+      "n_boxes": 12,
       "saved": {
         "mask": "000049_mask.png",
         "overlay": "000049_overlay.jpg",
@@ -821,7 +821,7 @@
       "idx": 49,
       "prev_frame": "000049.jpg",
       "curr_frame": "000050.jpg",
-      "n_boxes": 50,
+      "n_boxes": 10,
       "saved": {
         "mask": "000050_mask.png",
         "overlay": "000050_overlay.jpg",
@@ -838,7 +838,7 @@
       "idx": 50,
       "prev_frame": "000050.jpg",
       "curr_frame": "000051.jpg",
-      "n_boxes": 50,
+      "n_boxes": 8,
       "saved": {
         "mask": "000051_mask.png",
         "overlay": "000051_overlay.jpg",
@@ -872,7 +872,7 @@
       "idx": 52,
       "prev_frame": "000052.jpg",
       "curr_frame": "000053.jpg",
-      "n_boxes": 9,
+      "n_boxes": 12,
       "saved": {
         "mask": "000053_mask.png",
         "overlay": "000053_overlay.jpg",
@@ -889,7 +889,7 @@
       "idx": 53,
       "prev_frame": "000053.jpg",
       "curr_frame": "000054.jpg",
-      "n_boxes": 9,
+      "n_boxes": 12,
       "saved": {
         "mask": "000054_mask.png",
         "overlay": "000054_overlay.jpg",
@@ -906,7 +906,7 @@
       "idx": 54,
       "prev_frame": "000054.jpg",
       "curr_frame": "000055.jpg",
-      "n_boxes": 6,
+      "n_boxes": 12,
       "saved": {
         "mask": "000055_mask.png",
         "overlay": "000055_overlay.jpg",
@@ -923,7 +923,7 @@
       "idx": 55,
       "prev_frame": "000055.jpg",
       "curr_frame": "000056.jpg",
-      "n_boxes": 50,
+      "n_boxes": 11,
       "saved": {
         "mask": "000056_mask.png",
         "overlay": "000056_overlay.jpg",
@@ -940,7 +940,7 @@
       "idx": 56,
       "prev_frame": "000056.jpg",
       "curr_frame": "000057.jpg",
-      "n_boxes": 9,
+      "n_boxes": 12,
       "saved": {
         "mask": "000057_mask.png",
         "overlay": "000057_overlay.jpg",
@@ -974,7 +974,7 @@
       "idx": 58,
       "prev_frame": "000058.jpg",
       "curr_frame": "000059.jpg",
-      "n_boxes": 50,
+      "n_boxes": 12,
       "saved": {
         "mask": "000059_mask.png",
         "overlay": "000059_overlay.jpg",
@@ -991,7 +991,7 @@
       "idx": 59,
       "prev_frame": "000059.jpg",
       "curr_frame": "000060.jpg",
-      "n_boxes": 8,
+      "n_boxes": 12,
       "saved": {
         "mask": "000060_mask.png",
         "overlay": "000060_overlay.jpg",
@@ -1008,7 +1008,7 @@
       "idx": 60,
       "prev_frame": "000060.jpg",
       "curr_frame": "000061.jpg",
-      "n_boxes": 10,
+      "n_boxes": 11,
       "saved": {
         "mask": "000061_mask.png",
         "overlay": "000061_overlay.jpg",
@@ -1025,7 +1025,7 @@
       "idx": 61,
       "prev_frame": "000061.jpg",
       "curr_frame": "000062.jpg",
-      "n_boxes": 24,
+      "n_boxes": 12,
       "saved": {
         "mask": "000062_mask.png",
         "overlay": "000062_overlay.jpg",
@@ -1035,14 +1035,14 @@
         "dx": 0.2999851107597351,
         "dy": 1.1378936767578125,
         "method": "roi_consensus_phase_correlation",
-        "camera_moving": true
+        "camera_moving": false
       }
     },
     {
       "idx": 62,
       "prev_frame": "000062.jpg",
       "curr_frame": "000063.jpg",
-      "n_boxes": 4,
+      "n_boxes": 12,
       "saved": {
         "mask": "000063_mask.png",
         "overlay": "000063_overlay.jpg",
@@ -1052,7 +1052,7 @@
         "dx": -0.694028809584438,
         "dy": 0.4340432143133057,
         "method": "global_phase_correlation",
-        "camera_moving": true
+        "camera_moving": false
       }
     },
     {
@@ -1076,7 +1076,7 @@
       "idx": 64,
       "prev_frame": "000064.jpg",
       "curr_frame": "000065.jpg",
-      "n_boxes": 2,
+      "n_boxes": 12,
       "saved": {
         "mask": "000065_mask.png",
         "overlay": "000065_overlay.jpg",
@@ -1086,14 +1086,14 @@
         "dx": -0.38018007004609444,
         "dy": 0.632269199774214,
         "method": "global_phase_correlation",
-        "camera_moving": true
+        "camera_moving": false
       }
     },
     {
       "idx": 65,
       "prev_frame": "000065.jpg",
       "curr_frame": "000066.jpg",
-      "n_boxes": 6,
+      "n_boxes": 12,
       "saved": {
         "mask": "000066_mask.png",
         "overlay": "000066_overlay.jpg",
@@ -1110,7 +1110,7 @@
       "idx": 66,
       "prev_frame": "000066.jpg",
       "curr_frame": "000067.jpg",
-      "n_boxes": 6,
+      "n_boxes": 12,
       "saved": {
         "mask": "000067_mask.png",
         "overlay": "000067_overlay.jpg",
@@ -1127,7 +1127,7 @@
       "idx": 67,
       "prev_frame": "000067.jpg",
       "curr_frame": "000068.jpg",
-      "n_boxes": 5,
+      "n_boxes": 8,
       "saved": {
         "mask": "000068_mask.png",
         "overlay": "000068_overlay.jpg",
@@ -1144,7 +1144,7 @@
       "idx": 68,
       "prev_frame": "000068.jpg",
       "curr_frame": "000069.jpg",
-      "n_boxes": 10,
+      "n_boxes": 7,
       "saved": {
         "mask": "000069_mask.png",
         "overlay": "000069_overlay.jpg",
@@ -1161,7 +1161,7 @@
       "idx": 69,
       "prev_frame": "000069.jpg",
       "curr_frame": "000070.jpg",
-      "n_boxes": 3,
+      "n_boxes": 1,
       "saved": {
         "mask": "000070_mask.png",
         "overlay": "000070_overlay.jpg",
@@ -1178,7 +1178,7 @@
       "idx": 70,
       "prev_frame": "000070.jpg",
       "curr_frame": "000071.jpg",
-      "n_boxes": 3,
+      "n_boxes": 11,
       "saved": {
         "mask": "000071_mask.png",
         "overlay": "000071_overlay.jpg",
@@ -1195,7 +1195,7 @@
       "idx": 71,
       "prev_frame": "000071.jpg",
       "curr_frame": "000072.jpg",
-      "n_boxes": 50,
+      "n_boxes": 6,
       "saved": {
         "mask": "000072_mask.png",
         "overlay": "000072_overlay.jpg",
@@ -1212,7 +1212,7 @@
       "idx": 72,
       "prev_frame": "000072.jpg",
       "curr_frame": "000073.jpg",
-      "n_boxes": 2,
+      "n_boxes": 11,
       "saved": {
         "mask": "000073_mask.png",
         "overlay": "000073_overlay.jpg",
@@ -1229,7 +1229,7 @@
       "idx": 73,
       "prev_frame": "000073.jpg",
       "curr_frame": "000074.jpg",
-      "n_boxes": 3,
+      "n_boxes": 12,
       "saved": {
         "mask": "000074_mask.png",
         "overlay": "000074_overlay.jpg",
@@ -1246,7 +1246,7 @@
       "idx": 74,
       "prev_frame": "000074.jpg",
       "curr_frame": "000075.jpg",
-      "n_boxes": 2,
+      "n_boxes": 12,
       "saved": {
         "mask": "000075_mask.png",
         "overlay": "000075_overlay.jpg",
@@ -1263,7 +1263,7 @@
       "idx": 75,
       "prev_frame": "000075.jpg",
       "curr_frame": "000076.jpg",
-      "n_boxes": 6,
+      "n_boxes": 2,
       "saved": {
         "mask": "000076_mask.png",
         "overlay": "000076_overlay.jpg",
@@ -1280,7 +1280,7 @@
       "idx": 76,
       "prev_frame": "000076.jpg",
       "curr_frame": "000077.jpg",
-      "n_boxes": 2,
+      "n_boxes": 12,
       "saved": {
         "mask": "000077_mask.png",
         "overlay": "000077_overlay.jpg",
@@ -1297,7 +1297,7 @@
       "idx": 77,
       "prev_frame": "000077.jpg",
       "curr_frame": "000078.jpg",
-      "n_boxes": 2,
+      "n_boxes": 12,
       "saved": {
         "mask": "000078_mask.png",
         "overlay": "000078_overlay.jpg",
@@ -1314,7 +1314,7 @@
       "idx": 78,
       "prev_frame": "000078.jpg",
       "curr_frame": "000079.jpg",
-      "n_boxes": 2,
+      "n_boxes": 8,
       "saved": {
         "mask": "000079_mask.png",
         "overlay": "000079_overlay.jpg",
@@ -1331,7 +1331,7 @@
       "idx": 79,
       "prev_frame": "000079.jpg",
       "curr_frame": "000080.jpg",
-      "n_boxes": 2,
+      "n_boxes": 7,
       "saved": {
         "mask": "000080_mask.png",
         "overlay": "000080_overlay.jpg",
@@ -1348,7 +1348,7 @@
       "idx": 80,
       "prev_frame": "000080.jpg",
       "curr_frame": "000081.jpg",
-      "n_boxes": 2,
+      "n_boxes": 11,
       "saved": {
         "mask": "000081_mask.png",
         "overlay": "000081_overlay.jpg",
@@ -1382,7 +1382,7 @@
       "idx": 82,
       "prev_frame": "000082.jpg",
       "curr_frame": "000083.jpg",
-      "n_boxes": 2,
+      "n_boxes": 12,
       "saved": {
         "mask": "000083_mask.png",
         "overlay": "000083_overlay.jpg",
@@ -1399,7 +1399,7 @@
       "idx": 83,
       "prev_frame": "000083.jpg",
       "curr_frame": "000084.jpg",
-      "n_boxes": 44,
+      "n_boxes": 8,
       "saved": {
         "mask": "000084_mask.png",
         "overlay": "000084_overlay.jpg",
@@ -1433,7 +1433,7 @@
       "idx": 85,
       "prev_frame": "000085.jpg",
       "curr_frame": "000086.jpg",
-      "n_boxes": 4,
+      "n_boxes": 10,
       "saved": {
         "mask": "000086_mask.png",
         "overlay": "000086_overlay.jpg",
@@ -1450,7 +1450,7 @@
       "idx": 86,
       "prev_frame": "000086.jpg",
       "curr_frame": "000087.jpg",
-      "n_boxes": 50,
+      "n_boxes": 12,
       "saved": {
         "mask": "000087_mask.png",
         "overlay": "000087_overlay.jpg",
@@ -1484,7 +1484,7 @@
       "idx": 88,
       "prev_frame": "000088.jpg",
       "curr_frame": "000089.jpg",
-      "n_boxes": 5,
+      "n_boxes": 8,
       "saved": {
         "mask": "000089_mask.png",
         "overlay": "000089_overlay.jpg",
@@ -1501,7 +1501,7 @@
       "idx": 89,
       "prev_frame": "000089.jpg",
       "curr_frame": "000090.jpg",
-      "n_boxes": 5,
+      "n_boxes": 12,
       "saved": {
         "mask": "000090_mask.png",
         "overlay": "000090_overlay.jpg",
@@ -1518,7 +1518,7 @@
       "idx": 90,
       "prev_frame": "000090.jpg",
       "curr_frame": "000091.jpg",
-      "n_boxes": 5,
+      "n_boxes": 12,
       "saved": {
         "mask": "000091_mask.png",
         "overlay": "000091_overlay.jpg",
@@ -1535,7 +1535,7 @@
       "idx": 91,
       "prev_frame": "000091.jpg",
       "curr_frame": "000092.jpg",
-      "n_boxes": 4,
+      "n_boxes": 12,
       "saved": {
         "mask": "000092_mask.png",
         "overlay": "000092_overlay.jpg",
@@ -1552,7 +1552,7 @@
       "idx": 92,
       "prev_frame": "000092.jpg",
       "curr_frame": "000093.jpg",
-      "n_boxes": 4,
+      "n_boxes": 12,
       "saved": {
         "mask": "000093_mask.png",
         "overlay": "000093_overlay.jpg",
@@ -1569,7 +1569,7 @@
       "idx": 93,
       "prev_frame": "000093.jpg",
       "curr_frame": "000094.jpg",
-      "n_boxes": 3,
+      "n_boxes": 0,
       "saved": {
         "mask": "000094_mask.png",
         "overlay": "000094_overlay.jpg",
@@ -1586,7 +1586,7 @@
       "idx": 94,
       "prev_frame": "000094.jpg",
       "curr_frame": "000095.jpg",
-      "n_boxes": 3,
+      "n_boxes": 12,
       "saved": {
         "mask": "000095_mask.png",
         "overlay": "000095_overlay.jpg",
@@ -1603,7 +1603,7 @@
       "idx": 95,
       "prev_frame": "000095.jpg",
       "curr_frame": "000096.jpg",
-      "n_boxes": 3,
+      "n_boxes": 12,
       "saved": {
         "mask": "000096_mask.png",
         "overlay": "000096_overlay.jpg",
@@ -1620,7 +1620,7 @@
       "idx": 96,
       "prev_frame": "000096.jpg",
       "curr_frame": "000097.jpg",
-      "n_boxes": 15,
+      "n_boxes": 12,
       "saved": {
         "mask": "000097_mask.png",
         "overlay": "000097_overlay.jpg",
@@ -1637,7 +1637,7 @@
       "idx": 97,
       "prev_frame": "000097.jpg",
       "curr_frame": "000098.jpg",
-      "n_boxes": 4,
+      "n_boxes": 12,
       "saved": {
         "mask": "000098_mask.png",
         "overlay": "000098_overlay.jpg",
@@ -1654,7 +1654,7 @@
       "idx": 98,
       "prev_frame": "000098.jpg",
       "curr_frame": "000099.jpg",
-      "n_boxes": 7,
+      "n_boxes": 12,
       "saved": {
         "mask": "000099_mask.png",
         "overlay": "000099_overlay.jpg",
@@ -1671,7 +1671,7 @@
       "idx": 99,
       "prev_frame": "000099.jpg",
       "curr_frame": "000100.jpg",
-      "n_boxes": 1,
+      "n_boxes": 0,
       "saved": {
         "mask": "000100_mask.png",
         "overlay": "000100_overlay.jpg",
@@ -1688,7 +1688,7 @@
       "idx": 100,
       "prev_frame": "000100.jpg",
       "curr_frame": "000101.jpg",
-      "n_boxes": 6,
+      "n_boxes": 5,
       "saved": {
         "mask": "000101_mask.png",
         "overlay": "000101_overlay.jpg",
@@ -1705,7 +1705,7 @@
       "idx": 101,
       "prev_frame": "000101.jpg",
       "curr_frame": "000102.jpg",
-      "n_boxes": 9,
+      "n_boxes": 8,
       "saved": {
         "mask": "000102_mask.png",
         "overlay": "000102_overlay.jpg",
@@ -1722,7 +1722,7 @@
       "idx": 102,
       "prev_frame": "000102.jpg",
       "curr_frame": "000103.jpg",
-      "n_boxes": 4,
+      "n_boxes": 11,
       "saved": {
         "mask": "000103_mask.png",
         "overlay": "000103_overlay.jpg",
@@ -1739,7 +1739,7 @@
       "idx": 103,
       "prev_frame": "000103.jpg",
       "curr_frame": "000104.jpg",
-      "n_boxes": 4,
+      "n_boxes": 7,
       "saved": {
         "mask": "000104_mask.png",
         "overlay": "000104_overlay.jpg",
@@ -1756,7 +1756,7 @@
       "idx": 104,
       "prev_frame": "000104.jpg",
       "curr_frame": "000105.jpg",
-      "n_boxes": 3,
+      "n_boxes": 11,
       "saved": {
         "mask": "000105_mask.png",
         "overlay": "000105_overlay.jpg",
@@ -1790,7 +1790,7 @@
       "idx": 106,
       "prev_frame": "000106.jpg",
       "curr_frame": "000107.jpg",
-      "n_boxes": 4,
+      "n_boxes": 8,
       "saved": {
         "mask": "000107_mask.png",
         "overlay": "000107_overlay.jpg",
@@ -1807,7 +1807,7 @@
       "idx": 107,
       "prev_frame": "000107.jpg",
       "curr_frame": "000108.jpg",
-      "n_boxes": 14,
+      "n_boxes": 12,
       "saved": {
         "mask": "000108_mask.png",
         "overlay": "000108_overlay.jpg",
@@ -1824,7 +1824,7 @@
       "idx": 108,
       "prev_frame": "000108.jpg",
       "curr_frame": "000109.jpg",
-      "n_boxes": 4,
+      "n_boxes": 10,
       "saved": {
         "mask": "000109_mask.png",
         "overlay": "000109_overlay.jpg",
@@ -1841,7 +1841,7 @@
       "idx": 109,
       "prev_frame": "000109.jpg",
       "curr_frame": "000110.jpg",
-      "n_boxes": 6,
+      "n_boxes": 9,
       "saved": {
         "mask": "000110_mask.png",
         "overlay": "000110_overlay.jpg",
@@ -1858,7 +1858,7 @@
       "idx": 110,
       "prev_frame": "000110.jpg",
       "curr_frame": "000111.jpg",
-      "n_boxes": 11,
+      "n_boxes": 9,
       "saved": {
         "mask": "000111_mask.png",
         "overlay": "000111_overlay.jpg",
@@ -1875,7 +1875,7 @@
       "idx": 111,
       "prev_frame": "000111.jpg",
       "curr_frame": "000112.jpg",
-      "n_boxes": 1,
+      "n_boxes": 0,
       "saved": {
         "mask": "000112_mask.png",
         "overlay": "000112_overlay.jpg",
@@ -1892,7 +1892,7 @@
       "idx": 112,
       "prev_frame": "000112.jpg",
       "curr_frame": "000113.jpg",
-      "n_boxes": 3,
+      "n_boxes": 6,
       "saved": {
         "mask": "000113_mask.png",
         "overlay": "000113_overlay.jpg",
@@ -1909,7 +1909,7 @@
       "idx": 113,
       "prev_frame": "000113.jpg",
       "curr_frame": "000114.jpg",
-      "n_boxes": 3,
+      "n_boxes": 6,
       "saved": {
         "mask": "000114_mask.png",
         "overlay": "000114_overlay.jpg",
@@ -1926,7 +1926,7 @@
       "idx": 114,
       "prev_frame": "000114.jpg",
       "curr_frame": "000115.jpg",
-      "n_boxes": 4,
+      "n_boxes": 7,
       "saved": {
         "mask": "000115_mask.png",
         "overlay": "000115_overlay.jpg",
@@ -1943,7 +1943,7 @@
       "idx": 115,
       "prev_frame": "000115.jpg",
       "curr_frame": "000116.jpg",
-      "n_boxes": 2,
+      "n_boxes": 5,
       "saved": {
         "mask": "000116_mask.png",
         "overlay": "000116_overlay.jpg",
@@ -1960,7 +1960,7 @@
       "idx": 116,
       "prev_frame": "000116.jpg",
       "curr_frame": "000117.jpg",
-      "n_boxes": 5,
+      "n_boxes": 7,
       "saved": {
         "mask": "000117_mask.png",
         "overlay": "000117_overlay.jpg",
@@ -2011,7 +2011,7 @@
       "idx": 119,
       "prev_frame": "000119.jpg",
       "curr_frame": "000120.jpg",
-      "n_boxes": 5,
+      "n_boxes": 6,
       "saved": {
         "mask": "000120_mask.png",
         "overlay": "000120_overlay.jpg",
@@ -2062,7 +2062,7 @@
       "idx": 122,
       "prev_frame": "000122.jpg",
       "curr_frame": "000123.jpg",
-      "n_boxes": 7,
+      "n_boxes": 11,
       "saved": {
         "mask": "000123_mask.png",
         "overlay": "000123_overlay.jpg",
@@ -2096,7 +2096,7 @@
       "idx": 124,
       "prev_frame": "000124.jpg",
       "curr_frame": "000125.jpg",
-      "n_boxes": 5,
+      "n_boxes": 8,
       "saved": {
         "mask": "000125_mask.png",
         "overlay": "000125_overlay.jpg",
@@ -2113,7 +2113,7 @@
       "idx": 125,
       "prev_frame": "000125.jpg",
       "curr_frame": "000126.jpg",
-      "n_boxes": 4,
+      "n_boxes": 10,
       "saved": {
         "mask": "000126_mask.png",
         "overlay": "000126_overlay.jpg",
@@ -2147,7 +2147,7 @@
       "idx": 127,
       "prev_frame": "000127.jpg",
       "curr_frame": "000128.jpg",
-      "n_boxes": 5,
+      "n_boxes": 8,
       "saved": {
         "mask": "000128_mask.png",
         "overlay": "000128_overlay.jpg",
@@ -2164,7 +2164,7 @@
       "idx": 128,
       "prev_frame": "000128.jpg",
       "curr_frame": "000129.jpg",
-      "n_boxes": 5,
+      "n_boxes": 9,
       "saved": {
         "mask": "000129_mask.png",
         "overlay": "000129_overlay.jpg",
@@ -2198,7 +2198,7 @@
       "idx": 130,
       "prev_frame": "000130.jpg",
       "curr_frame": "000131.jpg",
-      "n_boxes": 5,
+      "n_boxes": 8,
       "saved": {
         "mask": "000131_mask.png",
         "overlay": "000131_overlay.jpg",
@@ -2215,7 +2215,7 @@
       "idx": 131,
       "prev_frame": "000131.jpg",
       "curr_frame": "000132.jpg",
-      "n_boxes": 5,
+      "n_boxes": 6,
       "saved": {
         "mask": "000132_mask.png",
         "overlay": "000132_overlay.jpg",
@@ -2232,7 +2232,7 @@
       "idx": 132,
       "prev_frame": "000132.jpg",
       "curr_frame": "000133.jpg",
-      "n_boxes": 6,
+      "n_boxes": 11,
       "saved": {
         "mask": "000133_mask.png",
         "overlay": "000133_overlay.jpg",
@@ -2249,7 +2249,7 @@
       "idx": 133,
       "prev_frame": "000133.jpg",
       "curr_frame": "000134.jpg",
-      "n_boxes": 5,
+      "n_boxes": 10,
       "saved": {
         "mask": "000134_mask.png",
         "overlay": "000134_overlay.jpg",
@@ -2266,7 +2266,7 @@
       "idx": 134,
       "prev_frame": "000134.jpg",
       "curr_frame": "000135.jpg",
-      "n_boxes": 7,
+      "n_boxes": 12,
       "saved": {
         "mask": "000135_mask.png",
         "overlay": "000135_overlay.jpg",
@@ -2283,7 +2283,7 @@
       "idx": 135,
       "prev_frame": "000135.jpg",
       "curr_frame": "000136.jpg",
-      "n_boxes": 2,
+      "n_boxes": 1,
       "saved": {
         "mask": "000136_mask.png",
         "overlay": "000136_overlay.jpg",
@@ -2317,7 +2317,7 @@
       "idx": 137,
       "prev_frame": "000137.jpg",
       "curr_frame": "000138.jpg",
-      "n_boxes": 8,
+      "n_boxes": 5,
       "saved": {
         "mask": "000138_mask.png",
         "overlay": "000138_overlay.jpg",
@@ -2368,7 +2368,7 @@
       "idx": 140,
       "prev_frame": "000140.jpg",
       "curr_frame": "000141.jpg",
-      "n_boxes": 6,
+      "n_boxes": 5,
       "saved": {
         "mask": "000141_mask.png",
         "overlay": "000141_overlay.jpg",
@@ -2402,7 +2402,7 @@
       "idx": 142,
       "prev_frame": "000142.jpg",
       "curr_frame": "000143.jpg",
-      "n_boxes": 5,
+      "n_boxes": 4,
       "saved": {
         "mask": "000143_mask.png",
         "overlay": "000143_overlay.jpg",
@@ -2419,7 +2419,7 @@
       "idx": 143,
       "prev_frame": "000143.jpg",
       "curr_frame": "000144.jpg",
-      "n_boxes": 5,
+      "n_boxes": 4,
       "saved": {
         "mask": "000144_mask.png",
         "overlay": "000144_overlay.jpg",
@@ -2436,7 +2436,7 @@
       "idx": 144,
       "prev_frame": "000144.jpg",
       "curr_frame": "000145.jpg",
-      "n_boxes": 5,
+      "n_boxes": 6,
       "saved": {
         "mask": "000145_mask.png",
         "overlay": "000145_overlay.jpg",
@@ -2470,7 +2470,7 @@
       "idx": 146,
       "prev_frame": "000146.jpg",
       "curr_frame": "000147.jpg",
-      "n_boxes": 6,
+      "n_boxes": 4,
       "saved": {
         "mask": "000147_mask.png",
         "overlay": "000147_overlay.jpg",
@@ -2504,7 +2504,7 @@
       "idx": 148,
       "prev_frame": "000148.jpg",
       "curr_frame": "000149.jpg",
-      "n_boxes": 11,
+      "n_boxes": 9,
       "saved": {
         "mask": "000149_mask.png",
         "overlay": "000149_overlay.jpg",
@@ -2521,7 +2521,7 @@
       "idx": 149,
       "prev_frame": "000149.jpg",
       "curr_frame": "000150.jpg",
-      "n_boxes": 8,
+      "n_boxes": 9,
       "saved": {
         "mask": "000150_mask.png",
         "overlay": "000150_overlay.jpg",
@@ -2538,7 +2538,7 @@
       "idx": 150,
       "prev_frame": "000150.jpg",
       "curr_frame": "000151.jpg",
-      "n_boxes": 8,
+      "n_boxes": 6,
       "saved": {
         "mask": "000151_mask.png",
         "overlay": "000151_overlay.jpg",
@@ -2555,7 +2555,7 @@
       "idx": 151,
       "prev_frame": "000151.jpg",
       "curr_frame": "000152.jpg",
-      "n_boxes": 5,
+      "n_boxes": 4,
       "saved": {
         "mask": "000152_mask.png",
         "overlay": "000152_overlay.jpg",
@@ -2572,7 +2572,7 @@
       "idx": 152,
       "prev_frame": "000152.jpg",
       "curr_frame": "000153.jpg",
-      "n_boxes": 20,
+      "n_boxes": 12,
       "saved": {
         "mask": "000153_mask.png",
         "overlay": "000153_overlay.jpg",
@@ -2606,7 +2606,7 @@
       "idx": 154,
       "prev_frame": "000154.jpg",
       "curr_frame": "000155.jpg",
-      "n_boxes": 27,
+      "n_boxes": 12,
       "saved": {
         "mask": "000155_mask.png",
         "overlay": "000155_overlay.jpg",
@@ -2623,7 +2623,7 @@
       "idx": 155,
       "prev_frame": "000155.jpg",
       "curr_frame": "000156.jpg",
-      "n_boxes": 24,
+      "n_boxes": 12,
       "saved": {
         "mask": "000156_mask.png",
         "overlay": "000156_overlay.jpg",
@@ -2640,7 +2640,7 @@
       "idx": 156,
       "prev_frame": "000156.jpg",
       "curr_frame": "000157.jpg",
-      "n_boxes": 24,
+      "n_boxes": 12,
       "saved": {
         "mask": "000157_mask.png",
         "overlay": "000157_overlay.jpg",
@@ -2657,7 +2657,7 @@
       "idx": 157,
       "prev_frame": "000157.jpg",
       "curr_frame": "000158.jpg",
-      "n_boxes": 22,
+      "n_boxes": 12,
       "saved": {
         "mask": "000158_mask.png",
         "overlay": "000158_overlay.jpg",
@@ -2674,7 +2674,7 @@
       "idx": 158,
       "prev_frame": "000158.jpg",
       "curr_frame": "000159.jpg",
-      "n_boxes": 26,
+      "n_boxes": 12,
       "saved": {
         "mask": "000159_mask.png",
         "overlay": "000159_overlay.jpg",
@@ -2691,7 +2691,7 @@
       "idx": 159,
       "prev_frame": "000159.jpg",
       "curr_frame": "000160.jpg",
-      "n_boxes": 2,
+      "n_boxes": 0,
       "saved": {
         "mask": "000160_mask.png",
         "overlay": "000160_overlay.jpg",
@@ -2708,7 +2708,7 @@
       "idx": 160,
       "prev_frame": "000160.jpg",
       "curr_frame": "000161.jpg",
-      "n_boxes": 22,
+      "n_boxes": 12,
       "saved": {
         "mask": "000161_mask.png",
         "overlay": "000161_overlay.jpg",
@@ -2725,7 +2725,7 @@
       "idx": 161,
       "prev_frame": "000161.jpg",
       "curr_frame": "000162.jpg",
-      "n_boxes": 24,
+      "n_boxes": 12,
       "saved": {
         "mask": "000162_mask.png",
         "overlay": "000162_overlay.jpg",
@@ -2742,7 +2742,7 @@
       "idx": 162,
       "prev_frame": "000162.jpg",
       "curr_frame": "000163.jpg",
-      "n_boxes": 25,
+      "n_boxes": 12,
       "saved": {
         "mask": "000163_mask.png",
         "overlay": "000163_overlay.jpg",
@@ -2759,7 +2759,7 @@
       "idx": 163,
       "prev_frame": "000163.jpg",
       "curr_frame": "000164.jpg",
-      "n_boxes": 20,
+      "n_boxes": 12,
       "saved": {
         "mask": "000164_mask.png",
         "overlay": "000164_overlay.jpg",
@@ -2776,7 +2776,7 @@
       "idx": 164,
       "prev_frame": "000164.jpg",
       "curr_frame": "000165.jpg",
-      "n_boxes": 24,
+      "n_boxes": 12,
       "saved": {
         "mask": "000165_mask.png",
         "overlay": "000165_overlay.jpg",
@@ -2793,7 +2793,7 @@
       "idx": 165,
       "prev_frame": "000165.jpg",
       "curr_frame": "000166.jpg",
-      "n_boxes": 1,
+      "n_boxes": 0,
       "saved": {
         "mask": "000166_mask.png",
         "overlay": "000166_overlay.jpg",
@@ -2810,7 +2810,7 @@
       "idx": 166,
       "prev_frame": "000166.jpg",
       "curr_frame": "000167.jpg",
-      "n_boxes": 22,
+      "n_boxes": 12,
       "saved": {
         "mask": "000167_mask.png",
         "overlay": "000167_overlay.jpg",
@@ -2827,7 +2827,7 @@
       "idx": 167,
       "prev_frame": "000167.jpg",
       "curr_frame": "000168.jpg",
-      "n_boxes": 27,
+      "n_boxes": 12,
       "saved": {
         "mask": "000168_mask.png",
         "overlay": "000168_overlay.jpg",
@@ -2844,7 +2844,7 @@
       "idx": 168,
       "prev_frame": "000168.jpg",
       "curr_frame": "000169.jpg",
-      "n_boxes": 22,
+      "n_boxes": 12,
       "saved": {
         "mask": "000169_mask.png",
         "overlay": "000169_overlay.jpg",
@@ -2861,7 +2861,7 @@
       "idx": 169,
       "prev_frame": "000169.jpg",
       "curr_frame": "000170.jpg",
-      "n_boxes": 15,
+      "n_boxes": 12,
       "saved": {
         "mask": "000170_mask.png",
         "overlay": "000170_overlay.jpg",
@@ -2878,7 +2878,7 @@
       "idx": 170,
       "prev_frame": "000170.jpg",
       "curr_frame": "000171.jpg",
-      "n_boxes": 18,
+      "n_boxes": 5,
       "saved": {
         "mask": "000171_mask.png",
         "overlay": "000171_overlay.jpg",
@@ -2895,7 +2895,7 @@
       "idx": 171,
       "prev_frame": "000171.jpg",
       "curr_frame": "000172.jpg",
-      "n_boxes": 4,
+      "n_boxes": 2,
       "saved": {
         "mask": "000172_mask.png",
         "overlay": "000172_overlay.jpg",
@@ -2912,7 +2912,7 @@
       "idx": 172,
       "prev_frame": "000172.jpg",
       "curr_frame": "000173.jpg",
-      "n_boxes": 15,
+      "n_boxes": 12,
       "saved": {
         "mask": "000173_mask.png",
         "overlay": "000173_overlay.jpg",
@@ -2929,7 +2929,7 @@
       "idx": 173,
       "prev_frame": "000173.jpg",
       "curr_frame": "000174.jpg",
-      "n_boxes": 23,
+      "n_boxes": 12,
       "saved": {
         "mask": "000174_mask.png",
         "overlay": "000174_overlay.jpg",
@@ -2946,7 +2946,7 @@
       "idx": 174,
       "prev_frame": "000174.jpg",
       "curr_frame": "000175.jpg",
-      "n_boxes": 22,
+      "n_boxes": 12,
       "saved": {
         "mask": "000175_mask.png",
         "overlay": "000175_overlay.jpg",
@@ -2963,7 +2963,7 @@
       "idx": 175,
       "prev_frame": "000175.jpg",
       "curr_frame": "000176.jpg",
-      "n_boxes": 25,
+      "n_boxes": 12,
       "saved": {
         "mask": "000176_mask.png",
         "overlay": "000176_overlay.jpg",
@@ -2980,7 +2980,7 @@
       "idx": 176,
       "prev_frame": "000176.jpg",
       "curr_frame": "000177.jpg",
-      "n_boxes": 10,
+      "n_boxes": 11,
       "saved": {
         "mask": "000177_mask.png",
         "overlay": "000177_overlay.jpg",
@@ -2997,7 +2997,7 @@
       "idx": 177,
       "prev_frame": "000177.jpg",
       "curr_frame": "000178.jpg",
-      "n_boxes": 1,
+      "n_boxes": 0,
       "saved": {
         "mask": "000178_mask.png",
         "overlay": "000178_overlay.jpg",
@@ -3014,7 +3014,7 @@
       "idx": 178,
       "prev_frame": "000178.jpg",
       "curr_frame": "000179.jpg",
-      "n_boxes": 13,
+      "n_boxes": 12,
       "saved": {
         "mask": "000179_mask.png",
         "overlay": "000179_overlay.jpg",
@@ -3031,7 +3031,7 @@
       "idx": 179,
       "prev_frame": "000179.jpg",
       "curr_frame": "000180.jpg",
-      "n_boxes": 16,
+      "n_boxes": 12,
       "saved": {
         "mask": "000180_mask.png",
         "overlay": "000180_overlay.jpg",
@@ -3048,7 +3048,7 @@
       "idx": 180,
       "prev_frame": "000180.jpg",
       "curr_frame": "000181.jpg",
-      "n_boxes": 16,
+      "n_boxes": 12,
       "saved": {
         "mask": "000181_mask.png",
         "overlay": "000181_overlay.jpg",
@@ -3065,7 +3065,7 @@
       "idx": 181,
       "prev_frame": "000181.jpg",
       "curr_frame": "000182.jpg",
-      "n_boxes": 13,
+      "n_boxes": 12,
       "saved": {
         "mask": "000182_mask.png",
         "overlay": "000182_overlay.jpg",
@@ -3082,7 +3082,7 @@
       "idx": 182,
       "prev_frame": "000182.jpg",
       "curr_frame": "000183.jpg",
-      "n_boxes": 20,
+      "n_boxes": 12,
       "saved": {
         "mask": "000183_mask.png",
         "overlay": "000183_overlay.jpg",
@@ -3116,7 +3116,7 @@
       "idx": 184,
       "prev_frame": "000184.jpg",
       "curr_frame": "000185.jpg",
-      "n_boxes": 3,
+      "n_boxes": 12,
       "saved": {
         "mask": "000185_mask.png",
         "overlay": "000185_overlay.jpg",
@@ -3133,7 +3133,7 @@
       "idx": 185,
       "prev_frame": "000185.jpg",
       "curr_frame": "000186.jpg",
-      "n_boxes": 18,
+      "n_boxes": 12,
       "saved": {
         "mask": "000186_mask.png",
         "overlay": "000186_overlay.jpg",
@@ -3150,7 +3150,7 @@
       "idx": 186,
       "prev_frame": "000186.jpg",
       "curr_frame": "000187.jpg",
-      "n_boxes": 20,
+      "n_boxes": 12,
       "saved": {
         "mask": "000187_mask.png",
         "overlay": "000187_overlay.jpg",
@@ -3167,7 +3167,7 @@
       "idx": 187,
       "prev_frame": "000187.jpg",
       "curr_frame": "000188.jpg",
-      "n_boxes": 11,
+      "n_boxes": 9,
       "saved": {
         "mask": "000188_mask.png",
         "overlay": "000188_overlay.jpg",
@@ -3184,7 +3184,7 @@
       "idx": 188,
       "prev_frame": "000188.jpg",
       "curr_frame": "000189.jpg",
-      "n_boxes": 33,
+      "n_boxes": 9,
       "saved": {
         "mask": "000189_mask.png",
         "overlay": "000189_overlay.jpg",
@@ -3218,7 +3218,7 @@
       "idx": 190,
       "prev_frame": "000190.jpg",
       "curr_frame": "000191.jpg",
-      "n_boxes": 13,
+      "n_boxes": 12,
       "saved": {
         "mask": "000191_mask.png",
         "overlay": "000191_overlay.jpg",
@@ -3252,7 +3252,7 @@
       "idx": 192,
       "prev_frame": "000192.jpg",
       "curr_frame": "000193.jpg",
-      "n_boxes": 27,
+      "n_boxes": 11,
       "saved": {
         "mask": "000193_mask.png",
         "overlay": "000193_overlay.jpg",
@@ -3269,7 +3269,7 @@
       "idx": 193,
       "prev_frame": "000193.jpg",
       "curr_frame": "000194.jpg",
-      "n_boxes": 19,
+      "n_boxes": 4,
       "saved": {
         "mask": "000194_mask.png",
         "overlay": "000194_overlay.jpg",

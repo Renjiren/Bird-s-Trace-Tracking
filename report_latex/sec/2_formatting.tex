@@ -1,0 +1,46 @@
+\section{Classical Pipeline Overview}
+\label{sec:formatting}
+
+The proposed pipeline adopts a track-by-detection paradigm comprising five core components: pre-processing, camera motion compensation, motion-based candidate generation, region refinement, and tracking with data association. Each component addresses a specific challenge inherent in wild bird videos.
+
+
+
+%-------------------------------------------------------------------------
+\subsection{Definition and Evaluation Protocol}
+A video sequence is represented as an ordered set of frames \begin{equation}
+    \{I_t\}_{t=1}^T
+\end{equation}. Each bird instance is annotated by an axis-aligned bounding box b = (x, y, w, h). The task is to output, for each frame, a set of bird detections and to associate detections across frames into tracks with consistent identities.
+
+Performance is evaluated using Intersection-over-Union (IoU), Multi-Object Tracking Accuracy (MOTA), IDF1, and Higher Order Tracking Accuracy (HOTA). Identity switches (IDs), false positives (FP), and false negatives (FN) are also reported to analyze error sources.
+
+
+
+
+%-------------------------------------------------------------------------
+\subsection{Feature Stabilization and Pre-processing}
+
+Raw video frames are first subjected to edge-preserving filtering to reduce noise while retaining important boundaries. Both intensity and Laplacian-of-Gaussian features are extracted to balance sensitivity to weakly textured targets with robustness under illumination changes. Reflection and highlight regions are identified to suppress spurious motion responses that commonly arise from specular surfaces such as water.
+
+
+
+%-------------------------------------------------------------------------
+\subsection{Camera Motion Compensation}
+
+Camera motion is estimated and compensated to disentangle true object motion from global frame shifts. Initial alignment is performed using phase correlation, with refinement via region consensus and, when necessary, robust optimization methods. Compensation of global motion significantly improves the quality of motion cues used in subsequent detection.
+
+%-------------------------------------------------------------------------
+\subsection{Motion-Based Candidate Generation}
+
+Aligned frames are compared via normalized frame differencing to generate motion evidence for define bird candidates. Adaptive thresholds based on robust statistics (median and median absolute deviation) prevent fixed thresholds from failing under diverse conditions. Morphological operations reduce noise and connect fragmented regions, producing a high-recall set of candidate motion regions.
+
+
+%-------------------------------------------------------------------------
+\subsection{Candidate Refinement}
+
+Candidate regions are refined using geometric and region-based constraints. Implausible regions are removed, merged detections are split when possible, and background-dominated regions are suppressed to reduce false positives.
+
+%-------------------------------------------------------------------------
+\subsection{Tracking and Data Association}
+
+Tracking is performed by modeling object states with Kalman filters. Predictions for object positions are matched to refined detections based on spatial overlap and distance constraints, using assignment algorithms to maintain identity consistency. Track management handles missed detections and suppresses spurious short-lived tracks, improving temporal stability.
+

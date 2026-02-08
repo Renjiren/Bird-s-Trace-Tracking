@@ -1,0 +1,36 @@
+\section{Introduction}
+\label{sec:intro}
+
+The BFT dataset captures many of the difficulties encountered in real-world bird videos. Birds appear at highly variable scales, ranging from small background targets to large foreground objects, sometimes within the same sequence. The surrounding environment is outdoors and often dynamic: water surfaces, vegetation, clouds, and shadows introduce motion patterns that closely resemble object motion. In addition, many sequences contain other moving objects such as humans, animals, or man-made structures, which act as strong distractors and frequently lead to false detections. Camera motion further exacerbates these issues. Handheld recording and camera panning introduce global frame displacement that dominates frame-to-frame differences. Without explicit handling, such motion corrupts motion cues and causes background regions to be incorrectly detected as moving objects, leading to fragmented detections and unstable identity assignment.
+
+Recent approaches to bird tracking rely primarily on deep-learning-based frameworks that combine learned object detectors with appearance-driven tracking components. NetTrack exemplifies this paradigm and achieves strong performance on the BFT dataset by leveraging pretrained models and fine-grained learned features. However, these systems require GPU acceleration, substantial memory resources, and complex training pipelines, which limits their applicability in lightweight or deployment-oriented scenarios.
+
+In contrast, computer vision systems based on motion analysis offer efficiency, interpretability, and ease of control. Yet, it remains unclear how far such systems can be pushed when confronted with the complexity of modern bird tracking datasets.
+
+
+%-------------------------------------------------------------------------
+\subsection{Motivations}
+
+Detecting and tracking animals in videos is both interesting and highly challenging. So far, we have mainly worked on image-based tasks and have not tackled video tracking problems. This project is a good opportunity to explore multi-object tracking (MOT) in the wild, and to learn how classical computer vision pipelines compare to modern deep-learning methods. We surveyed several candidate video datasets (e.g., football players, different animals) and finally chose the NetTrack paper and its BFT dataset as our main reference. NetTrack was published at CVPR 2024 and provides open-source code, pretrained weights, and datasets, so its deep-learning framework is both recent and reliable. In addition, the BFT videos are high-quality, contain diverse bird species and backgrounds, and are therefore very suitable for our project.
+
+\subsection{Research questions}
+\label{sec:research_questions}
+
+This work is centered around three explicit research questions:
+
+\begin{enumerate}
+    \item Can a custom-designed OpenCV-based tracking model, built entirely from classical computer vision components, reliably detect birds and associate detections across frames in the presence of scale variation, dynamic backgrounds, camera motion, and non-bird distractors?
+    \item How does the performance of such a model compare quantitatively to a state-of-the-art deep-learning-based tracker, NetTrack, when evaluated under the same protocol on the BFT dataset?
+\end{enumerate}
+
+\subsection{Hypothese}
+\label{sec:hypothese}
+
+According our research questions and our motivations, we plan to test the following hypotheses:
+
+\begin{enumerate}
+    \item \textbf{H1 (Feasibility of classical CV):} A carefully designed classical CV pipeline (with camera motion compensation, motion-based detection, optical flow, and Kalman filtering + data association) can successfully recover a non-trivial portion of bird trajectories on the BFT validation set, achieving reasonable HOTA/MOTA/IDF1 scores despite relying only on lightweight OpenCV modules.
+    \item \textbf{H2 (Advantage of deep fine-grained tracking):} NetTrack’s fine-grained, deep-learning-based framework will significantly outperform the classical pipeline on scenes with strong dynamicity (fast motion, severe deformation, dense occlusions), because it leverages powerful object detectors and point-level features learned from large-scale data.
+    \item \textbf{H3 (Trade-off between accuracy and efficiency):} The classical CV pipeline will require substantially less GPU memory and may achieve faster or comparable runtime per frame on CPU, but at the cost of lower tracking accuracy compared to NetTrack. This will highlight a clear trade-off between performance and computational resources.
+\end{enumerate}
+

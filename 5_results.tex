@@ -1,0 +1,57 @@
+\section{Results}
+
+This section evaluates the proposed bird tracking pipeline from three aspects:
+tracking metrics, comparison with a baseline method, and computational efficiency.
+All experiments are conducted on the validation set with ground-truth annotations
+(\texttt{val\_mot}).
+
+\subsection{Metric}
+\label{subsec:metric}
+
+We evaluate tracking performance using standard MOT metrics, including
+\textbf{MOTA}, \textbf{IDF1}, \textbf{ID Switches (IDs)}, \textbf{False Positives (FP)},
+and \textbf{False Negatives (FN)}, computed with the \texttt{motmetrics} toolkit
+using an IoU threshold of 0.5.
+
+Qualitative results show that the proposed pipeline is able to recover meaningful
+bird trajectories in many sequences.
+Tracks are often temporally consistent, especially in scenes with moderate motion
+and relatively stable backgrounds.
+This supports \textit{Hypothesis 1}, demonstrating the feasibility of a classical
+computer vision pipeline for bird tracking.
+
+However, quantitative performance is significantly affected by a large number of
+false positives.
+Background regions with strong motion are sometimes propagated as valid tracks,
+which leads to degraded MOTA and IDF1 scores.
+This highlights that false positive suppression is a key limitation of the current system.
+
+\subsection{Comparison}
+\label{subsec:comparison}
+
+We compare our method with NetTrack, a deep-learning-based tracking framework.
+While NetTrack generally achieves higher MOTA and IDF1 scores, the proposed method
+produces visually competitive tracking results on several sequences.
+Bird trajectories are clearly captured and maintained when motion is smooth,
+and identity switches remain limited in short- to mid-term tracking.
+
+The performance gap is mainly caused by the stronger detection robustness of NetTrack,
+which suppresses background clutter more effectively.
+These results support \textit{Hypothesis 2}: deep fine-grained tracking performs better
+in highly dynamic and cluttered scenes, while classical methods can still provide
+reasonable tracking behavior under simpler conditions.
+
+\subsection{Efficiency}
+\label{subsec:efficiency}
+
+The proposed pipeline is fully based on classical computer vision techniques,
+including motion compensation, Lucas--Kanade optical flow, and greedy IoU-based
+data association.
+It runs entirely on CPU, requires no training data, and maintains low memory usage.
+
+In practice, the proposed method is significantly faster than NetTrack,
+especially on long sequences.
+By avoiding deep neural network inference, it achieves much lower runtime while
+sacrificing tracking accuracy.
+This confirms \textit{Hypothesis 3}, highlighting a clear trade-off between efficiency
+and performance.

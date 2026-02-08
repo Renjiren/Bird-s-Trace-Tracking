@@ -21,7 +21,8 @@ state-of-the-art deep learning tracker, on the BFT validation set.
 
 ### Quantitative Comparison (NetTrack)
 
-![NetTrack Evaluation](readme_data/nettrack_quant.jpg)
+![NetTrack Evaluation](readme_data/nettrack_new_quant.jpg)
+![CV-based model Evaluation](readme_data/cv_new_quant.jpg)
 
 The table above shows the official NetTrack evaluation results reported using standard
 MOT metrics (MOTA, IDF1, FP, FN).
@@ -33,10 +34,10 @@ Our results can be seen in readme_data folder.
 ### Runtime Analysis
 
 ![NetTrack Runtime](readme_data/nettrack_time.jpg)
-![CV Runtime](readme_data/cv_time.jpg)
+![CV Runtime](readme_data/cv_new_time.jpg)
 
 The figures above compare the per-video runtime of NetTrack and our proposed classical
-CV-based pipeline. (30 hours 41 mins 16 secondes [NetTrack] VS 1 hour 1 min 19 secondes [OurModel])
+CV-based pipeline. (30 hours 41 mins [NetTrack] VS 1 hour 51 min [OurModel])
 While NetTrack relies on deep neural network inference and GPU acceleration,
 our method runs entirely on CPU using lightweight OpenCV operations.
 

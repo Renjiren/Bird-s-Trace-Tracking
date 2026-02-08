@@ -1,4 +1,4 @@
-# Bird-s-Trace-Tracking
+# Birds’ Track: Tracking Objects from dynamic background with OpenCV
 
 ## Abastract
 
@@ -45,3 +45,8 @@ our method runs entirely on CPU using lightweight OpenCV operations.
 
 Overall, our pipeline is **significantly faster** than NetTrack on long sequences,
 demonstrating a clear trade-off between tracking accuracy and computational efficiency.
+
+## Contribution
+Jiren Ren and Xi Wang made the same contribution.
+- Jiren Ren: step preprocessing,  step camera motion compensation and step candidate generation.
+- Xi Wang: step candidate refinement, step tracking and NetTrack finetune.

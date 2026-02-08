@@ -1,0 +1,22 @@
+% ablations.tex
+\begin{itemize}
+    \item \textbf{Subtitle mask (preprocessing).}
+    Removing subtitle suppression causes subtitle regions to be repeatedly included in subsequent detections (Fig.~\ref{fig:abl_vis}).
+    In addition, if the subtitle region is not masked \emph{before} the smoothing/differencing pipeline (e.g., Gaussian blur), subtitle edges will be smoothed into surrounding pixels and then enter motion-pixel computation, producing persistent false candidates.
+    We compare subtitle localization using \textbf{Canny} versus the \textbf{HSV \emph{V}-channel}; Canny yields inferior masks, while the \emph{V}-channel based detection is more reliable in our videos.
+    We also test a band-shaped occlusion mask (\texttt{Y\_band}); however, birds occluded by the subtitle band become undetectable, leading to persistent false negatives.
+
+    \item \textbf{Specular highlight mask (\texttt{spec\_mask}, preprocessing).}
+    Disabling \texttt{spec\_mask} increases false positives, as reflective backgrounds (e.g., water glints and leaf reflections) are more frequently captured by detection boxes.
+
+    \item \textbf{ROI design for camera motion compensation.}
+    Our final design uses a \textbf{strip ROI}. We ablate an alternative \textbf{strip+corner} ROI; empirically it performs worse than strip-only (Fig.~\ref{fig:abl_vis}), likely because adding corner regions introduces more dynamic background structures and degrades alignment robustness.
+
+    \item \textbf{Frame differencing with KNN (candidate generation).}
+    We introduce a KNN background subtractor to recover candidates when frame differencing produces no/too few candidates (e.g., low-motion birds). We \emph{do not} use an AND fusion. A naive \textbf{unconditional union} (always taking KNN foreground together with Diff) can easily cause severe mask expansion and yield near full-frame detections in dynamic backgrounds.(Fig.~\ref{fig:abl_vis})
+    Therefore, we use a \textbf{gated} strategy: KNN is enabled only when Diff is insufficient; with a relaxed enabling condition, the bird can be detected correctly while avoiding full-frame expansion .
+    A representative visualization of candidates is provided in Fig.~\ref{fig:step3_cand}.
+
+    \item \textbf{Background subtraction: KNN vs.\ MOG2 (candidate generation).}
+    Replacing KNN with \textbf{MOG2} degrades performance in our setting, producing less usable foreground masks under illumination changes and dynamic backgrounds (e.g., noisier/less stable segmentation), which hurts subsequent detection and association.
+\end{itemize}

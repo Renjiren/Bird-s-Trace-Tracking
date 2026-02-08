@@ -20,7 +20,9 @@ We compare our classical computer-vision-based tracking pipeline with **NetTrack
 state-of-the-art deep learning tracker, on the BFT validation set.
 
 ### Quantitative Comparison 
+
 (NetTrack VS CV-based model)
+
 ![NetTrack Evaluation](readme_data/nettrack_new_quant.jpg)
 ![CV-based model Evaluation](readme_data/cv_new_quant.jpg)
 

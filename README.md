@@ -1,7 +1,7 @@
 # Birds’ Track: Tracking Objects from dynamic background with OpenCV
 
 ## How to use our Bird's Track?
-We provide a 5-step pipeline (preprocessing → camera motion comepnsation → candidate generation → candidate refine → tracking and association). You can run any single step using the unified entry script main.py, using this instruction:
+We provide a 5-step pipeline (preprocessing → camera motion comepnsation → candidate generation → candidate refine → tracking and association). You can run any single step using the unified entry script main.py. Here is instruction:
 - Download our dataset at https://drive.google.com/drive/folders/140mPnOVZY - 2apH76at9yYuVGIDWOvsH _ ?usp =share_link(Due to size limitations, the dataset is not included in this repository). Here we use val dataset, you also can change it to train, test.
 - Pull our Github URL and install numpy, opencv-python, motmetrics (required only for evaluation) and matplotlib modules.
 - Now you can run any step using main.py: all steps share these required arguments:
@@ -18,7 +18,7 @@ We provide a 5-step pipeline (preprocessing → camera motion comepnsation → c
   * --smooth_mode {none,bilateral}
   * --spec_enable_mode {always,texture_only}
   * --roi_mode {strips,corners,corners+strips}
-- Examples:
+- Some examples:
   * python3 main.py --data_root ./val --out_dir ./metric --step pre
   * python3 main.py --data_root ./val --out_dir ./metric --step motion --roi_mode corners+strips
   * python3 main.py --data_root ./val --out_dir ./metric --step cand

@@ -5,7 +5,7 @@ We provide a 5-step pipeline (preprocessing → camera motion comepnsation → c
 - Download our dataset at https://drive.google.com/drive/folders/140mPnOVZY - 2apH76at9yYuVGIDWOvsH _ ?usp =share_link(Due to size limitations, the dataset is not included in this repository). Here we use val dataset, you also can change it to train, test.
 - Pull our Github URL and install numpy, opencv-python, motmetrics (required only for evaluation) and matplotlib modules.
 - Now you can run any step using main.py: all steps share these required arguments:
-  1.--data_root : dataset root (e.g., ./val)
+  * --data_root : dataset root (e.g., ./val)
   2.--out_dir : output directory (e.g., ./metric)
   3.--step : one of {pre, motion, cand, refine, track}
 - You also can choose dataset or other by these arguments:

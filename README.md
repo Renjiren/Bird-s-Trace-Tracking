@@ -53,11 +53,9 @@ state-of-the-art deep learning tracker, on the BFT validation set.
 ![CV-based model Evaluation](readme_data/cv_new_quant.jpg)
 
 The table above shows the official NetTrack evaluation results reported using standard
-MOT metrics (MOTA, IDF1, FP, FN).
+MOT metrics (MOTA, IDF1, IDs, FP, FN).
 NetTrack achieves strong quantitative performance on most sequences, benefiting from
 deep object detection and point-level feature tracking.
-
-Our results can be seen in readme_data folder.
 
 ### Runtime Analysis
 

@@ -10,21 +10,21 @@ We provide a 5-step pipeline (preprocessing → camera motion comepnsation → c
   * --step : one of {pre, motion, cand, refine, track}
 - You also can choose dataset or other options by these arguments:
   * --video_set : eg (default) or all (eg runs only the built-in example list (e.g., Ac4002, Ci3001, Su2001, ...). 
-  * --videos : whatever videos you want, seperated by ",", e.g. "Ac4002,Ci3001,Su2001"
+  * --videos : whatever videos you want, seperated by "," (e.g., "Ac4002,Ci3001,Su2001").
   * --overwrite : overwrite existing saved outputs 
   * --rng_seed : controls random sampling in Step1/2 debug saving
-- There also special options for Step1(1-3) and Step2(4), you can check them in main.py:
-  * --subtitle_mask_mode {none,spec_roi}
-  * --smooth_mode {none,bilateral}
-  * --spec_enable_mode {always,texture_only}
-  * --roi_mode {strips,corners,corners+strips}
+- There are also special options for Step1(1-3) and Step2(4), you can check them in main.py:
+  * --subtitle_mask_mode {none,spec_roi} (spec_roi default)
+  * --smooth_mode {none,bilateral} (bilateral default)
+  * --spec_enable_mode {always,texture_only} (texture_only default)
+  * --roi_mode {strips,corners,corners+strips} (strips default)
 - Some examples:
   * python3 main.py --data_root ./val --out_dir ./metric --step pre
   * python3 main.py --data_root ./val --out_dir ./metric --step motion --roi_mode corners+strips
   * python3 main.py --data_root ./val --out_dir ./metric --step cand
-  * python3 main.py --data_root ./val --out_dir ./metric --step refine -- video_set eg
+  * python3 main.py --data_root ./val --out_dir ./metric --step refine -- video_set all
   * python3 main.py --data_root ./val --out_dir ./metric --step track --videos "Ac4002,Ci3001,Su2001"
-- After step track, you can evaluate our output by python3 eval_cv.py
+- After step track, you can evaluate the output by python3 eval_cv.py
   
 ## Abastract
 
